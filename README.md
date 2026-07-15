@@ -1,8 +1,6 @@
 # Itrawala
 
-Perfume & attar storefront — React + Vite + Tailwind, Supabase for auth/data, PayU for payments. Deployed on
-**Hostinger** via a small Node/Express server (`server/index.js`) that serves the built frontend and runs the
-checkout API.
+Perfume & attar storefront — React + Vite + Tailwind, Supabase for auth/data, PayU for payments, deployed on Vercel.
 
 ## Local dev
 
@@ -11,13 +9,9 @@ npm install
 npm run dev
 ```
 
-`npm run dev` only runs the Vite frontend (no checkout API) — to test the full checkout flow locally, build the
-app and run the real server instead:
-
-```bash
-npm run build
-npm start        # serves dist/ + the checkout API on http://localhost:3000
-```
+`npm run dev` only runs the Vite frontend — Vite's dev server doesn't execute the `/api` serverless functions, so
+checkout will 503 locally unless you also run `vercel dev` (Vercel CLI: `npm i -g vercel`, then `vercel dev` from
+this folder, which runs both the frontend and the `/api` functions together on one port).
 
 ## Environment variables
 
@@ -39,13 +33,18 @@ Run `supabase-tables.sql` once in your Supabase SQL editor — it creates the
 ## Going live with PayU
 
 1. Get your **Merchant Key** and **Salt** from the PayU dashboard.
-2. Set `PAYU_MERCHANT_KEY` / `PAYU_SALT` in your server's environment (see Hostinger section below).
-   Use test credentials first with `PAYU_MODE=test` to confirm a full order goes through
-   using [PayU's test cards/UPI](https://docs.payu.in/docs/test-cards) and lands in the
-   `orders` table as `paid`, redirecting you to `/order/success`.
-3. Swap in your **live** Merchant Key/Salt and set `PAYU_MODE=production`. Restart the app.
-4. Visit `/api/health` on your live domain to confirm `payuConfigured: true` and
-   `payuMode: "production"` before trusting the checkout with real customers.
+2. In **Vercel → Project → Settings → Environment Variables**, add `PAYU_MERCHANT_KEY`
+   and `PAYU_SALT` (Production environment at minimum — add to Preview too if you want
+   preview deploys to work). Adding these only to a local `.env` file does nothing for
+   the deployed site — Vercel never reads `.env`, it only reads what's in this dashboard.
+3. Set `PAYU_MODE` to `test` first and confirm a full order goes through using
+   [PayU's test cards/UPI](https://docs.payu.in/docs/test-cards), lands in the `orders`
+   table as `paid`, and redirects to `/order/success`.
+4. Swap in your **live** Merchant Key/Salt, set `PAYU_MODE=production`, then **redeploy**
+   (Vercel env var changes require a new deployment to take effect — either push a commit
+   or hit "Redeploy" in the dashboard).
+5. Visit `https://your-domain/api/health` to confirm `payuConfigured: true` and
+   `payuMode: "production"` before trusting checkout with real customers.
 
 Checkout is **prepaid-only** — there is no Cash on Delivery option anywhere in the flow.
 
@@ -64,11 +63,10 @@ Checkout is **prepaid-only** — there is no Cash on Delivery option anywhere in
    passwordless "magic link" (`/auth`) to see their orders at `/orders` — no password
    was ever required.
 
-This logic lives in `server/index.js` (+ `server/lib/`), which is what actually runs in
-production. The `api/` folder contains the same logic written as Vercel serverless
-functions — it's kept only as a reference and is **not used** by the Hostinger deploy;
-Hostinger has no equivalent auto-routing for an `/api` folder, which is why checkout
-didn't work even after credentials were added — nothing was running that code.
+This logic lives entirely in `api/checkout/initiate.ts` and `api/payu/callback.ts` —
+Vercel automatically deploys everything under `/api` as serverless functions, no extra
+config needed. (There's also an unused `server/` folder left over from testing a
+different hosting option — it's not part of the Vercel deploy and can be deleted.)
 
 ## Logo & homepage banners
 
@@ -77,30 +75,22 @@ The homepage hero (`src/components/home/HeroCarousel.tsx`) auto-rotates the thre
 banners every 5s (pauses on hover, respects reduced-motion) — swap the images/copy
 in the `slides` array there when creatives change.
 
-## Deploy to Hostinger
+## Deploy to Vercel
 
-This app needs a real Node process to run the checkout API — plain static hosting
-(file manager / public_html only, no Node.js option) **cannot** run it. If your
-Hostinger plan doesn't show a "Node.js" option in hPanel, checkout must be hosted
-elsewhere (e.g. a small separate Node host) with the frontend calling that URL.
-
-If your plan has hPanel → **Advanced → Node.js**:
-
-1. Create a Node.js app in hPanel, pointed at this project's folder.
-   - **Node version:** 18 or newer.
-   - **Application startup file:** `server/index.js`
-   - **Application root:** the folder you upload this repo into.
-2. Under the app's environment variables, set the same keys as in `.env.example`:
-   `PAYU_MERCHANT_KEY`, `PAYU_SALT`, `PAYU_MODE=production`, `VITE_SUPABASE_URL`,
-   `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`. Leave `SITE_URL` blank
-   unless PayU redirects come back to the wrong host. Don't upload `.env` itself with
-   live secrets in it if the repo/folder is ever shared publicly.
-3. From the app's terminal (or via hPanel's "Run NPM Install"): `npm install`, then
-   `npm run build` to produce `dist/`.
-4. Start/restart the app — hPanel runs `npm start`, which runs `server/index.js`.
-   That single process serves the built frontend **and** the `/api/checkout/initiate`
-   and `/api/payu/callback` routes on whatever port/domain Hostinger maps to it.
-5. Visit `https://your-domain/api/health` to confirm `payuConfigured: true` and
-   `payuMode: "production"` — if either is false/wrong, the env vars in step 2 weren't
-   picked up (check spelling and restart the app after editing them).
-6. Place one real small order end-to-end before announcing checkout is live.
+1. Push this repo to GitHub/GitLab/Bitbucket and import it into Vercel (or run
+   `vercel --prod` from this folder with the Vercel CLI). Vercel auto-detects the Vite
+   framework — build command `vite build`, output directory `dist` — and auto-deploys
+   everything under `/api` as serverless functions.
+2. In **Project → Settings → Environment Variables**, add every key from
+   `.env.example` (`PAYU_MERCHANT_KEY`, `PAYU_SALT`, `PAYU_MODE`, `VITE_SUPABASE_URL`,
+   `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and optionally `SITE_URL`)
+   for the **Production** environment. This is the step that's easy to miss — your
+   local `.env` file is git-ignored and never reaches Vercel; these values only exist
+   for the deployed app once they're entered here.
+3. Redeploy (env var changes don't apply retroactively to a build that already ran).
+4. Visit `https://your-domain/api/health` — confirm `payuConfigured: true` and
+   `payuMode` matches what you expect. If `false`, double-check the variable names and
+   that they're enabled for the Production environment, then redeploy again.
+5. Run `supabase-tables.sql` in your Supabase project if you haven't (see above) so
+   orders actually get saved, then place one real small order end-to-end before
+   announcing checkout is live.

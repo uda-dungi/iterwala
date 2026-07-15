@@ -1,5 +1,5 @@
-import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_ACTION_URL } from "../_lib/payu";
-import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin";
+import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_ACTION_URL } from "../_lib/payu.js";
+import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};

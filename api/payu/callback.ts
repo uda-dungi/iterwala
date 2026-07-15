@@ -1,5 +1,5 @@
-import { verifyPayuResponseHash } from "../_lib/payu";
-import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin";
+import { verifyPayuResponseHash } from "../_lib/payu.js";
+import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
