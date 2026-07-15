@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Italiana&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Itrawala — luxury fragrance design system. HSL only. */
+@layer base {
+  :root {
+    /* Core luxury palette: black, gold, ivory, deep brown, warm beige */
+    --background: 30 15% 6%;            /* near-black warm */
+    --foreground: 38 35% 92%;           /* ivory */
+
+    --card: 28 18% 9%;
+    --card-foreground: 38 35% 92%;
+
+    --popover: 28 18% 9%;
+    --popover-foreground: 38 35% 92%;
+
+    --primary: 40 65% 55%;              /* signature gold */
+    --primary-foreground: 30 15% 6%;
+    --primary-glow: 44 80% 68%;
+
+    --secondary: 25 25% 14%;            /* deep brown */
+    --secondary-foreground: 38 35% 92%;
+
+    --muted: 28 12% 14%;
+    --muted-foreground: 36 15% 65%;
+
+    --accent: 35 40% 75%;               /* warm beige */
+    --accent-foreground: 30 15% 6%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 38 35% 92%;
+
+    --border: 38 20% 18%;
+    --input: 38 20% 18%;
+    --ring: 40 65% 55%;
+
+    --radius: 0.25rem;
+
+    --ivory: 38 35% 92%;
+    --gold: 40 65% 55%;
+    --gold-soft: 44 80% 68%;
+    --deep-brown: 25 35% 12%;
+    --warm-beige: 35 30% 70%;
+
+    --gradient-gold: linear-gradient(135deg, hsl(40 65% 55%), hsl(44 80% 68%), hsl(40 65% 45%));
+    --gradient-dark: linear-gradient(180deg, hsl(30 15% 6%), hsl(25 25% 9%));
+    --gradient-radial: radial-gradient(ellipse at top, hsl(40 65% 55% / 0.15), transparent 60%);
+    --gradient-overlay: linear-gradient(180deg, hsl(30 15% 6% / 0.2), hsl(30 15% 6% / 0.95));
+
+    --shadow-luxury: 0 30px 80px -20px hsl(40 65% 55% / 0.25);
+    --shadow-card: 0 20px 50px -15px hsl(0 0% 0% / 0.6);
+    --shadow-gold: 0 0 40px hsl(40 65% 55% / 0.35);
+
+    --transition-luxe: cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 28 18% 9%;
+    --sidebar-foreground: 38 35% 92%;
+    --sidebar-primary: 40 65% 55%;
+    --sidebar-primary-foreground: 30 15% 6%;
+    --sidebar-accent: 25 25% 14%;
+    --sidebar-accent-foreground: 38 35% 92%;
+    --sidebar-border: 38 20% 18%;
+    --sidebar-ring: 40 65% 55%;
+  }
+
+  .dark { /* same — site is dark by default */
+    --background: 30 15% 6%;
+    --foreground: 38 35% 92%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+    background-image: var(--gradient-radial);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4, h5 { @apply font-serif tracking-tight; }
+  ::selection { background: hsl(var(--primary) / 0.3); color: hsl(var(--foreground)); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--primary) / 0.4); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.7); }
+}
+
+@layer components {
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .border-gold-gradient {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      var(--gradient-gold) border-box;
+  }
+  .luxury-card {
+    @apply bg-card border border-border/60 rounded-sm relative overflow-hidden;
+    transition: all 0.5s var(--transition-luxe);
+  }
+  .luxury-card:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: var(--shadow-luxury);
+    transform: translateY(-4px);
+  }
+  .gold-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.6), transparent);
+  }
+  .shimmer-text {
+    background: linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--primary)) 50%, hsl(var(--foreground)) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 6s linear infinite;
+  }
+  .vignette::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, hsl(var(--background) / 0.7) 100%);
+    pointer-events: none;
+  }
+  .noise-overlay::before {
+    content: ''; position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Italiana', serif; }
+  .font-serif { font-family: 'Cormorant Garamond', serif; }
+  .font-sans { font-family: 'Inter', system-ui, sans-serif; }
+  .tracking-luxe { letter-spacing: 0.3em; }
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-float { animation: float 6s ease-in-out infinite; }
+.animate-fade-up { animation: fade-up 0.8s var(--transition-luxe) both; }
+.animate-marquee { animation: marquee 30s linear infinite; }

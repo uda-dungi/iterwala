@@ -1,0 +1,77 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ShopProvider } from "@/store/shop";
+import { AuthProvider } from "@/store/auth";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { CartDrawer } from "@/components/shop/CartDrawer";
+import { EmailPopup } from "@/components/marketing/EmailPopup";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import Index from "./pages/Index";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import Cart from "./pages/Cart";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
+import OrderFailed from "./pages/OrderFailed";
+import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
+import Auth from "./pages/Auth";
+import Quiz from "./pages/Quiz";
+import Wholesale from "./pages/Wholesale";
+import Policy from "./pages/Policy";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner theme="dark" position="top-center" toastOptions={{ className: "!bg-card !text-ivory !border-border" }} />
+      <BrowserRouter>
+        <AuthProvider>
+        <ShopProvider>
+          <ScrollToTop />
+          <Navbar />
+          <main className="min-h-[60vh]">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/product/:slug" element={<ProductDetail />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/order/success" element={<OrderSuccess />} />
+              <Route path="/order/failed" element={<OrderFailed />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/quiz" element={<Quiz />} />
+              <Route path="/wholesale" element={<Wholesale />} />
+              <Route path="/privacy" element={<Policy kind="privacy" />} />
+              <Route path="/terms" element={<Policy kind="terms" />} />
+              <Route path="/shipping" element={<Policy kind="shipping" />} />
+              <Route path="/returns" element={<Policy kind="returns" />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <Footer />
+          <CartDrawer />
+          <WhatsAppButton />
+          <EmailPopup />
+        </ShopProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;

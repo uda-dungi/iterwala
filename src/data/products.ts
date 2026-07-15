@@ -1,0 +1,619 @@
+// Product images live in src/assets/products and are loaded by filename via Vite glob.
+const modules = import.meta.glob("../assets/products/*.jpg", { eager: true, import: "default" }) as Record<string, string>;
+const img = (name: string): string => {
+  const hit = Object.entries(modules).find(([k]) => k.endsWith(`/${name}.jpg`));
+  if (!hit) throw new Error(`Missing product image: ${name}.jpg`);
+  return hit[1];
+};
+
+export type Product = {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  price: number;
+  compareAt?: number;
+  /** Per-size pricing (e.g. {"50ml": {price: 449}, "100ml": {price: 749}}). When a size is
+   *  missing here, priceFor() falls back to the flat price/compareAt above. */
+  priceByVolume?: Record<string, { price: number; compareAt?: number }>;
+  category: "Perfume" | "Attar" | "Gift Set" | "Air Freshener" | "Diffuser" | "New Launch" | "Collector's Edition";
+  gender: "Men" | "Women" | "Unisex";
+  image: string;
+  gallery: string[];
+  notes: { top: string[]; heart: string[]; base: string[] };
+  longevity: string;
+  projection: string;
+  occasions: string[];
+  moods: string[];
+  ingredients: string;
+  description: string;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  bestSeller?: boolean;
+  newArrival?: boolean;
+  trending?: boolean;
+  amazonChoice?: boolean;
+  amazonUrl?: string;
+  videoUrl?: string;
+  volume?: string[];
+};
+
+export const defaultVolumes = ["50ml", "100ml"];
+
+export const collections = [
+  {
+    key: "Perfume",
+    title: "Perfumes",
+    blurb: "Long-lasting eau de parfum — bold, modern, affordable luxury.",
+    sub: ["Celebrity", "Impression", "Sukoon", "Touch", "Oud Wood", "Legend"],
+  },
+  {
+    key: "Attar",
+    title: "Attars",
+    blurb: "Alcohol-free premium attars, traditionally crafted.",
+    sub: ["Royal Oud", "Shahi Gulab", "Mogra Gold", "Rooh Chandan", "Amber", "Tulsi"],
+  },
+  {
+    key: "Gift Set",
+    title: "Gift Sets",
+    blurb: "Ready-to-gift combos & discovery sets.",
+    sub: ["Discovery Set", "Perfume Duos", "Attar Combos"],
+  },
+] as const;
+
+const PERFUME_VOL = ["50ml", "100ml"];
+// Real inventory only ever sells attars in a single 10ml bottle (confirmed against the
+// price sheet) — a fake "6ml/12ml" size picker previously showed with no price difference.
+const ATTAR_VOL = ["10ml"];
+
+export const products: Product[] = [
+  // ─────────────── PERFUMES ───────────────
+  {
+    id: "p-celebrity", slug: "celebrity", name: "Celebrity", tagline: "Your red-carpet signature",
+    price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 649, compareAt: 849 }, "100ml": { price: 1099, compareAt: 1399 } },
+    image: img("celebrity-real"), gallery: [img("celebrity-real"), img("celebrity-2"), img("celebrity-3")],
+    notes: { top: ["Bergamot", "Pink Pepper"], heart: ["Jasmine", "Saffron"], base: ["Amber", "Vanilla", "Musk"] },
+    longevity: "8-10 hours", projection: "Strong",
+    occasions: ["Evening", "Date Night", "Celebrations"], moods: ["Confident", "Magnetic"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Celebrity is made to be noticed — a luminous, spicy-sweet signature that leaves a trail of compliments wherever you go.",
+    rating: 4.8, reviews: 312, badge: "Bestseller", bestSeller: true, trending: true, amazonChoice: true,
+  },
+  {
+    id: "p-impression", slug: "impression", name: "Impression", tagline: "Leave a lasting one",
+    price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 649, compareAt: 1099 }, "100ml": { price: 1099, compareAt: 1399 } },
+    image: img("impression-real"), gallery: [img("impression-real"), img("impression-2"), img("impression-3")],
+    notes: { top: ["Citrus", "Apple"], heart: ["Rose", "Geranium"], base: ["Oud", "Patchouli", "Amber"] },
+    longevity: "8 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Office", "Evening"], moods: ["Bold", "Refined"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "A warm, woody-floral statement designed for those who want to leave a lasting impression long after they leave the room.",
+    rating: 4.7, reviews: 248, trending: true,
+  },
+  {
+    id: "p-inayat", slug: "inayat", name: "Inayat", tagline: "A graceful blessing",
+    price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
+    image: img("inayat-real"), gallery: [img("inayat-real")],
+    notes: { top: ["Saffron", "Bergamot"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Sandalwood"] },
+    longevity: "10 hours", projection: "Strong",
+    occasions: ["Festive", "Special Occasions", "Evening"], moods: ["Opulent", "Elegant"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Inayat is our flagship oriental — saffron and rose wrapped around deep oud and amber. Pure, regal indulgence.",
+    rating: 4.9, reviews: 187, badge: "Signature", newArrival: true,
+  },
+  {
+    id: "p-oud-wood", slug: "oud-wood", name: "Oud Wood", tagline: "The rarest wood",
+    price: 449, compareAt: 899, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449, compareAt: 899 }, "100ml": { price: 749, compareAt: 1499 } },
+    image: img("oud-wood-real"), gallery: [img("oud-wood-real")],
+    notes: { top: ["Black Pepper", "Cardamom"], heart: ["Aged Oud", "Leather"], base: ["Sandalwood", "Vetiver", "Amber"] },
+    longevity: "10-12 hours", projection: "Strong",
+    occasions: ["Evening", "Formal", "Winter"], moods: ["Bold", "Mysterious"],
+    ingredients: "Premium oud accord, fragrance oils, French-grade alcohol base.",
+    description: "Smoky aged oud meets warm leather and sandalwood — Oud Wood is dark, refined, and unmistakably masculine.",
+    rating: 4.9, reviews: 156, badge: "Editor's Pick", bestSeller: true, amazonChoice: true,
+  },
+  {
+    id: "p-sukoon", slug: "sukoon", name: "Sukoon", tagline: "The scent of calm",
+    price: 899, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 549 }, "100ml": { price: 899 } },
+    image: img("sukoon-1"), gallery: [img("sukoon-1"), img("sukoon-2")],
+    notes: { top: ["Lavender", "Bergamot"], heart: ["Cedar", "Iris"], base: ["Amber", "Tonka", "Musk"] },
+    longevity: "8-10 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Office", "Relaxed Evenings"], moods: ["Calm", "Grounded"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Sukoon means peace — a soothing, woody-aromatic blend that feels like a deep breath at the end of the day.",
+    rating: 4.7, reviews: 134, trending: true,
+  },
+  {
+    id: "p-touch", slug: "touch", name: "Touch", tagline: "Soft. Sensual. Unforgettable.",
+    price: 799, compareAt: 999, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 499, compareAt: 599 }, "100ml": { price: 799, compareAt: 999 } },
+    image: img("touch"), gallery: [img("touch")],
+    notes: { top: ["Pear", "Pink Pepper"], heart: ["White Flowers", "Iris"], base: ["Vanilla", "Cashmere Musk"] },
+    longevity: "8 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Brunch", "Date Night"], moods: ["Romantic", "Soft"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Touch wraps the skin like cashmere — warm vanilla and soft musk for those who whisper rather than announce.",
+    rating: 4.8, reviews: 221, badge: "Bestseller", bestSeller: true, amazonChoice: true,
+  },
+  {
+    id: "p-ocean-water", slug: "ocean-water", name: "Ocean Water", tagline: "A breath of the sea",
+    price: 749, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449 }, "100ml": { price: 749 } },
+    image: img("ocean-water"), gallery: [img("ocean-water")],
+    notes: { top: ["Marine Accord", "Citrus"], heart: ["Sage", "Lavender"], base: ["Driftwood", "Musk"] },
+    longevity: "6-8 hours", projection: "Moderate",
+    occasions: ["Office", "Casual", "Summer"], moods: ["Fresh", "Energetic"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Crisp, aquatic and clean — Ocean Water is a fresh daily-wear that feels like a cool breeze off the sea.",
+    rating: 4.6, reviews: 178, newArrival: true,
+  },
+  {
+    id: "p-white-musk", slug: "white-musk", name: "White Musk", tagline: "Clean, quiet luxury",
+    price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
+    image: img("white-musk-real"), gallery: [img("white-musk-real")],
+    notes: { top: ["Aldehydes", "Bergamot"], heart: ["White Musk", "Lily"], base: ["Cedar", "Soft Amber"] },
+    longevity: "8 hours", projection: "Soft",
+    occasions: ["Daily Wear", "Office", "Layering"], moods: ["Clean", "Elegant"],
+    ingredients: "Cruelty-free musk accord, fragrance oils, French-grade alcohol base.",
+    description: "The ultimate skin scent — soft, clean white musk that smells like freshly laundered luxury. Beautiful on its own or layered.",
+    rating: 4.8, reviews: 264, bestSeller: true,
+  },
+  {
+    id: "p-temptation", slug: "temptation", name: "Temptation", tagline: "Impossible to resist",
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    image: img("temptation-real"), gallery: [img("temptation-real")],
+    notes: { top: ["Black Currant", "Raspberry"], heart: ["Orchid", "Rose"], base: ["Vanilla", "Praline", "Musk"] },
+    longevity: "8-10 hours", projection: "Strong",
+    occasions: ["Date Night", "Evening", "Parties"], moods: ["Romantic", "Bold"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "A sweet, fruity-gourmand seduction — Temptation is bold, addictive and made for nights you want to be remembered.",
+    rating: 4.7, reviews: 198, trending: true,
+  },
+  {
+    id: "p-rose-petals", slug: "rose-petals", name: "Rose Petals", tagline: "A garden in bloom",
+    price: 649, compareAt: 849, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
+    image: img("rose-petals-real"), gallery: [img("rose-petals-real")],
+    notes: { top: ["Rose Petals", "Lychee"], heart: ["Turkish Rose", "Peony"], base: ["White Musk", "Sandalwood"] },
+    longevity: "8 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Weddings", "Gifting"], moods: ["Feminine", "Joyful"],
+    ingredients: "Natural rose accord, fragrance oils, French-grade alcohol base.",
+    description: "A luminous, true-to-life rose — fresh petals over soft musk. Romantic, timeless and effortlessly elegant.",
+    rating: 4.7, reviews: 142, newArrival: true,
+  },
+  {
+    id: "p-legend", slug: "legend", name: "Legend", tagline: "Wear your story",
+    price: 649, compareAt: 849, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
+    image: img("legend-real"), gallery: [img("legend-real")],
+    notes: { top: ["Lavender", "Mint"], heart: ["Sage", "Geranium"], base: ["Cedar", "Tonka", "Amber"] },
+    longevity: "8-10 hours", projection: "Strong",
+    occasions: ["Office", "Evening", "Formal"], moods: ["Confident", "Classic"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "A fresh fougère with a warm woody heart — Legend is the dependable, sharp-dressed scent every man should own.",
+    rating: 4.8, reviews: 176, bestSeller: true,
+  },
+
+  // ─────────────── ATTARS ───────────────
+  {
+    id: "a-royal-oud", slug: "royal-oud", name: "Royal Oud", tagline: "The king of attars",
+    price: 899, compareAt: 1199, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-royal-oud"), gallery: [img("attar-royal-oud")],
+    notes: { top: ["Smoke"], heart: ["Aged Oud", "Agarwood"], base: ["Amber", "Musk", "Resin"] },
+    longevity: "14+ hours", projection: "Strong",
+    occasions: ["Formal", "Special Occasions", "Winter"], moods: ["Regal", "Mysterious"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Deep, smoky aged oud in its purest oil form. One drop of Royal Oud lasts all day and announces pure luxury.",
+    rating: 4.9, reviews: 241, badge: "Bestseller", bestSeller: true, amazonChoice: true,
+  },
+  {
+    id: "a-shahi-gulab", slug: "shahi-gulab", name: "Shahi Gulab", tagline: "Royal rose, bottled",
+    price: 699, category: "Attar", gender: "Women", volume: ATTAR_VOL,
+    image: img("attar-shahi-gulab-1"), gallery: [img("attar-shahi-gulab-1"), img("attar-shahi-gulab-2")],
+    notes: { top: ["Rose Petals"], heart: ["Turkish Rose", "Saffron"], base: ["Sandalwood", "Musk"] },
+    longevity: "10-12 hours", projection: "Intimate",
+    occasions: ["Festive", "Daily Wear", "Gifting"], moods: ["Feminine", "Timeless"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Hand-distilled royal rose — rich, velvety and warm. Shahi Gulab is the soul of a Mughal rose garden in a single drop.",
+    rating: 4.8, reviews: 203, bestSeller: true,
+  },
+  {
+    id: "a-mogra-gold", slug: "mogra-gold", name: "Mogra Gold", tagline: "Jasmine's golden hour",
+    price: 649, category: "Attar", gender: "Women", volume: ATTAR_VOL,
+    image: img("attar-mogra-gold"), gallery: [img("attar-mogra-gold")],
+    notes: { top: ["Mogra Buds"], heart: ["Jasmine Sambac", "Tuberose"], base: ["White Musk", "Sandalwood"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Daily Wear", "Festive", "Pooja"], moods: ["Joyful", "Pure"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Intoxicating Indian jasmine captured at dawn. Mogra Gold is heady, sweet and unmistakably festive.",
+    rating: 4.8, reviews: 167, trending: true,
+  },
+  {
+    id: "a-rooh-chandan", slug: "rooh-chandan", name: "Rooh Chandan", tagline: "Sacred sandalwood",
+    price: 749, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-rooh-chandan"), gallery: [img("attar-rooh-chandan")],
+    notes: { top: ["Cardamom"], heart: ["Sandalwood", "Rose"], base: ["Cream", "Amber", "Vanilla"] },
+    longevity: "12+ hours", projection: "Intimate",
+    occasions: ["Meditation", "Daily Wear", "Festive"], moods: ["Calm", "Grounded"],
+    ingredients: "100% alcohol-free premium sandalwood attar oil.",
+    description: "Pure, creamy sandalwood distilled the traditional way. Rooh Chandan is meditation in a bottle — sacred and eternal.",
+    rating: 4.9, reviews: 198, amazonChoice: true,
+  },
+  {
+    id: "a-jannat-firdaus", slug: "jannat-firdaus", name: "Jannat Firdaus", tagline: "A taste of paradise",
+    price: 799, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-jannat-firdaus"), gallery: [img("attar-jannat-firdaus")],
+    notes: { top: ["Honey", "Fruit"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Vanilla"] },
+    longevity: "12 hours", projection: "Moderate",
+    occasions: ["Festive", "Special Occasions", "Gifting"], moods: ["Opulent", "Warm"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "A rich, sweet oriental blend — honeyed rose and oud over warm amber. Jannat Firdaus is heaven's own fragrance.",
+    rating: 4.9, reviews: 152, badge: "Heritage", newArrival: true,
+  },
+  {
+    id: "a-amber", slug: "amber", name: "Amber", tagline: "Liquid warmth",
+    price: 699, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-amber-real"), gallery: [img("attar-amber-real")],
+    notes: { top: ["Benzoin"], heart: ["Amber Resin", "Labdanum"], base: ["Vanilla", "Musk"] },
+    longevity: "12 hours", projection: "Intimate",
+    occasions: ["Winter", "Evening", "Daily Wear"], moods: ["Warm", "Cozy"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Golden, resinous amber with a soft vanilla heart. Amber is a warm hug of a fragrance, perfect for cooler days.",
+    rating: 4.7, reviews: 121,
+  },
+  {
+    id: "a-rajnigandha", slug: "rajnigandha", name: "Rajnigandha", tagline: "Night-blooming tuberose",
+    price: 599, category: "Attar", gender: "Women", volume: ATTAR_VOL,
+    image: img("attar-rajnigandha"), gallery: [img("attar-rajnigandha")],
+    notes: { top: ["Green Leaves"], heart: ["Tuberose", "Jasmine"], base: ["Sandalwood", "Musk"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Festive", "Pooja", "Daily Wear"], moods: ["Serene", "Feminine"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Creamy, narcotic tuberose that blooms at night. Rajnigandha is a classic Indian floral, pure and devotional.",
+    rating: 4.7, reviews: 109,
+  },
+  {
+    id: "a-lavender", slug: "lavender", name: "Lavender", tagline: "Fields of calm",
+    price: 549, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-lavender"), gallery: [img("attar-lavender")],
+    notes: { top: ["Lavender"], heart: ["Herbs", "Geranium"], base: ["Cedar", "Musk"] },
+    longevity: "8-10 hours", projection: "Soft",
+    occasions: ["Daily Wear", "Relaxation", "Office"], moods: ["Calm", "Fresh"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Soothing, herbal lavender oil — clean and calming. A timeless aroma that relaxes the mind instantly.",
+    rating: 4.6, reviews: 98, newArrival: true,
+  },
+  {
+    id: "a-tulsi", slug: "tulsi", name: "Tulsi", tagline: "Sacred basil",
+    price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-tulsi-real"), gallery: [img("attar-tulsi-real")],
+    notes: { top: ["Holy Basil"], heart: ["Green Herbs", "Clove"], base: ["Woods", "Musk"] },
+    longevity: "8 hours", projection: "Intimate",
+    occasions: ["Pooja", "Meditation", "Daily Wear"], moods: ["Pure", "Grounded"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Fresh, green and sacred — Tulsi is a devotional herbal attar prized for its purity and calming spirit.",
+    rating: 4.6, reviews: 84,
+  },
+  {
+    id: "a-ruh-kewra", slug: "ruh-kewra", name: "Ruh Kewra", tagline: "Royal pandanus",
+    price: 599, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-ruh-kewra"), gallery: [img("attar-ruh-kewra")],
+    notes: { top: ["Kewra Flower"], heart: ["Pandanus", "Honey"], base: ["Sandalwood", "Musk"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Festive", "Daily Wear", "Pooja"], moods: ["Refreshing", "Regal"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Sweet, fruity-floral kewra distilled from pandanus blossoms — a refreshing classic of Indian perfumery.",
+    rating: 4.7, reviews: 91,
+  },
+  {
+    id: "a-shyam-shringar", slug: "shyam-shringar", name: "Shyam Shringar", tagline: "Devotion, distilled",
+    price: 649, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-shyam-shringar"), gallery: [img("attar-shyam-shringar")],
+    notes: { top: ["Florals"], heart: ["Rose", "Jasmine", "Saffron"], base: ["Sandalwood", "Amber", "Musk"] },
+    longevity: "12 hours", projection: "Moderate",
+    occasions: ["Festive", "Pooja", "Special Occasions"], moods: ["Devotional", "Warm"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "A rich devotional bouquet of rose, jasmine and saffron over sandalwood. Shyam Shringar is festive and soulful.",
+    rating: 4.8, reviews: 113, trending: true,
+  },
+  {
+    id: "a-inayat", slug: "inayat-attar", name: "Inayat Attar", tagline: "Grace in oil",
+    price: 699, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-inayat"), gallery: [img("attar-inayat")],
+    notes: { top: ["Saffron"], heart: ["Rose", "Oud"], base: ["Amber", "Sandalwood", "Musk"] },
+    longevity: "12+ hours", projection: "Moderate",
+    occasions: ["Festive", "Special Occasions", "Evening"], moods: ["Opulent", "Elegant"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "The alcohol-free attar version of our signature Inayat — saffron, rose and oud in concentrated, long-lasting oil.",
+    rating: 4.9, reviews: 128, badge: "Signature",
+  },
+  {
+    id: "a-aseel", slug: "aseel", name: "Aseel", tagline: "Pure & noble",
+    price: 749, category: "Attar", gender: "Men", volume: ATTAR_VOL,
+    image: img("aseel"), gallery: [img("aseel")],
+    notes: { top: ["Spices"], heart: ["Oud", "Leather"], base: ["Amber", "Musk", "Woods"] },
+    longevity: "12+ hours", projection: "Moderate",
+    occasions: ["Formal", "Evening", "Gifting"], moods: ["Bold", "Refined"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "A noble, spicy-woody attar with oud and leather — Aseel comes gift-ready and makes a distinguished present.",
+    rating: 4.8, reviews: 96, badge: "Gift Ready",
+  },
+
+  // ─────────────── GIFT SETS ───────────────
+  {
+    id: "g-discovery", slug: "discovery-set", name: "Signature Discovery Set", tagline: "Eight scents, one box",
+    price: 1499, compareAt: 1999, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: img("giftset-discovery"), gallery: [img("giftset-discovery")],
+    notes: { top: ["Assorted"], heart: ["8 Signature Blends"], base: ["Perfume Testers"] },
+    longevity: "Varies", projection: "Varies",
+    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
+    ingredients: "Eight 2ml premium fragrance testers in a luxury gift box.",
+    description: "Eight of our most-loved fragrances in a beautiful gift box — the perfect way to discover your signature or gift someone the whole world of Itrawala.",
+    rating: 4.9, reviews: 142, badge: "Best Gift", bestSeller: true,
+  },
+  {
+    id: "g-aqua-duo", slug: "aqua-duo-gift-set", name: "Aqua Duo Gift Set", tagline: "Frozen Blue & Ocean Water",
+    price: 599, compareAt: 1299, category: "Gift Set", gender: "Men", volume: ["Gift Box"],
+    image: img("giftset-frozenblue-oceanwater-real"), gallery: [img("giftset-frozenblue-oceanwater-real")],
+    notes: { top: ["Marine", "Citrus"], heart: ["Aromatic Herbs"], base: ["Woods", "Musk"] },
+    longevity: "8 hours", projection: "Moderate",
+    occasions: ["Gifting", "Summer", "Daily Wear"], moods: ["Fresh", "Energetic"],
+    ingredients: "Two fragrances presented in a luxury gift box.",
+    description: "Our two freshest aquatics — Frozen Blue and Ocean Water — paired in one gift-ready box. Cool, crisp and effortlessly modern.",
+    rating: 4.7, reviews: 78, newArrival: true,
+  },
+  {
+    id: "g-attar-duo", slug: "attar-duo-gift-set", name: "Premium Attar Duo", tagline: "Lavender & Rajnigandha",
+    price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: img("giftset-attar-duo-real"), gallery: [img("giftset-attar-duo-real")],
+    notes: { top: ["Lavender", "Green Leaves"], heart: ["Tuberose", "Herbs"], base: ["Sandalwood", "Musk"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Gifting", "Festive", "Daily Wear"], moods: ["Calm", "Feminine"],
+    ingredients: "Two premium alcohol-free attars in a luxury gift box.",
+    description: "A gift-ready duo of our calming Lavender and devotional Rajnigandha attars — traditional, pure and beautifully boxed.",
+    rating: 4.8, reviews: 64,
+  },
+
+  // ─────────────── NEW PERFUMES (added from price sheet import) ───────────────
+  {
+    id: "p-million", slug: "million", name: "Million", tagline: "Feel the fortune",
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    image: img("million"), gallery: [img("million")],
+    notes: { top: ["Bergamot", "Mandarin"], heart: ["Cinnamon", "Rose"], base: ["Amber", "Patchouli", "Leather"] },
+    longevity: "8-10 hours", projection: "Strong",
+    occasions: ["Evening", "Parties", "Special Occasions"], moods: ["Bold", "Magnetic"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Million is a warm, spiced-amber statement scent — bold and gold, made for the nights you want to be remembered.",
+    rating: 4.6, reviews: 58, newArrival: true,
+  },
+  {
+    id: "p-smoke", slug: "smoke", name: "Smoke", tagline: "Dark, magnetic, unforgettable",
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    image: img("smoke"), gallery: [img("smoke")],
+    notes: { top: ["Smoke Accord", "Black Pepper"], heart: ["Leather", "Oud"], base: ["Vetiver", "Amber"] },
+    longevity: "10-12 hours", projection: "Strong",
+    occasions: ["Evening", "Winter", "Formal"], moods: ["Mysterious", "Bold"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Smoke is a dark, woody-leather composition with a smoky trail that lingers — brooding, magnetic, unforgettable.",
+    rating: 4.6, reviews: 47, newArrival: true,
+  },
+  {
+    id: "p-dubai-fame", slug: "dubai-fame", name: "Dubai Fame", tagline: "Exotic Gulf glamour",
+    price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 349, compareAt: 749 }, "100ml": { price: 549, compareAt: 999 } },
+    image: img("dubai-fame"), gallery: [img("dubai-fame")],
+    notes: { top: ["Saffron", "Dates"], heart: ["Oud", "Rose"], base: ["Amber", "Musk"] },
+    longevity: "10+ hours", projection: "Strong",
+    occasions: ["Evening", "Festive", "Special Occasions"], moods: ["Opulent", "Exotic"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Inspired by the glamour of the Gulf — Dubai Fame layers saffron and rose over deep oud and amber for an exotic, long-lasting trail.",
+    rating: 4.7, reviews: 63, newArrival: true,
+  },
+  {
+    id: "p-valentine", slug: "valentine", name: "Valentine", tagline: "Easy to fall for",
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    image: img("valentine"), gallery: [img("valentine")],
+    notes: { top: ["Red Berries", "Pink Pepper"], heart: ["Rose", "Peony"], base: ["Musk", "Vanilla"] },
+    longevity: "8-10 hours", projection: "Moderate",
+    occasions: ["Date Night", "Evening", "Celebrations"], moods: ["Romantic", "Playful"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Valentine is a sweet, romantic floral-musk built for the moments that matter — soft, memorable, and easy to fall for.",
+    rating: 4.7, reviews: 71, newArrival: true,
+  },
+  {
+    id: "p-aura", slug: "aura", name: "Aura", tagline: "Quiet luxury, worn daily",
+    price: 949, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 599, compareAt: 799 }, "100ml": { price: 949, compareAt: 1299 } },
+    image: img("aura"), gallery: [img("aura")],
+    notes: { top: ["Bergamot", "Iris"], heart: ["Woody Florals"], base: ["Sandalwood", "Amber", "Musk"] },
+    longevity: "8-10 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Office", "Evening"], moods: ["Elegant", "Grounded"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Aura is a rich woody-floral that wraps the skin like a second signature — quiet luxury for daily wear and special occasions alike.",
+    rating: 4.6, reviews: 39, newArrival: true,
+  },
+  {
+    id: "p-melody", slug: "melody", name: "Melody", tagline: "Sweet & enchanting",
+    price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 349, compareAt: 599 }, "100ml": { price: 549, compareAt: 999 } },
+    image: img("melody"), gallery: [img("melody")],
+    notes: { top: ["Pear", "Bergamot"], heart: ["Jasmine", "Violet"], base: ["Musk", "Tonka"] },
+    longevity: "6-8 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Brunch", "Casual"], moods: ["Fresh", "Joyful"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Melody is a light, musical floral — playful top notes over a soft musky base, perfect for everyday wear.",
+    rating: 4.5, reviews: 34, newArrival: true,
+  },
+  {
+    id: "p-choco-blast", slug: "choco-blast", name: "Choco Blast", tagline: "Sweet, cozy, addictive",
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    image: img("choco-blast"), gallery: [img("choco-blast")],
+    notes: { top: ["Cocoa", "Orange"], heart: ["Praline", "Vanilla"], base: ["Musk", "Tonka"] },
+    longevity: "8 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Date Night", "Winter"], moods: ["Sweet", "Cozy"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Choco Blast is a gourmand treat — rich cocoa and praline warmed by vanilla and musk. Sweet, comforting, addictive.",
+    rating: 4.5, reviews: 28, newArrival: true,
+  },
+  {
+    id: "p-honeymoon", slug: "honeymoon", name: "Honeymoon", tagline: "Made for beginnings",
+    price: 649, compareAt: 849, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
+    image: img("honeymoon"), gallery: [img("honeymoon")],
+    notes: { top: ["Peach", "Bergamot"], heart: ["Jasmine", "Orchid"], base: ["Vanilla", "Musk", "Amber"] },
+    longevity: "8-10 hours", projection: "Moderate",
+    occasions: ["Date Night", "Festive", "Celebrations"], moods: ["Romantic", "Sweet"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Honeymoon is a soft, sweet floral-oriental made for beginnings — fruity top notes settling into warm vanilla and musk.",
+    rating: 4.6, reviews: 41, newArrival: true,
+  },
+  {
+    id: "p-blue-ice", slug: "blue-ice", name: "Blue Ice", tagline: "Refreshingly cool",
+    price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "50ml": { price: 349, compareAt: 599 }, "100ml": { price: 549, compareAt: 999 } },
+    image: img("blue-ice"), gallery: [img("blue-ice")],
+    notes: { top: ["Marine Accord", "Mint"], heart: ["Lavender", "Sage"], base: ["Musk", "Driftwood"] },
+    longevity: "6-8 hours", projection: "Moderate",
+    occasions: ["Office", "Casual", "Summer"], moods: ["Fresh", "Energetic"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Blue Ice is a crisp, icy-fresh aquatic — clean and invigorating, built for warm days and long hours.",
+    rating: 4.5, reviews: 36, newArrival: true,
+  },
+
+  // ─────────────── NEW ATTARS (added from price sheet import) ───────────────
+  {
+    id: "a-sukoon", slug: "sukoon-attar", name: "Sukoon Attar", tagline: "Peace, in oil",
+    price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-sukoon"), gallery: [img("attar-sukoon")],
+    notes: { top: ["Lavender"], heart: ["Cedar", "Iris"], base: ["Amber", "Musk"] },
+    longevity: "12+ hours", projection: "Intimate",
+    occasions: ["Daily Wear", "Meditation", "Relaxation"], moods: ["Calm", "Grounded"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "The alcohol-free attar version of our calming Sukoon — a soothing, woody-aromatic oil that feels like a deep breath.",
+    rating: 4.7, reviews: 52, newArrival: true,
+  },
+  {
+    id: "a-oud-wood", slug: "oud-wood-attar", name: "Oud Wood Attar", tagline: "Aged oud, concentrated",
+    price: 499, compareAt: 1299, category: "Attar", gender: "Men", volume: ATTAR_VOL,
+    image: img("attar-oud-wood"), gallery: [img("attar-oud-wood")],
+    notes: { top: ["Smoke"], heart: ["Aged Oud", "Leather"], base: ["Sandalwood", "Amber"] },
+    longevity: "12+ hours", projection: "Strong",
+    occasions: ["Formal", "Evening", "Winter"], moods: ["Bold", "Mysterious"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Deep, smoky aged oud in concentrated oil form — the attar rendition of our signature Oud Wood.",
+    rating: 4.7, reviews: 45, newArrival: true,
+  },
+  {
+    id: "a-honeymoon", slug: "honeymoon-attar", name: "Honeymoon Attar", tagline: "Sweet beginnings, in oil",
+    price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-honeymoon"), gallery: [img("attar-honeymoon")],
+    notes: { top: ["Peach"], heart: ["Jasmine", "Rose"], base: ["Vanilla", "Musk", "Amber"] },
+    longevity: "10-12 hours", projection: "Moderate",
+    occasions: ["Festive", "Gifting", "Special Occasions"], moods: ["Romantic", "Sweet"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "A sweet, floral-oriental attar made for new beginnings — honeyed and warm.",
+    rating: 4.6, reviews: 33, newArrival: true,
+  },
+  {
+    id: "a-lotus", slug: "lotus", name: "Lotus", tagline: "Water's first bloom",
+    price: 699, compareAt: 1299, category: "Attar", gender: "Women", volume: ATTAR_VOL,
+    image: img("attar-lotus"), gallery: [img("attar-lotus")],
+    notes: { top: ["Lotus Petals"], heart: ["White Florals"], base: ["Sandalwood", "Musk"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Pooja", "Daily Wear", "Festive"], moods: ["Serene", "Pure"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "A soft, aquatic-floral attar inspired by the lotus in bloom — serene and devotional.",
+    rating: 4.6, reviews: 29, newArrival: true,
+  },
+  {
+    id: "a-maati", slug: "maati", name: "Maati", tagline: "Scent of the earth",
+    price: 1099, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-maati"), gallery: [img("attar-maati")],
+    notes: { top: ["Earthy Petrichor"], heart: ["Vetiver", "Patchouli"], base: ["Sandalwood", "Musk"] },
+    longevity: "10-12 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Monsoon", "Meditation"], moods: ["Grounded", "Nostalgic"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Maati captures the scent of rain on parched earth — grounding, earthy, and deeply Indian.",
+    rating: 4.7, reviews: 31, newArrival: true,
+  },
+  {
+    id: "a-ruh-heena", slug: "ruh-heena", name: "Ruh Heena", tagline: "Heena's deepest note",
+    price: 1399, compareAt: 1599, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-ruh-heena"), gallery: [img("attar-ruh-heena")],
+    notes: { top: ["Herbal Green"], heart: ["Heena Flower", "Musk"], base: ["Amber", "Woods"] },
+    longevity: "14+ hours", projection: "Strong",
+    occasions: ["Festive", "Special Occasions", "Winter"], moods: ["Regal", "Traditional"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Ruh Heena captures the deep, herbal-musky note of pure heena oil — traditional and long-lasting.",
+    rating: 4.8, reviews: 27, newArrival: true,
+  },
+  {
+    id: "a-ruh-khus", slug: "ruh-khus", name: "Ruh Khus", tagline: "Cooling roots of khus",
+    price: 1999, compareAt: 2499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    image: img("attar-ruh-khus"), gallery: [img("attar-ruh-khus")],
+    notes: { top: ["Khus Root"], heart: ["Green Herbs"], base: ["Woods", "Musk"] },
+    longevity: "10-12 hours", projection: "Moderate",
+    occasions: ["Summer", "Daily Wear", "Relaxation"], moods: ["Fresh", "Grounded"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Distilled from cooling khus roots, Ruh Khus is earthy, green and refreshing — a summer classic of Indian perfumery.",
+    rating: 4.7, reviews: 22, newArrival: true,
+  },
+  {
+    id: "a-ruh-mogra", slug: "ruh-mogra", name: "Ruh Mogra", tagline: "Jasmine's purest oil",
+    price: 1599, compareAt: 2499, category: "Attar", gender: "Women", volume: ATTAR_VOL,
+    image: img("attar-ruh-mogra"), gallery: [img("attar-ruh-mogra")],
+    notes: { top: ["Mogra Buds"], heart: ["Jasmine Sambac"], base: ["White Musk", "Sandalwood"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Festive", "Daily Wear", "Pooja"], moods: ["Joyful", "Pure"],
+    ingredients: "100% alcohol-free premium attar oil.",
+    description: "Pure mogra distilled at its peak — heady, sweet jasmine in concentrated oil form.",
+    rating: 4.7, reviews: 24, newArrival: true,
+  },
+
+  // ─────────────── NEW GIFT SETS (added from price sheet import) ───────────────
+  {
+    id: "g-signature-quad", slug: "signature-quad-gift-set", name: "Signature Quad Gift Set", tagline: "Touch, Wild, Temptation & Smoke — 20ml each",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: img("giftset-signature-quad"), gallery: [img("giftset-signature-quad")],
+    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
+    longevity: "Varies", projection: "Varies",
+    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
+    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
+    description: "Four of our most-loved fragrances — Touch, Wild, Temptation and Smoke — presented together in a signature gift box.",
+    rating: 4.8, reviews: 22, newArrival: true,
+  },
+  {
+    id: "g-rooh-chandan-duo", slug: "rooh-chandan-duo-gift-set", name: "Rooh Chandan Duo", tagline: "Two bottles, one sacred sandalwood",
+    price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: img("giftset-rooh-chandan-duo"), gallery: [img("giftset-rooh-chandan-duo")],
+    notes: { top: ["Cardamom"], heart: ["Sandalwood", "Rose"], base: ["Cream", "Amber", "Vanilla"] },
+    longevity: "12+ hours", projection: "Intimate",
+    occasions: ["Gifting", "Festive", "Meditation"], moods: ["Calm", "Devotional"],
+    ingredients: "Two alcohol-free Rooh Chandan attars presented in a luxury gift box.",
+    description: "Our meditative sandalwood attar, gifted in pairs — Rooh Chandan Duo is ready to share or keep both for yourself.",
+    rating: 4.8, reviews: 19, newArrival: true,
+  },
+];
+
+export const getProduct = (slug: string) => products.find(p => p.slug === slug);
+export const amazonChoiceProducts = products.filter(p => p.amazonChoice);
+export const volumesFor = (p: Product) => p.volume && p.volume.length ? p.volume : defaultVolumes;
+
+/** Resolves { price, compareAt } for a given size. Falls back to the product's flat
+ *  price/compareAt when that size has no dedicated entry in priceByVolume. */
+export const priceFor = (p: Product, volume?: string): { price: number; compareAt?: number } => {
+  if (volume && p.priceByVolume?.[volume]) return p.priceByVolume[volume];
+  return { price: p.price, compareAt: p.compareAt };
+};
