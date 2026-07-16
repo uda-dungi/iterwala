@@ -110,12 +110,12 @@ export default function Quiz() {
   const progress = done ? 100 : (step / questions.length) * 100;
 
   return (
-    <div className="container py-16 min-h-[70vh]">
-      <div className="text-center mb-10">
-        <Sparkles className="w-8 h-8 text-primary mx-auto mb-4" strokeWidth={1.2} />
+    <div className="container py-8 md:py-16 min-h-[70vh]">
+      <div className="text-center mb-6 md:mb-10">
+        <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-primary mx-auto mb-3 sm:mb-4" strokeWidth={1.2} />
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Find Your Signature Scent</p>
-        <h1 className="font-display text-5xl md:text-6xl text-ivory mt-3">The Fragrance Finder</h1>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <h1 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-3">The Fragrance Finder</h1>
+        <div className="gold-divider w-24 mx-auto mt-4 sm:mt-6" />
       </div>
 
       <div className="max-w-2xl mx-auto mb-10">

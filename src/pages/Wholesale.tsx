@@ -38,41 +38,41 @@ export default function Wholesale() {
   return (
     <div>
       {/* Hero */}
-      <section className="container pt-16 pb-10 text-center">
+      <section className="container pt-10 pb-6 sm:pt-16 sm:pb-10 text-center">
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Partner With Us</p>
-        <h1 className="font-display text-5xl md:text-7xl text-ivory mt-3">Become an Itrawala Reseller</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
+        <h1 className="font-display text-3xl sm:text-4xl md:text-7xl text-ivory mt-3">Become an Itrawala Reseller</h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mt-3 sm:mt-4">
           Sell India's fastest-growing affordable-luxury fragrance brand. Premium quality,
           Amazon's Choice bestsellers, and margins that make sense.
         </p>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <div className="gold-divider w-24 mx-auto mt-4 sm:mt-6" />
       </section>
 
       {/* Perks */}
-      <section className="container py-10">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="container py-6 sm:py-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {perks.map((p, i) => (
             <motion.div key={p.t}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }} className="luxury-card p-8 text-center">
-              <p.Icon className="w-8 h-8 text-primary mx-auto mb-4" strokeWidth={1.2} />
-              <h3 className="font-serif text-xl text-ivory">{p.t}</h3>
-              <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{p.d}</p>
+              transition={{ delay: i * 0.1 }} className="luxury-card p-4 sm:p-8 text-center">
+              <p.Icon className="w-6 h-6 sm:w-8 sm:h-8 text-primary mx-auto mb-2 sm:mb-4" strokeWidth={1.2} />
+              <h3 className="font-serif text-base sm:text-xl text-ivory">{p.t}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2 leading-relaxed">{p.d}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
       {/* Pricing tiers */}
-      <section className="container py-12">
-        <div className="text-center mb-10">
+      <section className="container py-8 md:py-12">
+        <div className="text-center mb-6 md:mb-10">
           <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Bulk Pricing</p>
-          <h2 className="font-display text-4xl md:text-5xl text-ivory mt-2">MOQ & Tiers</h2>
+          <h2 className="font-display text-2xl sm:text-4xl md:text-5xl text-ivory mt-2">MOQ & Tiers</h2>
         </div>
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
           {tiers.map(t => (
             <div key={t.qty}
-              className={`luxury-card p-8 text-center ${t.featured ? "border-primary shadow-gold" : ""}`}>
+              className={`luxury-card p-5 sm:p-8 text-center ${t.featured ? "border-primary shadow-gold" : ""}`}>
               {t.featured && <span className="text-[10px] tracking-luxe uppercase text-primary">★ {t.note}</span>}
               <p className="font-display text-2xl text-ivory mt-2">{t.qty}</p>
               <p className="font-serif text-3xl text-gold mt-3 flex items-center justify-center gap-1">
@@ -88,10 +88,10 @@ export default function Wholesale() {
       </section>
 
       {/* Lead form */}
-      <section className="container py-12 grid lg:grid-cols-2 gap-12 items-start">
-        <div className="space-y-5">
-          <h2 className="font-display text-4xl text-gold">Request Bulk Pricing</h2>
-          <p className="text-muted-foreground leading-relaxed">
+      <section className="container py-8 md:py-12 grid lg:grid-cols-2 gap-6 lg:gap-12 items-start">
+        <div className="space-y-4 sm:space-y-5">
+          <h2 className="font-display text-2xl sm:text-4xl text-gold">Request Bulk Pricing</h2>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
             Tell us about your business and we'll send a full price list, catalogue, and the best
             tier for your volume. Prefer to chat?{" "}
             <a href={whatsappLink("Hi, I'm interested in becoming an Itrawala reseller.")}
@@ -107,13 +107,13 @@ export default function Wholesale() {
         </div>
 
         {sent ? (
-          <div className="luxury-card p-10 text-center">
-            <BadgeCheck className="w-14 h-14 text-primary mx-auto mb-4" strokeWidth={1.2} />
-            <h3 className="font-display text-3xl text-ivory">Thank you!</h3>
-            <p className="text-muted-foreground mt-3">Our wholesale team will contact you within one business day.</p>
+          <div className="luxury-card p-6 sm:p-10 text-center">
+            <BadgeCheck className="w-11 h-11 sm:w-14 sm:h-14 text-primary mx-auto mb-3 sm:mb-4" strokeWidth={1.2} />
+            <h3 className="font-display text-2xl sm:text-3xl text-ivory">Thank you!</h3>
+            <p className="text-sm sm:text-base text-muted-foreground mt-3">Our wholesale team will contact you within one business day.</p>
           </div>
         ) : (
-          <form onSubmit={submit} className="luxury-card p-8 md:p-10 space-y-4">
+          <form onSubmit={submit} className="luxury-card p-5 sm:p-8 md:p-10 space-y-4">
             <div className="grid sm:grid-cols-2 gap-4">
               <Input name="name" placeholder="Your name" required />
               <Input name="business" placeholder="Business / store name" required />

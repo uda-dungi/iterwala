@@ -33,6 +33,7 @@ const categoryMenu = [
   { to: "/shop?category=Air Freshener", label: "Air Fresheners" },
   { to: "/shop?category=Diffuser", label: "Diffusers" },
   { to: "/shop?category=Gift Set", label: "Gift Sets" },
+  { to: "/shop?category=Collector's Edition", label: "Collector's Edition" },
 ];
 
 export function Navbar() {
@@ -83,14 +84,14 @@ export function Navbar() {
             : "bg-background/40 backdrop-blur-md"
         )}
       >
-        <div className="container flex items-center justify-between h-28 gap-4">
+        <div className="container flex items-center justify-between h-16 sm:h-20 md:h-28 gap-4">
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 -ml-2 text-ivory" aria-label="Menu">
               <Menu className="w-5 h-5" />
             </button>
 
             <Link to="/" className="flex items-center group">
-              <img src={logo} alt="Itrawala" className="h-20 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
+              <img src={logo} alt="Itrawala" className="h-11 sm:h-14 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
             </Link>
           </div>
 
@@ -108,7 +109,7 @@ export function Navbar() {
               <DropdownMenuTrigger className="text-xs tracking-luxe uppercase font-semibold text-ivory/80 hover:text-primary transition-colors flex items-center gap-1 focus:outline-none whitespace-nowrap">
                 Category <ChevronDown className="w-3 h-3" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="w-44">
+              <DropdownMenuContent align="center" className="w-52">
                 {categoryMenu.map(c => (
                   <DropdownMenuItem key={c.to} asChild>
                     <Link to={c.to} className="cursor-pointer">{c.label}</Link>
@@ -190,7 +191,7 @@ export function Navbar() {
             <motion.div
               initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.4 }}
-              className="relative w-80 max-w-[85%] h-full bg-card border-r border-border p-8 flex flex-col">
+              className="relative w-80 max-w-[85%] h-full bg-card border-r border-border p-6 flex flex-col">
               <button onClick={() => setOpen(false)} className="self-end text-ivory/70"><X className="w-5 h-5" /></button>
               <img src={logo} alt="Itrawala" className="h-14 w-auto object-contain mt-4" />
               <div className="gold-divider my-6" />

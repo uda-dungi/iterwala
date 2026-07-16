@@ -2,12 +2,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
 
 const AUTOPLAY_MS = 5000;
+
+// Trust stats shown under the hero copy (inline on desktop) and as a bordered,
+// icon-led strip below the banner image on mobile — see the boxed stats block
+// further down for the mobile version.
+const heroStats = [
+  { Icon: Award, v: "50K+", l: "Happy Customers" },
+  { Icon: Star, v: "4.9", l: "Avg Rating" },
+  { Icon: ShieldCheck, v: "100%", l: "Cruelty-Free" },
+];
 
 type Slide = {
   image: string;
@@ -67,8 +76,9 @@ export function HeroCarousel() {
   }, [emblaApi, paused]);
 
   return (
+    <>
     <section
-      className="relative flex items-center pt-28 pb-14 lg:pt-10 lg:pb-0 min-h-[600px] sm:min-h-[680px] lg:min-h-screen noise-overlay overflow-hidden"
+      className="relative flex items-center pt-24 pb-14 sm:pt-28 sm:pb-14 lg:pt-10 lg:pb-0 min-h-[520px] sm:min-h-[640px] lg:min-h-screen noise-overlay overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
@@ -107,22 +117,21 @@ export function HeroCarousel() {
               {slides[selected].title}
               <span className="block italic font-serif text-gold mt-2">{slides[selected].highlight}</span>
             </h1>
+            <span className="h-px w-12 bg-primary block" />
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-md">
               {slides[selected].copy}
             </p>
-            <div className="flex flex-wrap gap-3 sm:gap-4">
-              <Button asChild variant="luxury" size="lg" className="sm:h-12 sm:px-8 sm:text-base"><Link to={slides[selected].cta.to}>🛒 {slides[selected].cta.label}</Link></Button>
-              <Button asChild variant="outline-gold" size="lg" className="sm:h-12 sm:px-8 sm:text-base"><Link to="/shop">View All Fragrances</Link></Button>
+            <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
+              <Button asChild variant="luxury" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to={slides[selected].cta.to}>🛒 {slides[selected].cta.label}</Link></Button>
+              <Button asChild variant="outline-gold" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to="/shop">View All Fragrances</Link></Button>
             </div>
-            <div className="flex items-center gap-5 sm:gap-8 pt-2 sm:pt-6">
-              {[
-                { v: "50K+", l: "Happy Customers" },
-                { v: "4.9★", l: "Avg Rating" },
-                { v: "100%", l: "Cruelty-Free" },
-              ].map((s) => (
+            {/* Desktop/tablet: stats stay inline with the copy. Mobile version renders
+                as a separate bordered strip below the banner (see below). */}
+            <div className="hidden sm:flex items-center gap-8 pt-6">
+              {heroStats.map((s) => (
                 <div key={s.l}>
-                  <p className="font-display text-xl sm:text-2xl text-gold">{s.v}</p>
-                  <p className="text-[9px] sm:text-[10px] tracking-luxe uppercase text-muted-foreground">{s.l}</p>
+                  <p className="font-display text-2xl text-gold">{s.v}{s.l === "Avg Rating" ? "★" : ""}</p>
+                  <p className="text-[10px] tracking-luxe uppercase text-muted-foreground">{s.l}</p>
                 </div>
               ))}
             </div>
@@ -161,5 +170,21 @@ export function HeroCarousel() {
         Scroll to discover
       </div>
     </section>
+
+    {/* Mobile-only trust strip — bordered box with icon-led stats, sitting on the
+        page background just below the banner (matches the reference mobile layout).
+        Desktop keeps the inline version inside the hero copy above. */}
+    <div className="sm:hidden container -mt-8 relative z-10">
+      <div className="luxury-card grid grid-cols-3 divide-x divide-border/60 py-4">
+        {heroStats.map((s) => (
+          <div key={s.l} className="flex flex-col items-center gap-1.5 px-1 text-center">
+            <s.Icon className="w-5 h-5 text-primary" strokeWidth={1.2} />
+            <p className="font-display text-lg text-gold">{s.v}{s.l === "Avg Rating" ? "★" : ""}</p>
+            <p className="text-[9px] tracking-luxe uppercase text-muted-foreground leading-tight">{s.l}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+    </>
   );
 }

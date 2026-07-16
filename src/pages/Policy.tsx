@@ -65,21 +65,21 @@ const content: Record<Kind, { title: string; eyebrow: string; body: { h: string;
 export default function Policy({ kind }: { kind: Kind }) {
   const c = content[kind];
   return (
-    <div className="container py-16 max-w-3xl">
-      <div className="text-center mb-12">
+    <div className="container py-8 md:py-16 max-w-3xl">
+      <div className="text-center mb-6 md:mb-12">
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">{c.eyebrow}</p>
-        <h1 className="font-display text-5xl md:text-6xl text-ivory mt-3">{c.title}</h1>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <h1 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-3">{c.title}</h1>
+        <div className="gold-divider w-24 mx-auto mt-4 sm:mt-6" />
       </div>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
         {c.body.map(s => (
           <div key={s.h}>
-            <h2 className="font-serif text-2xl text-ivory">{s.h}</h2>
-            <p className="text-muted-foreground leading-relaxed mt-2">{s.p}</p>
+            <h2 className="font-serif text-xl sm:text-2xl text-ivory">{s.h}</h2>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mt-2">{s.p}</p>
           </div>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground mt-12 pt-6 border-t border-border">
+      <p className="text-xs text-muted-foreground mt-8 md:mt-12 pt-6 border-t border-border">
         Last updated July 2026. For questions, contact {site.email} or {site.phone}.
       </p>
     </div>

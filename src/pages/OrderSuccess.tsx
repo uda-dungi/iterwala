@@ -25,10 +25,10 @@ export default function OrderSuccess() {
   }, [txnid]);
 
   return (
-    <div className="container py-32 text-center max-w-xl">
-      <CheckCircle2 className="w-20 h-20 mx-auto text-primary mb-6" strokeWidth={1.2} />
-      <h1 className="font-display text-5xl text-ivory">Thank You</h1>
-      <p className="text-muted-foreground mt-3 font-serif italic">Your fragrance is on its way.</p>
+    <div className="container py-16 sm:py-24 md:py-32 text-center max-w-xl">
+      <CheckCircle2 className="w-14 h-14 sm:w-20 sm:h-20 mx-auto text-primary mb-4 sm:mb-6" strokeWidth={1.2} />
+      <h1 className="font-display text-3xl sm:text-5xl text-ivory">Thank You</h1>
+      <p className="text-sm sm:text-base text-muted-foreground mt-3 font-serif italic">Your fragrance is on its way.</p>
 
       {txnid && <p className="text-xs text-muted-foreground mt-6">Order reference: <span className="text-primary">{txnid}</span></p>}
 

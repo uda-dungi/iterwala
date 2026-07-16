@@ -57,11 +57,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="container py-20 flex justify-center">
+    <div className="container py-10 sm:py-20 flex justify-center">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="luxury-card p-10 w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link to="/" className="font-display text-4xl text-gold">Itrawala</Link>
+        className="luxury-card p-6 sm:p-10 w-full max-w-md">
+        <div className="text-center mb-6 sm:mb-8">
+          <Link to="/" className="font-display text-3xl sm:text-4xl text-gold">Itrawala</Link>
           <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground mt-1">Maison de Parfum</p>
         </div>
 

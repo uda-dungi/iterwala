@@ -32,12 +32,12 @@ export default function Orders() {
   }, [user, authLoading]);
 
   return (
-    <div className="container py-16 max-w-3xl">
-      <div className="text-center mb-12">
-        <Package className="w-10 h-10 text-primary mx-auto mb-4" strokeWidth={1.2} />
+    <div className="container py-8 md:py-16 max-w-3xl">
+      <div className="text-center mb-6 md:mb-12">
+        <Package className="w-8 h-8 sm:w-10 sm:h-10 text-primary mx-auto mb-3 sm:mb-4" strokeWidth={1.2} />
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Order History</p>
-        <h1 className="font-display text-5xl md:text-6xl text-ivory mt-3">My Orders</h1>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <h1 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-3">My Orders</h1>
+        <div className="gold-divider w-24 mx-auto mt-4 sm:mt-6" />
       </div>
 
       {!user ? (

@@ -40,6 +40,7 @@ export default function Index() {
   const bestSellers = products.filter(p => p.bestSeller);
   const attars = products.filter(p => p.category === "Attar");
   const newArrivals = products.filter(p => p.newArrival);
+  const giftSets = products.filter(p => p.category === "Gift Set");
   const amazonPick = amazonChoiceProducts[0] ?? products[0];
 
   return (
@@ -50,13 +51,13 @@ export default function Index() {
 
       {/* Trust strip — category ticker */}
       <section className="border-y border-border/60 bg-deep-brown/40">
-        <div className="container py-6 overflow-hidden">
-          <div className="flex gap-16 whitespace-nowrap animate-marquee">
+        <div className="container py-4 md:py-6 overflow-hidden">
+          <div className="flex gap-6 md:gap-16 whitespace-nowrap animate-marquee">
             {[...Array(2)].flatMap((_, k) =>
               ["Perfumes", "Attars", "Perfume Packs of 4", "Perfume Packs of 8", "Gift Sets", "Collector's Edition"]
                 .map((b, i) => (
-                  <span key={`${k}-${i}`} className="font-serif italic text-2xl text-muted-foreground/60 tracking-wide">
-                    {b} <span className="text-primary mx-8">✦</span>
+                  <span key={`${k}-${i}`} className="font-serif italic text-sm md:text-2xl text-muted-foreground/60 tracking-wide">
+                    {b} <span className="text-primary mx-3 md:mx-8">✦</span>
                   </span>
                 ))
             )}
@@ -65,7 +66,7 @@ export default function Index() {
       </section>
 
       {/* SHOP BY COLLECTION */}
-      <Section eyebrow="Browse" title="Shop by Collection" subtitle="Find your category — perfumes, attars, or ready-to-gift sets." className="pt-12 pb-14">
+      <Section eyebrow="Browse" title="Shop by Collection" subtitle="Find your category — perfumes, attars, or ready-to-gift sets." className="pt-8 pb-10 md:pt-12 md:pb-14">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
           {collections.map((c, i) => (
             <motion.div key={c.key}
@@ -95,7 +96,7 @@ export default function Index() {
       </Section>
 
       {/* BEST SELLERS */}
-      <Section eyebrow="Loved by Many" title="Best Sellers" subtitle="The fragrances our patrons return for, again and again." className="pt-4 pb-20">
+      <Section eyebrow="Loved by Many" title="Best Sellers" subtitle="The fragrances our patrons return for, again and again." className="pt-2 pb-10 md:pt-4 md:pb-20">
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {bestSellers.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
@@ -148,15 +149,15 @@ export default function Index() {
       </Section>
 
       {/* AMAZON'S CHOICE */}
-      <section className="container py-20">
+      <section className="container py-10 md:py-20">
         <div className="luxury-card grid lg:grid-cols-2 gap-0 overflow-hidden">
           <div className="relative aspect-square lg:aspect-auto bg-deep-brown">
             <img src={amazonPick.image} alt={amazonPick.name} className="w-full h-full object-cover" />
             <div className="absolute top-5 left-5"><AmazonChoiceBadge className="text-xs px-3 py-1.5" /></div>
           </div>
-          <div className="p-10 md:p-14 flex flex-col justify-center">
+          <div className="p-6 sm:p-10 md:p-14 flex flex-col justify-center">
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">🏆 Chosen by Amazon. Loved by Customers.</p>
-            <h2 className="font-display text-4xl md:text-5xl text-ivory mt-3">{amazonPick.name}</h2>
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-ivory mt-3">{amazonPick.name}</h2>
             <p className="font-serif italic text-muted-foreground mt-1">{amazonPick.tagline}</p>
             <div className="flex items-center gap-1 mt-4">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -179,47 +180,47 @@ export default function Index() {
       </section>
 
       {/* STORYTELLING */}
-      <section className="container py-20">
-        <div className="luxury-card p-10 md:p-16 text-center max-w-4xl mx-auto bg-gradient-to-br from-deep-brown to-background">
+      <section className="container py-10 md:py-20">
+        <div className="luxury-card p-6 sm:p-10 md:p-16 text-center max-w-4xl mx-auto bg-gradient-to-br from-deep-brown to-background">
           <p className="text-[10px] tracking-[0.5em] uppercase text-primary">About Itrawala</p>
-          <h2 className="font-display text-3xl md:text-5xl text-ivory mt-3">Legacy of 25 Years</h2>
-          <p className="font-serif text-lg md:text-xl text-muted-foreground leading-relaxed mt-6">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-5xl text-ivory mt-3">Legacy of 25 Years</h2>
+          <p className="font-serif text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed mt-4 md:mt-6">
             Itra Wala invites you to explore a world where scent is a language of the soul, where
             attars and perfumes become a part of your identity. Indulge in the allure of fragrances
             that transcend time and space, igniting emotions and memories that linger long after the
             scent fades. Experience the journey of fragrance today.
           </p>
-          <div className="flex items-center justify-center gap-10 mt-8">
+          <div className="flex items-center justify-center gap-6 sm:gap-10 mt-6 md:mt-8">
             <div>
-              <p className="font-display text-4xl text-gold">400 K</p>
-              <p className="text-xs tracking-luxe uppercase text-muted-foreground mt-1">Perfumes Sold</p>
+              <p className="font-display text-2xl sm:text-4xl text-gold">400 K</p>
+              <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-muted-foreground mt-1">Perfumes Sold</p>
             </div>
             <div>
-              <p className="font-display text-4xl text-gold">10 Years</p>
-              <p className="text-xs tracking-luxe uppercase text-muted-foreground mt-1">Perfect Years</p>
+              <p className="font-display text-2xl sm:text-4xl text-gold">10 Years</p>
+              <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-muted-foreground mt-1">Perfect Years</p>
             </div>
           </div>
-          <Button asChild variant="outline-gold" size="lg" className="mt-8"><Link to="/about">Know Our Story</Link></Button>
+          <Button asChild variant="outline-gold" size="lg" className="mt-6 md:mt-8"><Link to="/about">Know Our Story</Link></Button>
         </div>
       </section>
 
       {/* ATTARS BANNER */}
-      <section className="container py-20">
-        <div className="relative grid lg:grid-cols-2 rounded-sm overflow-hidden border border-border/60 vignette min-h-[480px]">
+      <section className="container py-10 md:py-20">
+        <div className="relative grid lg:grid-cols-2 rounded-sm overflow-hidden border border-border/60 vignette min-h-[360px] sm:min-h-[420px] lg:min-h-[480px]">
           <div className="absolute inset-0 lg:relative lg:inset-auto">
             <img src={attarLineup} alt="Itrawala premium attar collection" className="w-full h-full object-cover" loading="lazy" />
             <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent lg:hidden" />
           </div>
-          <div className="relative p-10 md:p-16 flex flex-col justify-center bg-deep-brown/80 lg:bg-deep-brown/60">
+          <div className="relative p-6 sm:p-10 md:p-16 flex flex-col justify-center bg-deep-brown/80 lg:bg-deep-brown/60">
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Heritage Edit</p>
-            <h2 className="font-display text-4xl md:text-6xl text-ivory mt-3 leading-tight">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-3 leading-tight">
               The Attar <span className="italic text-gold">Atelier</span>
             </h2>
-            <p className="text-muted-foreground mt-5 max-w-md leading-relaxed">
+            <p className="text-sm sm:text-base text-muted-foreground mt-3 md:mt-5 max-w-md leading-relaxed">
               Alcohol-free. Concentrated. Hand-distilled in copper deg vessels using centuries-old Kannauj
               traditions. Wear a single drop and let the trail tell its story.
             </p>
-            <div className="flex gap-4 mt-8">
+            <div className="flex gap-4 mt-5 md:mt-8">
               <Button asChild variant="luxury" size="lg"><Link to="/shop?category=Attar">Shop Attars <ArrowRight className="ml-1" /></Link></Button>
             </div>
           </div>
@@ -258,15 +259,15 @@ export default function Index() {
       </Section>
 
       {/* SIGNATURE QUIZ CTA */}
-      <section className="container py-20">
-        <div className="luxury-card p-10 md:p-16 text-center bg-gradient-to-br from-deep-brown to-background relative overflow-hidden">
-          <Sparkles className="absolute top-8 left-1/2 -translate-x-1/2 text-primary/30 w-12 h-12" />
-          <p className="text-[10px] tracking-[0.5em] uppercase text-primary mt-8">Find Your Match</p>
-          <h2 className="font-display text-4xl md:text-6xl text-ivory mt-3">The Signature Scent Quiz</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto mt-5">
+      <section className="container py-10 md:py-20">
+        <div className="luxury-card p-6 sm:p-10 md:p-16 text-center bg-gradient-to-br from-deep-brown to-background relative overflow-hidden">
+          <Sparkles className="absolute top-6 md:top-8 left-1/2 -translate-x-1/2 text-primary/30 w-9 h-9 md:w-12 md:h-12" />
+          <p className="text-[10px] tracking-[0.5em] uppercase text-primary mt-6 md:mt-8">Find Your Match</p>
+          <h2 className="font-display text-2xl sm:text-4xl md:text-6xl text-ivory mt-3">The Signature Scent Quiz</h2>
+          <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto mt-4 md:mt-5">
             Answer five questions. Discover the Itrawala fragrance composed for the way you live, love, and arrive.
           </p>
-          <Button asChild variant="luxury" size="xl" className="mt-8">
+          <Button asChild variant="luxury" size="xl" className="mt-6 md:mt-8">
             <Link to="/quiz">Begin the Quiz</Link>
           </Button>
         </div>
@@ -280,9 +281,9 @@ export default function Index() {
             { n: "02", t: "Layer your Perfume", d: "Spray your eau de parfum over warm skin. The notes will bloom against the attar." },
             { n: "03", t: "Seal & Wear", d: "Let it rest 30 seconds. Don't rub. The composition will unfold over the next 12 hours." },
           ].map((s) => (
-            <div key={s.n} className="luxury-card p-8">
-              <span className="font-display text-5xl text-gold/60">{s.n}</span>
-              <h3 className="font-serif text-2xl text-ivory mt-3">{s.t}</h3>
+            <div key={s.n} className="luxury-card p-5 sm:p-8">
+              <span className="font-display text-3xl sm:text-5xl text-gold/60">{s.n}</span>
+              <h3 className="font-serif text-xl sm:text-2xl text-ivory mt-2 sm:mt-3">{s.t}</h3>
               <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{s.d}</p>
             </div>
           ))}
@@ -290,18 +291,18 @@ export default function Index() {
       </Section>
 
       {/* GIFT BOX */}
-      <section className="container py-20">
-        <div className="relative grid lg:grid-cols-5 gap-10 items-center">
-          <div className="lg:col-span-2 space-y-5">
+      <section className="container py-10 md:py-20">
+        <div className="relative grid lg:grid-cols-5 gap-6 lg:gap-10 items-center">
+          <div className="lg:col-span-2 space-y-3 md:space-y-5">
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">For Those You Love</p>
-            <h2 className="font-display text-4xl md:text-6xl text-ivory">Luxury Gift Boxes</h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory">Luxury Gift Boxes</h2>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
               Hand-wrapped in our signature mahogany boxes with gold foil monogram, silk lining, and a personal note from our perfumers. Perfect for every occasion.
             </p>
             <Button asChild variant="luxury" size="lg"><Link to="/shop?category=Gift Set">Discover Gift Sets</Link></Button>
           </div>
           <div className="lg:col-span-3 grid grid-cols-2 gap-4">
-            {newArrivals.slice(0, 2).map(p => <ProductCard key={p.id} product={p} />)}
+            {giftSets.slice(0, 2).map(p => <ProductCard key={p.id} product={p} />)}
           </div>
         </div>
       </section>
@@ -374,13 +375,13 @@ export default function Index() {
       </Section>
 
       {/* NEWSLETTER */}
-      <section className="container py-24">
-        <div className="relative luxury-card p-10 md:p-20 text-center bg-gradient-to-br from-deep-brown via-background to-deep-brown overflow-hidden noise-overlay">
+      <section className="container py-12 md:py-24">
+        <div className="relative luxury-card p-6 sm:p-10 md:p-20 text-center bg-gradient-to-br from-deep-brown via-background to-deep-brown overflow-hidden noise-overlay">
           <div className="absolute inset-0 bg-gradient-radial opacity-50" />
           <div className="relative">
-            <Truck className="w-10 h-10 text-primary mx-auto mb-6" strokeWidth={1.2} />
+            <Truck className="w-8 h-8 md:w-10 md:h-10 text-primary mx-auto mb-4 md:mb-6" strokeWidth={1.2} />
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">The Inner Circle</p>
-            <h2 className="font-display text-4xl md:text-6xl text-ivory mt-3">Join Itrawala</h2>
+            <h2 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-3">Join Itrawala</h2>
             <NewsletterForm />
           </div>
         </div>
@@ -421,16 +422,16 @@ function NewsletterForm() {
 
 function Section({ eyebrow, title, subtitle, children, className }: { eyebrow?: string; title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
   return (
-    <section className={`container ${className ?? "py-20"}`}>
+    <section className={`container ${className ?? "py-12 md:py-20"}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }} transition={{ duration: 0.6 }}
-        className="text-center mb-14"
+        className="text-center mb-8 md:mb-14"
       >
-        {eyebrow && <p className="text-[10px] tracking-[0.5em] uppercase text-primary mb-4">{eyebrow}</p>}
-        <h2 className="font-display text-4xl md:text-6xl text-ivory">{title}</h2>
-        {subtitle && <p className="text-muted-foreground max-w-2xl mx-auto mt-4">{subtitle}</p>}
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        {eyebrow && <p className="text-[10px] tracking-[0.5em] uppercase text-primary mb-3 md:mb-4">{eyebrow}</p>}
+        <h2 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory">{title}</h2>
+        {subtitle && <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto mt-3 md:mt-4">{subtitle}</p>}
+        <div className="gold-divider w-24 mx-auto mt-4 md:mt-6" />
       </motion.div>
       {children}
     </section>

@@ -50,7 +50,7 @@ export default function ProductDetail() {
         </nav>
       </div>
 
-      <section className="container pt-10 pb-16 grid lg:grid-cols-2 gap-12 lg:gap-20">
+      <section className="container pt-6 pb-10 sm:pt-10 sm:pb-16 grid lg:grid-cols-2 gap-8 lg:gap-20">
         {/* Gallery */}
         <div className="space-y-4">
           <motion.div
@@ -89,8 +89,8 @@ export default function ProductDetail() {
               <p className="text-[10px] tracking-luxe uppercase text-primary">{product.category} · {product.gender}</p>
               {product.amazonChoice && <AmazonChoiceBadge />}
             </div>
-            <h1 className="font-display text-5xl md:text-6xl text-ivory mt-2">{product.name}</h1>
-            <p className="font-serif italic text-lg text-muted-foreground mt-1">{product.tagline}</p>
+            <h1 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-2">{product.name}</h1>
+            <p className="font-serif italic text-base sm:text-lg text-muted-foreground mt-1">{product.tagline}</p>
             <p className="flex items-center gap-1.5 text-sm text-green-500 mt-3">
               <CheckCircle2 className="w-4 h-4" /> In Stock — ready to ship
             </p>
@@ -105,8 +105,8 @@ export default function ProductDetail() {
             <span className="text-sm text-muted-foreground">{product.rating} · {product.reviews} reviews</span>
           </div>
 
-          <div className="flex items-end gap-3">
-            <span className="font-display text-4xl text-gold">{formatINR(unitPrice)}</span>
+          <div className="flex items-end gap-3 flex-wrap">
+            <span className="font-display text-2xl sm:text-4xl text-gold">{formatINR(unitPrice)}</span>
             {unitCompareAt && <span className="text-lg text-muted-foreground line-through">{formatINR(unitCompareAt)}</span>}
             {unitCompareAt && (
               <span className="text-xs px-2 py-0.5 bg-primary/20 text-primary rounded-sm">
@@ -190,13 +190,13 @@ export default function ProductDetail() {
       </section>
 
       {/* Why you'll love */}
-      <section className="container py-16">
-        <div className="luxury-card p-10 md:p-16 bg-gradient-to-br from-deep-brown to-background">
-          <div className="text-center mb-10">
+      <section className="container py-10 md:py-16">
+        <div className="luxury-card p-6 sm:p-10 md:p-16 bg-gradient-to-br from-deep-brown to-background">
+          <div className="text-center mb-6 md:mb-10">
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">The Itrawala Difference</p>
-            <h2 className="font-display text-4xl md:text-5xl text-ivory mt-2">Why You'll Love It</h2>
+            <h2 className="font-display text-2xl sm:text-4xl md:text-5xl text-ivory mt-2">Why You'll Love It</h2>
           </div>
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
             {[
               { Icon: Award, t: "Long-Lasting", d: "Up to 12 hours of sillage." },
               { Icon: Leaf, t: "Premium Oils", d: "Aged absolutes & naturals." },
@@ -214,7 +214,7 @@ export default function ProductDetail() {
       </section>
 
       {/* Tabs */}
-      <section className="container py-12">
+      <section className="container py-8 md:py-12">
         <Tabs defaultValue="description">
           <TabsList className="bg-deep-brown/40 border border-border">
             <TabsTrigger value="description">Description</TabsTrigger>
@@ -251,13 +251,13 @@ export default function ProductDetail() {
       <RecentlyViewed excludeId={product.id} />
 
       {/* Related */}
-      <section className="container py-16">
-        <div className="text-center mb-12">
+      <section className="container py-10 md:py-16">
+        <div className="text-center mb-6 md:mb-12">
           <p className="text-[10px] tracking-[0.5em] uppercase text-primary">You May Also Love</p>
-          <h2 className="font-display text-4xl text-ivory mt-2">Related Fragrances</h2>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-ivory mt-2">Related Fragrances</h2>
           <div className="gold-divider w-24 mx-auto mt-4" />
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {related.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
       </section>

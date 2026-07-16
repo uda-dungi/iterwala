@@ -30,10 +30,10 @@ export function Footer() {
   };
 
   return (
-    <footer className="relative bg-deep-brown/40 border-t border-border/60 mt-24">
+    <footer className="relative bg-deep-brown/40 border-t border-border/60 mt-12 md:mt-24">
       <div className="gold-divider" />
-      <div className="container py-16 md:py-20">
-        <div className="grid lg:grid-cols-12 gap-12">
+      <div className="container py-10 md:py-20">
+        <div className="grid lg:grid-cols-12 gap-8 md:gap-12">
           {/* Brand */}
           <div className="lg:col-span-4 space-y-6">
             <div>
@@ -115,7 +115,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="gold-divider my-10" />
+        <div className="gold-divider my-6 md:my-10" />
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="text-center md:text-left">
             <p>© {new Date().getFullYear()} {site.brand}. All rights reserved.</p>

@@ -101,29 +101,29 @@ export default function Shop() {
   return (
     <div>
       {/* Page header */}
-      <section className="container pt-12 pb-10 text-center">
+      <section className="container pt-8 pb-6 sm:pt-12 sm:pb-10 text-center">
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">The Collection</p>
-        <h1 className="font-display text-5xl md:text-7xl text-ivory mt-3">Shop Fragrances</h1>
-        <p className="text-muted-foreground max-w-xl mx-auto mt-4">
+        <h1 className="font-display text-3xl sm:text-4xl md:text-7xl text-ivory mt-3">Shop Fragrances</h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto mt-3 sm:mt-4">
           Explore our complete library of perfumes, attars, and gift sets — composed for every mood and moment.
         </p>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <div className="gold-divider w-24 mx-auto mt-4 sm:mt-6" />
       </section>
 
-      <div className="container pb-24 grid lg:grid-cols-[260px_1fr] gap-10">
+      <div className="container pb-14 sm:pb-24 grid lg:grid-cols-[260px_1fr] gap-6 lg:gap-10">
         <div className="hidden lg:block sticky top-32 self-start">
           <Filters />
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-8 gap-4">
-            <p className="text-sm text-muted-foreground">{filtered.length} fragrances</p>
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-5 sm:mb-8 gap-3 flex-wrap">
+            <p className="text-xs sm:text-sm text-muted-foreground">{filtered.length} fragrances</p>
+            <div className="flex items-center gap-2 sm:gap-3">
               <Button variant="outline-gold" size="sm" className="lg:hidden" onClick={() => setFilterOpen(true)}>
                 <Filter className="w-4 h-4 mr-1" /> Filter
               </Button>
               <Select value={sort} onValueChange={setSort}>
-                <SelectTrigger className="w-44 border-border"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="w-36 sm:w-44 border-border text-xs sm:text-sm"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="popular">Popularity</SelectItem>
                   <SelectItem value="new">New Arrivals</SelectItem>
@@ -136,12 +136,12 @@ export default function Shop() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="text-center py-24">
-              <p className="font-serif text-2xl text-ivory">No fragrances found</p>
-              <p className="text-muted-foreground mt-2">Try adjusting your filters.</p>
+            <div className="text-center py-14 sm:py-24">
+              <p className="font-serif text-xl sm:text-2xl text-ivory">No fragrances found</p>
+              <p className="text-sm sm:text-base text-muted-foreground mt-2">Try adjusting your filters.</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
               {filtered.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
             </div>
           )}
@@ -151,7 +151,7 @@ export default function Shop() {
       {filterOpen && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-background/80" onClick={() => setFilterOpen(false)} />
-          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} className="absolute right-0 top-0 h-full w-80 bg-card p-6 overflow-y-auto">
+          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} className="absolute right-0 top-0 h-full w-[85vw] max-w-sm bg-card p-5 sm:p-6 overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-display text-2xl text-gold">Filters</h3>
               <button onClick={() => setFilterOpen(false)}><X className="w-5 h-5" /></button>

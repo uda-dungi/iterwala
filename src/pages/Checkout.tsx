@@ -92,23 +92,23 @@ export default function Checkout() {
 
   if (cart.length === 0) {
     return (
-      <div className="container py-32 text-center">
-        <h1 className="font-display text-4xl text-ivory">Your bag is empty</h1>
+      <div className="container py-16 sm:py-24 md:py-32 text-center">
+        <h1 className="font-display text-2xl sm:text-4xl text-ivory">Your bag is empty</h1>
         <Button asChild variant="luxury" size="lg" className="mt-6"><Link to="/shop">Continue Shopping</Link></Button>
       </div>
     );
   }
 
   return (
-    <div className="container py-12">
-      <div className="text-center mb-12">
+    <div className="container py-6 md:py-12">
+      <div className="text-center mb-6 md:mb-12">
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Almost There</p>
-        <h1 className="font-display text-5xl md:text-6xl text-ivory mt-2">Checkout</h1>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <h1 className="font-display text-3xl sm:text-4xl md:text-6xl text-ivory mt-2">Checkout</h1>
+        <div className="gold-divider w-24 mx-auto mt-4 md:mt-6" />
       </div>
 
       {/* Progress indicator */}
-      <div className="flex items-center justify-center gap-2 mb-12 text-xs">
+      <div className="flex items-center justify-center gap-2 mb-6 md:mb-12 text-xs">
         {["Shipping", "Payment", "Confirmation"].map((s, i) => (
           <div key={s} className="flex items-center gap-2">
             <span className={`flex items-center gap-2 ${i === 0 ? "text-primary" : "text-muted-foreground"}`}>
@@ -120,8 +120,8 @@ export default function Checkout() {
         ))}
       </div>
 
-      <form ref={formRef} onSubmit={submit} className="grid lg:grid-cols-[1fr_400px] gap-10">
-        <div className="space-y-10">
+      <form ref={formRef} onSubmit={submit} className="grid lg:grid-cols-[1fr_400px] gap-6 lg:gap-10">
+        <div className="space-y-6 md:space-y-10">
           <Section title="01 · Contact">
             <p className="text-xs text-muted-foreground -mt-2">
               No account needed — we'll set one up automatically with this email so you can track your order later.
@@ -158,7 +158,7 @@ export default function Checkout() {
           </Section>
         </div>
 
-        <aside className="luxury-card p-8 h-fit lg:sticky lg:top-32 space-y-5">
+        <aside className="luxury-card p-5 sm:p-8 h-fit lg:sticky lg:top-32 space-y-4 sm:space-y-5">
           <h2 className="font-display text-2xl text-gold">Order Summary</h2>
           <div className="space-y-3">
             {cart.map(({ product, qty, volume }) => (
@@ -207,8 +207,8 @@ export default function Checkout() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="luxury-card p-8 space-y-5">
-      <h2 className="font-display text-2xl text-gold">{title}</h2>
+    <div className="luxury-card p-4 sm:p-8 space-y-4 sm:space-y-5">
+      <h2 className="font-display text-xl sm:text-2xl text-gold">{title}</h2>
       {children}
     </div>
   );

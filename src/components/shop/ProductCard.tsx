@@ -51,28 +51,29 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-500" />
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+          {/* Always visible on mobile (no hover there) — only hides-then-reveals-on-hover from sm+ up */}
+          <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-500">
             <button
               onClick={(e) => { e.preventDefault(); addToCart(product, 1, volumesFor(product)[0]); toast.success(`${product.name} added to cart`); }}
-              className="w-full bg-gradient-gold text-primary-foreground py-3 text-xs tracking-luxe uppercase font-semibold flex items-center justify-center gap-2 hover:shadow-gold transition-shadow"
+              className="w-full bg-gradient-gold text-primary-foreground py-2 sm:py-3 text-[10px] sm:text-xs tracking-luxe uppercase font-semibold flex items-center justify-center gap-1.5 sm:gap-2 hover:shadow-gold transition-shadow"
             >
-              <ShoppingBag className="w-4 h-4" /> Add to Cart
+              <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Add to Cart
             </button>
           </div>
         </div>
-        <div className="p-5 text-center space-y-1.5">
-          <p className="text-[10px] tracking-luxe uppercase text-muted-foreground">{product.category} · {product.gender}</p>
-          <h3 className="font-serif text-xl text-ivory group-hover:text-primary transition-colors">{product.name}</h3>
-          <p className="text-xs italic text-muted-foreground/80">{product.tagline}</p>
-          <div className="flex items-center justify-center gap-1 pt-1">
+        <div className="p-3 sm:p-5 text-center space-y-1 sm:space-y-1.5">
+          <p className="text-[9px] sm:text-[10px] tracking-luxe uppercase text-muted-foreground">{product.category} · {product.gender}</p>
+          <h3 className="font-serif text-sm sm:text-xl text-ivory group-hover:text-primary transition-colors line-clamp-1">{product.name}</h3>
+          <p className="hidden sm:block text-xs italic text-muted-foreground/80">{product.tagline}</p>
+          <div className="flex items-center justify-center gap-1 pt-0.5 sm:pt-1">
             {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={cn("w-3 h-3", i < Math.round(product.rating) ? "fill-primary text-primary" : "text-muted")} />
+              <Star key={i} className={cn("w-2.5 h-2.5 sm:w-3 sm:h-3", i < Math.round(product.rating) ? "fill-primary text-primary" : "text-muted")} />
             ))}
-            <span className="text-[10px] text-muted-foreground ml-1">({product.reviews})</span>
+            <span className="text-[9px] sm:text-[10px] text-muted-foreground ml-1">({product.reviews})</span>
           </div>
-          <div className="flex items-center justify-center gap-2 pt-2">
-            <span className="font-serif text-lg text-gold">{formatINR(cardPrice)}</span>
-            {cardCompareAt && <span className="text-xs text-muted-foreground line-through">{formatINR(cardCompareAt)}</span>}
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+            <span className="font-serif text-sm sm:text-lg text-gold">{formatINR(cardPrice)}</span>
+            {cardCompareAt && <span className="text-[10px] sm:text-xs text-muted-foreground line-through">{formatINR(cardCompareAt)}</span>}
           </div>
         </div>
       </Link>

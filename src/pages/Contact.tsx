@@ -37,20 +37,20 @@ export default function Contact() {
 
   return (
     <div>
-      <section className="container pt-16 pb-10 text-center">
+      <section className="container pt-10 pb-6 sm:pt-16 sm:pb-10 text-center">
         <p className="text-[10px] tracking-[0.5em] uppercase text-primary">We'd Love to Hear From You</p>
-        <h1 className="font-display text-5xl md:text-7xl text-ivory mt-3">Contact the Maison</h1>
-        <p className="text-muted-foreground max-w-xl mx-auto mt-4">
+        <h1 className="font-display text-3xl sm:text-4xl md:text-7xl text-ivory mt-3">Contact the Maison</h1>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto mt-3 sm:mt-4">
           Questions, custom blends, press, or partnership — our team replies within one business day.
         </p>
-        <div className="gold-divider w-24 mx-auto mt-6" />
+        <div className="gold-divider w-24 mx-auto mt-4 sm:mt-6" />
       </section>
 
-      <section className="container py-12 grid lg:grid-cols-2 gap-12">
+      <section className="container py-8 md:py-12 grid lg:grid-cols-2 gap-6 lg:gap-12">
         <motion.form
           onSubmit={handleSubmit}
           initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
-          className="luxury-card p-8 md:p-10 space-y-5"
+          className="luxury-card p-5 sm:p-8 md:p-10 space-y-4 sm:space-y-5"
         >
           <h2 className="font-display text-3xl text-gold">Send a Message</h2>
           <div className="grid sm:grid-cols-2 gap-4">

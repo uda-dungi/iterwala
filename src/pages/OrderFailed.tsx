@@ -9,10 +9,10 @@ export default function OrderFailed() {
   const reason = params.get("reason");
 
   return (
-    <div className="container py-32 text-center max-w-lg">
-      <XCircle className="w-20 h-20 mx-auto text-destructive mb-6" strokeWidth={1.2} />
-      <h1 className="font-display text-5xl text-ivory">Payment Didn't Go Through</h1>
-      <p className="text-muted-foreground mt-3">
+    <div className="container py-16 sm:py-24 md:py-32 text-center max-w-lg">
+      <XCircle className="w-14 h-14 sm:w-20 sm:h-20 mx-auto text-destructive mb-4 sm:mb-6" strokeWidth={1.2} />
+      <h1 className="font-display text-2xl sm:text-4xl md:text-5xl text-ivory">Payment Didn't Go Through</h1>
+      <p className="text-sm sm:text-base text-muted-foreground mt-3">
         No amount has been charged. Your bag is safe — you can try again with the same or a different payment method.
       </p>
       {txnid && <p className="text-xs text-muted-foreground mt-4">Reference: <span className="text-primary">{txnid}</span></p>}
