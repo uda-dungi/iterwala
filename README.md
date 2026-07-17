@@ -23,6 +23,7 @@ moment a real value is present — nothing needs a code change.
 |---|---|---|
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Supabase → Settings → API | Auth, orders history |
 | `SUPABASE_SERVICE_ROLE_KEY` | Supabase → Settings → API (`service_role`, **secret**) | Auto-creating accounts + writing orders |
+| `VITE_ADMIN_EMAILS` | Comma-separated admin emails | Access to `/admin/orders` order dashboard |
 | `PAYU_MERCHANT_KEY`, `PAYU_SALT` | PayU Dashboard → Settings | Checkout payments |
 | `PAYU_MODE` | `test` or `production` | Sandbox vs live PayU |
 | `SITE_URL` | Your live domain, e.g. `https://itrawala.in` | PayU redirect URLs (optional — auto-detected otherwise) |

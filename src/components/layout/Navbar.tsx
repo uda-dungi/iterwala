@@ -5,7 +5,7 @@ import { ChevronDown, Heart, LogOut, Menu, MessageCircle, Search, ShoppingBag, U
 import { useShop } from "@/store/shop";
 import { useAuth, displayName } from "@/store/auth";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { whatsappLink } from "@/config/site";
+import { whatsappLink, site, isAdminEmail } from "@/config/site";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +44,7 @@ export function Navbar() {
   const { itemCount, setCartOpen, wishlist } = useShop();
   const { user, signOut } = useAuth();
   const loc = useLocation();
+  const isAdmin = Boolean(user?.email && (isAdminEmail(user.email) || user.email.toLowerCase().endsWith("@itrawala.in")));
   const nav = useNavigate();
 
   const handleSignOut = async () => {
@@ -150,6 +151,11 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/orders" className="cursor-pointer">My Orders</Link>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/orders" className="cursor-pointer">Admin Dashboard</Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/wishlist" className="cursor-pointer">My Wishlist</Link>
                   </DropdownMenuItem>

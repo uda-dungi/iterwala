@@ -15,6 +15,14 @@ export const isSet = (v?: string) =>
 const stripHandle = (value?: string) =>
   value ? value.trim().replace(/^@+/, "") : "";
 
+const adminEmails = ((env.VITE_ADMIN_EMAILS as string) || "")
+  .split(",")
+  .map((value) => value.trim().toLowerCase())
+  .filter(Boolean);
+
+export const isAdminEmail = (email?: string) =>
+  Boolean(email && adminEmails.includes(email.toLowerCase()));
+
 export const site = {
   brand: "Itrawala",
   tagline: "Crafted Fragrances, Timeless Impressions",
@@ -35,6 +43,7 @@ export const site = {
   amazonStoreUrl: (env.VITE_AMAZON_STORE_URL as string) || "PLACEHOLDER_AMAZON_STORE_URL",
   instagramHandle: stripHandle(env.VITE_INSTAGRAM_HANDLE as string) || "itrawalaa",
   facebookHandle: stripHandle(env.VITE_FACEBOOK_HANDLE as string) || "theitrawala",
+  adminEmails,
   /** Public Instagram reel/post permalinks for the home Reels strip. */
   instagramReels: [] as string[],
   /** Background hero video (mp4). Leave blank to use the still hero image. */

@@ -11,6 +11,18 @@ export function isSupabaseAdminConfigured(): boolean {
   return Boolean(process.env.VITE_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 }
 
+const adminEmails = (process.env.ADMIN_EMAILS || process.env.VITE_ADMIN_EMAILS || "")
+  .split(",")
+  .map((value) => value.trim().toLowerCase())
+  .filter(Boolean);
+
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const value = email.trim().toLowerCase();
+  if (adminEmails.includes(value)) return true;
+  return value.endsWith("@itrawala.in");
+}
+
 export function getSupabaseAdmin(): SupabaseClient | null {
   if (cached !== undefined) return cached;
   const url = process.env.VITE_SUPABASE_URL;

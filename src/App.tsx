@@ -23,6 +23,7 @@ import OrderFailed from "./pages/OrderFailed";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
 import Auth from "./pages/Auth";
+import AdminOrders from "./pages/AdminOrders";
 import Quiz from "./pages/Quiz";
 import Wholesale from "./pages/Wholesale";
 import Policy from "./pages/Policy";
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/order/failed" element={<OrderFailed />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/quiz" element={<Quiz />} />
               <Route path="/wholesale" element={<Wholesale />} />
