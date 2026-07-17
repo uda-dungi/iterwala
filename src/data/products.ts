@@ -24,6 +24,10 @@ export type Product = {
    *  50ml vs 100ml), map each volume to its own gallery here. ProductDetail falls
    *  back to `gallery` for any volume not listed. */
   galleryByVolume?: Record<string, string[]>;
+  /** Size printed on the primary bottle photo(s). Shop cards and the product-page
+   *  default selection use this so price matches the bottle shown. When omitted,
+   *  the first entry in `volume` is used (usually 50ml). */
+  featuredVolume?: string;
   notes: { top: string[]; heart: string[]; base: string[] };
   longevity: string;
   projection: string;
@@ -80,11 +84,13 @@ export const products: Product[] = [
     id: "p-celebrity", slug: "celebrity", name: "Celebrity", tagline: "Your red-carpet signature",
     price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 649, compareAt: 849 }, "100ml": { price: 1099, compareAt: 1399 } },
-    image: img("celebrity-real"), gallery: [img("celebrity-real"), img("celebrity-2"), img("celebrity-3")],
-    // celebrity-real is the gold/cream 100ml bottle; celebrity-2/3 are the distinct
-    // red-and-black bottle explicitly labeled "50 ml" on its box — so the gallery
-    // must switch with the size selector instead of always showing the 100ml photo.
-    galleryByVolume: { "50ml": [img("celebrity-2"), img("celebrity-3")], "100ml": [img("celebrity-real")] },
+    // celebrity-2/3 labels read "50 ml"; celebrity-real/1 are the silver-cap studio bottle (100ml).
+    image: img("celebrity-2"),
+    gallery: [img("celebrity-2"), img("celebrity-3"), img("celebrity-real"), img("celebrity-1")],
+    galleryByVolume: {
+      "50ml": [img("celebrity-2"), img("celebrity-3")],
+      "100ml": [img("celebrity-real"), img("celebrity-1")],
+    },
     notes: { top: ["Bergamot", "Pink Pepper"], heart: ["Jasmine", "Saffron"], base: ["Amber", "Vanilla", "Musk"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Evening", "Date Night", "Celebrations"], moods: ["Confident", "Magnetic"],
@@ -96,7 +102,14 @@ export const products: Product[] = [
     id: "p-impression", slug: "impression", name: "Impression", tagline: "Leave a lasting one",
     price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 649, compareAt: 1099 }, "100ml": { price: 1099, compareAt: 1399 } },
-    image: img("impression-real"), gallery: [img("impression-real"), img("impression-2"), img("impression-3")],
+    // impression-3 is the pink/black-cap bottle labeled "50 ml"; impression-real/1/2 are
+    // the silver-cap studio bottle used for 100ml.
+    image: img("impression-3"),
+    gallery: [img("impression-3"), img("impression-real"), img("impression-1"), img("impression-2")],
+    galleryByVolume: {
+      "50ml": [img("impression-3")],
+      "100ml": [img("impression-real"), img("impression-1"), img("impression-2")],
+    },
     notes: { top: ["Citrus", "Apple"], heart: ["Rose", "Geranium"], base: ["Oud", "Patchouli", "Amber"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Office", "Evening"], moods: ["Bold", "Refined"],
@@ -108,7 +121,9 @@ export const products: Product[] = [
     id: "p-inayat", slug: "inayat", name: "Inayat", tagline: "A graceful blessing",
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
-    image: img("inayat-real"), gallery: [img("inayat-real")],
+    // inayat.jpg label reads 50 ml; inayat-real.jpg reads 100 ml.
+    image: img("inayat"), gallery: [img("inayat"), img("inayat-real")],
+    galleryByVolume: { "50ml": [img("inayat")], "100ml": [img("inayat-real")] },
     notes: { top: ["Saffron", "Bergamot"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Sandalwood"] },
     longevity: "10 hours", projection: "Strong",
     occasions: ["Festive", "Special Occasions", "Evening"], moods: ["Opulent", "Elegant"],
@@ -120,7 +135,9 @@ export const products: Product[] = [
     id: "p-oud-wood", slug: "oud-wood", name: "Oud Wood", tagline: "The rarest wood",
     price: 449, compareAt: 899, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 899 }, "100ml": { price: 749, compareAt: 1499 } },
-    image: img("oud-wood-real"), gallery: [img("oud-wood-real")],
+    // oud-wood.jpg label reads 50 ml; oud-wood-real.jpg reads 100 ml.
+    image: img("oud-wood"), gallery: [img("oud-wood"), img("oud-wood-real")],
+    galleryByVolume: { "50ml": [img("oud-wood")], "100ml": [img("oud-wood-real")] },
     notes: { top: ["Black Pepper", "Cardamom"], heart: ["Aged Oud", "Leather"], base: ["Sandalwood", "Vetiver", "Amber"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Evening", "Formal", "Winter"], moods: ["Bold", "Mysterious"],
@@ -132,10 +149,11 @@ export const products: Product[] = [
     id: "p-sukoon", slug: "sukoon", name: "Sukoon", tagline: "The scent of calm",
     price: 899, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 549 }, "100ml": { price: 899 } },
-    image: img("sukoon-1"), gallery: [img("sukoon-1"), img("sukoon-2")],
-    // sukoon-1 shows the 100ml bottle (label reads "100 ml"); sukoon-2 is a
-    // distinctly different bottle design used for the 50ml size.
-    galleryByVolume: { "50ml": [img("sukoon-2")], "100ml": [img("sukoon-1")] },
+    // Both available shots are labeled 100 ml (different bottle designs). List at 100ml
+    // so shop price matches the bottle; no 50ml photo asset yet.
+    featuredVolume: "100ml",
+    image: img("sukoon-1"),
+    gallery: [img("sukoon-1"), img("sukoon-2")],
     notes: { top: ["Lavender", "Bergamot"], heart: ["Cedar", "Iris"], base: ["Amber", "Tonka", "Musk"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Office", "Relaxed Evenings"], moods: ["Calm", "Grounded"],
@@ -147,6 +165,8 @@ export const products: Product[] = [
     id: "p-touch", slug: "touch", name: "Touch", tagline: "Soft. Sensual. Unforgettable.",
     price: 799, compareAt: 999, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 499, compareAt: 599 }, "100ml": { price: 799, compareAt: 999 } },
+    // Only photo is labeled 50 ml.
+    featuredVolume: "50ml",
     image: img("touch"), gallery: [img("touch")],
     notes: { top: ["Pear", "Pink Pepper"], heart: ["White Flowers", "Iris"], base: ["Vanilla", "Cashmere Musk"] },
     longevity: "8 hours", projection: "Moderate",
@@ -159,6 +179,7 @@ export const products: Product[] = [
     id: "p-ocean-water", slug: "ocean-water", name: "Ocean Water", tagline: "A breath of the sea",
     price: 749, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449 }, "100ml": { price: 749 } },
+    featuredVolume: "100ml",
     image: img("ocean-water"), gallery: [img("ocean-water")],
     notes: { top: ["Marine Accord", "Citrus"], heart: ["Sage", "Lavender"], base: ["Driftwood", "Musk"] },
     longevity: "6-8 hours", projection: "Moderate",
@@ -171,7 +192,10 @@ export const products: Product[] = [
     id: "p-white-musk", slug: "white-musk", name: "White Musk", tagline: "Clean, quiet luxury",
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
-    image: img("white-musk-real"), gallery: [img("white-musk-real")],
+    // Both photos are labeled 50 ml — no 100ml asset yet.
+    featuredVolume: "50ml",
+    image: img("white-musk-real"),
+    gallery: [img("white-musk-real"), img("white-musk")],
     notes: { top: ["Aldehydes", "Bergamot"], heart: ["White Musk", "Lily"], base: ["Cedar", "Soft Amber"] },
     longevity: "8 hours", projection: "Soft",
     occasions: ["Daily Wear", "Office", "Layering"], moods: ["Clean", "Elegant"],
@@ -183,7 +207,9 @@ export const products: Product[] = [
     id: "p-temptation", slug: "temptation", name: "Temptation", tagline: "Impossible to resist",
     price: 749, compareAt: 1099, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
-    image: img("temptation-real"), gallery: [img("temptation-real")],
+    featuredVolume: "100ml",
+    // Both temptation shots are labeled 100 ml (different bottle styles).
+    image: img("temptation-real"), gallery: [img("temptation-real"), img("temptation")],
     notes: { top: ["Black Currant", "Raspberry"], heart: ["Orchid", "Rose"], base: ["Vanilla", "Praline", "Musk"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Date Night", "Evening", "Parties"], moods: ["Romantic", "Bold"],
@@ -195,7 +221,9 @@ export const products: Product[] = [
     id: "p-rose-petals", slug: "rose-petals", name: "Rose Petals", tagline: "A garden in bloom",
     price: 649, compareAt: 849, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
-    image: img("rose-petals-real"), gallery: [img("rose-petals-real")],
+    featuredVolume: "100ml",
+    // Both rose-petals shots are labeled 100 ml (different bottle styles).
+    image: img("rose-petals-real"), gallery: [img("rose-petals-real"), img("rose-petals")],
     notes: { top: ["Rose Petals", "Lychee"], heart: ["Turkish Rose", "Peony"], base: ["White Musk", "Sandalwood"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Weddings", "Gifting"], moods: ["Feminine", "Joyful"],
@@ -207,7 +235,9 @@ export const products: Product[] = [
     id: "p-legend", slug: "legend", name: "Legend", tagline: "Wear your story",
     price: 649, compareAt: 849, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
-    image: img("legend-real"), gallery: [img("legend-real")],
+    featuredVolume: "100ml",
+    // Both legend shots are labeled 100 ml (different bottle styles).
+    image: img("legend-real"), gallery: [img("legend-real"), img("legend")],
     notes: { top: ["Lavender", "Mint"], heart: ["Sage", "Geranium"], base: ["Cedar", "Tonka", "Amber"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Office", "Evening", "Formal"], moods: ["Confident", "Classic"],
@@ -401,6 +431,7 @@ export const products: Product[] = [
     id: "p-million", slug: "million", name: "Million", tagline: "Feel the fortune",
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    featuredVolume: "100ml",
     image: img("million"), gallery: [img("million")],
     notes: { top: ["Bergamot", "Mandarin"], heart: ["Cinnamon", "Rose"], base: ["Amber", "Patchouli", "Leather"] },
     longevity: "8-10 hours", projection: "Strong",
@@ -413,6 +444,7 @@ export const products: Product[] = [
     id: "p-smoke", slug: "smoke", name: "Smoke", tagline: "Dark, magnetic, unforgettable",
     price: 749, compareAt: 1099, category: "Perfume", gender: "Men", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    featuredVolume: "100ml",
     image: img("smoke"), gallery: [img("smoke")],
     notes: { top: ["Smoke Accord", "Black Pepper"], heart: ["Leather", "Oud"], base: ["Vetiver", "Amber"] },
     longevity: "10-12 hours", projection: "Strong",
@@ -425,6 +457,7 @@ export const products: Product[] = [
     id: "p-dubai-fame", slug: "dubai-fame", name: "Dubai Fame", tagline: "Exotic Gulf glamour",
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 349, compareAt: 749 }, "100ml": { price: 549, compareAt: 999 } },
+    featuredVolume: "100ml",
     image: img("dubai-fame"), gallery: [img("dubai-fame")],
     notes: { top: ["Saffron", "Dates"], heart: ["Oud", "Rose"], base: ["Amber", "Musk"] },
     longevity: "10+ hours", projection: "Strong",
@@ -437,6 +470,7 @@ export const products: Product[] = [
     id: "p-valentine", slug: "valentine", name: "Valentine", tagline: "Easy to fall for",
     price: 749, compareAt: 1099, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    featuredVolume: "100ml",
     image: img("valentine"), gallery: [img("valentine")],
     notes: { top: ["Red Berries", "Pink Pepper"], heart: ["Rose", "Peony"], base: ["Musk", "Vanilla"] },
     longevity: "8-10 hours", projection: "Moderate",
@@ -449,6 +483,7 @@ export const products: Product[] = [
     id: "p-aura", slug: "aura", name: "Aura", tagline: "Quiet luxury, worn daily",
     price: 949, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 599, compareAt: 799 }, "100ml": { price: 949, compareAt: 1299 } },
+    featuredVolume: "100ml",
     image: img("aura"), gallery: [img("aura")],
     notes: { top: ["Bergamot", "Iris"], heart: ["Woody Florals"], base: ["Sandalwood", "Amber", "Musk"] },
     longevity: "8-10 hours", projection: "Moderate",
@@ -461,6 +496,7 @@ export const products: Product[] = [
     id: "p-melody", slug: "melody", name: "Melody", tagline: "Sweet & enchanting",
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 349, compareAt: 599 }, "100ml": { price: 549, compareAt: 999 } },
+    featuredVolume: "100ml",
     image: img("melody"), gallery: [img("melody")],
     notes: { top: ["Pear", "Bergamot"], heart: ["Jasmine", "Violet"], base: ["Musk", "Tonka"] },
     longevity: "6-8 hours", projection: "Moderate",
@@ -473,6 +509,7 @@ export const products: Product[] = [
     id: "p-choco-blast", slug: "choco-blast", name: "Choco Blast", tagline: "Sweet, cozy, addictive",
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
+    featuredVolume: "100ml",
     image: img("choco-blast"), gallery: [img("choco-blast")],
     notes: { top: ["Cocoa", "Orange"], heart: ["Praline", "Vanilla"], base: ["Musk", "Tonka"] },
     longevity: "8 hours", projection: "Moderate",
@@ -485,6 +522,7 @@ export const products: Product[] = [
     id: "p-honeymoon", slug: "honeymoon", name: "Honeymoon", tagline: "Made for beginnings",
     price: 649, compareAt: 849, category: "Perfume", gender: "Women", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 399, compareAt: 499 }, "100ml": { price: 649, compareAt: 849 } },
+    featuredVolume: "100ml",
     image: img("honeymoon"), gallery: [img("honeymoon")],
     notes: { top: ["Peach", "Bergamot"], heart: ["Jasmine", "Orchid"], base: ["Vanilla", "Musk", "Amber"] },
     longevity: "8-10 hours", projection: "Moderate",
@@ -497,6 +535,7 @@ export const products: Product[] = [
     id: "p-blue-ice", slug: "blue-ice", name: "Blue Ice", tagline: "Refreshingly cool",
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 349, compareAt: 599 }, "100ml": { price: 549, compareAt: 999 } },
+    featuredVolume: "100ml",
     image: img("blue-ice"), gallery: [img("blue-ice")],
     notes: { top: ["Marine Accord", "Mint"], heart: ["Lavender", "Sage"], base: ["Musk", "Driftwood"] },
     longevity: "6-8 hours", projection: "Moderate",
@@ -747,6 +786,22 @@ export const products: Product[] = [
 export const getProduct = (slug: string) => products.find(p => p.slug === slug);
 export const amazonChoiceProducts = products.filter(p => p.amazonChoice);
 export const volumesFor = (p: Product) => p.volume && p.volume.length ? p.volume : defaultVolumes;
+
+/** Size used on shop/listing cards and as the product-page default. Prefer the
+ *  volume that matches the bottle photo (`featuredVolume` or a galleryByVolume
+ *  entry), falling back to the first sellable size. */
+export const listingVolume = (p: Product) => {
+  if (p.featuredVolume && volumesFor(p).includes(p.featuredVolume)) return p.featuredVolume;
+  const vols = volumesFor(p);
+  const withPhoto = vols.find(v => p.galleryByVolume?.[v]?.[0]);
+  return withPhoto ?? vols[0];
+};
+
+export const galleryFor = (p: Product, volume?: string) =>
+  p.galleryByVolume?.[volume ?? ""] ?? p.gallery;
+
+export const imageFor = (p: Product, volume?: string) =>
+  galleryFor(p, volume)?.[0] ?? p.image;
 
 /** Resolves { price, compareAt } for a given size. Falls back to the product's flat
  *  price/compareAt when that size has no dedicated entry in priceByVolume. */

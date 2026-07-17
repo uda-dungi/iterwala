@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
-import { priceFor } from "@/data/products";
+import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -44,7 +44,7 @@ export default function Cart() {
           {cart.map(({ product, qty, volume }) => (
             <div key={`${product.id}::${volume}`} className="luxury-card p-3 sm:p-5 flex gap-3 sm:gap-5">
               <Link to={`/product/${product.slug}`} className="shrink-0">
-                <img src={product.image} alt={product.name} className="w-20 h-24 sm:w-28 sm:h-32 object-cover rounded-sm" />
+                <img src={imageFor(product, volume)} alt={product.name} className="w-20 h-24 sm:w-28 sm:h-32 object-cover rounded-sm" />
               </Link>
               <div className="flex-1 flex flex-col min-w-0">
                 <div className="flex justify-between gap-3">

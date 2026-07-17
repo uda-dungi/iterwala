@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2 } from "lucide-react";
-import { getProduct, products, volumesFor, priceFor } from "@/data/products";
+import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor } from "@/data/products";
 import { useShop, formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -36,7 +36,7 @@ export default function ProductDetail() {
   ]);
 
   useEffect(() => {
-    if (product) { recordView(product.id); setVolume(volumesFor(product)[0]); setQty(1); setActive(0); }
+    if (product) { recordView(product.id); setVolume(listingVolume(product)); setQty(1); setActive(0); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
@@ -60,11 +60,9 @@ export default function ProductDetail() {
   if (!product) return <Navigate to="/shop" />;
   const wished = wishlist.includes(product.id);
   const vols = volumesFor(product);
-  const selectedVol = volume || vols[0];
+  const selectedVol = volume || listingVolume(product);
   const { price: unitPrice, compareAt: unitCompareAt } = priceFor(product, selectedVol);
-  // Some products (e.g. Celebrity, Sukoon) use a genuinely different bottle photo per
-  // size — fall back to the flat gallery for everything else.
-  const gallery = product.galleryByVolume?.[selectedVol] ?? product.gallery;
+  const gallery = galleryFor(product, selectedVol);
   const related = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
   const buyNow = () => { addToCart(product, qty, selectedVol); setCartOpen(false); window.location.href = "/checkout"; };
 
@@ -86,12 +84,12 @@ export default function ProductDetail() {
         <div className="space-y-4">
           {/* Mobile carousel */}
           <div className="lg:hidden relative">
-            <Carousel setApi={setApi} opts={{ loop: gallery.length > 1 }}>
+            <Carousel key={selectedVol} setApi={setApi} opts={{ loop: gallery.length > 1 }}>
               <CarouselContent>
                 {gallery.map((g, i) => (
                   <CarouselItem key={i}>
                     <div className="relative aspect-square bg-deep-brown">
-                      <img src={g} alt={product.name} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
+                      <img src={g} alt={`${product.name} ${selectedVol}`} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
                     </div>
                   </CarouselItem>
                 ))}
@@ -124,7 +122,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Desktop gallery */}
-          <div className="hidden lg:block space-y-4">
+          <div className="hidden lg:block space-y-4" key={selectedVol}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}
               className="relative aspect-[4/5] overflow-hidden rounded-sm border border-border bg-deep-brown cursor-zoom-in"
@@ -132,7 +130,7 @@ export default function ProductDetail() {
             >
               <img
                 src={gallery[active] ?? gallery[0]}
-                alt={product.name}
+                alt={`${product.name} ${selectedVol}`}
                 className={cn("w-full h-full object-cover transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
               />
               {product.badge && (

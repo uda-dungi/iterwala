@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { Product, priceFor, volumesFor } from "@/data/products";
+import { Product, priceFor, listingVolume } from "@/data/products";
 
 type CartItem = { product: Product; qty: number; volume: string };
 /** A cart line is identified by product + size, so 50ml and 100ml of the same fragrance
@@ -26,8 +26,8 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     try {
       const raw = JSON.parse(localStorage.getItem("itr_cart") || "[]") as CartItem[];
       // Carts saved before size-aware pricing shipped won't have a `volume` — backfill
-      // with the product's first size so old sessions don't crash on load.
-      return raw.map(i => ({ ...i, volume: i.volume || volumesFor(i.product)[0] }));
+      // with the listing size (matches the bottle photo) so old sessions don't crash.
+      return raw.map(i => ({ ...i, volume: i.volume || listingVolume(i.product) }));
     } catch { return []; }
   });
   const [wishlist, setWishlist] = useState<string[]>(() => {
@@ -39,7 +39,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   useEffect(() => { localStorage.setItem("itr_wish", JSON.stringify(wishlist)); }, [wishlist]);
 
   const addToCart = (p: Product, qty = 1, volume?: string) => {
-    const vol = volume || volumesFor(p)[0];
+    const vol = volume || listingVolume(p);
     setCart(prev => {
       const ex = prev.find(i => lineKey(i.product.id, i.volume) === lineKey(p.id, vol));
       if (ex) return prev.map(i => lineKey(i.product.id, i.volume) === lineKey(p.id, vol) ? { ...i, qty: i.qty + qty } : i);

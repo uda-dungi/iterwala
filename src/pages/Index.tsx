@@ -11,7 +11,7 @@ import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
 import { OrganizationSchema } from "@/components/seo/Schema";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
-import { products, collections, amazonChoiceProducts, getProduct, priceFor, type Product } from "@/data/products";
+import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, listingVolume, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
@@ -373,17 +373,20 @@ export default function Index() {
       {/* INSTAGRAM */}
       <Section eyebrow="@itrawala" title="In the World" subtitle="Tag us for a chance to be featured in our weekly edit.">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
-          {products.slice(0, 6).map((p, i) => (
-            <motion.a key={p.id} href="#"
-              initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.05 }}
-              className="aspect-square overflow-hidden rounded-sm group relative">
-              <img src={p.image} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-40 transition-opacity flex items-center justify-center">
-                <Heart className="w-6 h-6 text-ivory" />
-              </div>
-            </motion.a>
-          ))}
+          {products.slice(0, 6).map((p, i) => {
+            const cardImage = imageFor(p, listingVolume(p));
+            return (
+              <motion.a key={p.id} href="#"
+                initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+                className="aspect-square overflow-hidden rounded-sm group relative">
+                <img src={cardImage} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-40 transition-opacity flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-ivory" />
+                </div>
+              </motion.a>
+            );
+          })}
         </div>
       </Section>
 

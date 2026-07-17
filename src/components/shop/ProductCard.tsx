@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star } from "lucide-react";
-import { Product, volumesFor, priceFor } from "@/data/products";
+import { Product, imageFor, listingVolume, priceFor } from "@/data/products";
 import { useShop, formatINR } from "@/store/shop";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -10,10 +10,10 @@ import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
   const { addToCart, toggleWishlist, wishlist } = useShop();
   const wished = wishlist.includes(product.id);
-  // Card shows the entry-size price (first size in the list, e.g. 50ml) — the product
-  // page is where the shopper picks a size and sees that size's price.
-  const defaultVolume = volumesFor(product)[0];
-  const cardImage = product.galleryByVolume?.[defaultVolume]?.[0] ?? product.image;
+  // Card shows the bottle photo's size (featuredVolume / galleryByVolume) so the
+  // price on the tile always matches the ml printed on the bottle.
+  const defaultVolume = listingVolume(product);
+  const cardImage = imageFor(product, defaultVolume);
   const { price: cardPrice, compareAt: cardCompareAt } = priceFor(product, defaultVolume);
 
   return (
@@ -56,7 +56,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           {/* Always visible on mobile (no hover there) — only hides-then-reveals-on-hover from sm+ up */}
           <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-4 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-500">
             <button
-              onClick={(e) => { e.preventDefault(); addToCart(product, 1, volumesFor(product)[0]); toast.success(`${product.name} added to cart`); }}
+              onClick={(e) => { e.preventDefault(); addToCart(product, 1, defaultVolume); toast.success(`${product.name} added to cart`); }}
               className="w-full bg-gradient-gold text-primary-foreground py-2 sm:py-3 text-[10px] sm:text-xs tracking-luxe uppercase font-semibold flex items-center justify-center gap-1.5 sm:gap-2 hover:shadow-gold transition-shadow"
             >
               <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Add to Cart

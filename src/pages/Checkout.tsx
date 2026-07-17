@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
-import { priceFor } from "@/data/products";
+import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,7 +165,7 @@ export default function Checkout() {
           <div className="space-y-3">
             {cart.map(({ product, qty, volume }) => (
               <div key={`${product.id}::${volume}`} className="flex gap-3 items-center text-sm">
-                <img src={product.image} alt="" className="w-14 h-16 object-cover rounded-sm" />
+                <img src={imageFor(product, volume)} alt="" className="w-14 h-16 object-cover rounded-sm" />
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-ivory truncate">{product.name}</p>
                   <p className="text-xs text-muted-foreground">{volume} · Qty {qty}</p>

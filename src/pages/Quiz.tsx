@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, RotateCcw, ArrowLeft, Star, ShoppingBag } from "lucide-react";
-import { products, Product } from "@/data/products";
+import { products, Product, imageFor, listingVolume, priceFor } from "@/data/products";
 import { useShop, formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -108,6 +108,9 @@ export default function Quiz() {
 
   const restart = () => { setStep(0); setAnswers({}); setDone(false); };
   const progress = done ? 100 : (step / questions.length) * 100;
+  const resultVolume = result ? listingVolume(result.match) : undefined;
+  const resultCardImage = result ? imageFor(result.match, resultVolume) : undefined;
+  const resultCardPrice = result ? priceFor(result.match, resultVolume).price : 0;
 
   return (
     <div className="container py-8 md:py-16 min-h-[70vh]">
@@ -153,19 +156,19 @@ export default function Quiz() {
           <motion.div key="result"
             initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
             className="max-w-5xl mx-auto">
-            <div className="text-center mb-10">
-              <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Your Signature Scent</p>
-              <h2 className="font-display text-4xl md:text-5xl text-gold mt-3">We found your match</h2>
-            </div>
-            <div className="luxury-card grid md:grid-cols-2 gap-0 overflow-hidden">
-              <div className="relative aspect-square md:aspect-auto bg-deep-brown">
-                <img src={result.match.image} alt={result.match.name} className="w-full h-full object-cover" />
-                {result.match.badge && (
-                  <span className="absolute top-4 left-4 text-[10px] tracking-luxe uppercase px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
-                    {result.match.badge}
-                  </span>
-                )}
+              <div className="text-center mb-10">
+                <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Your Signature Scent</p>
+                <h2 className="font-display text-4xl md:text-5xl text-gold mt-3">We found your match</h2>
               </div>
+              <div className="luxury-card grid md:grid-cols-2 gap-0 overflow-hidden">
+                <div className="relative aspect-square md:aspect-auto bg-deep-brown">
+                  <img src={resultCardImage} alt={result.match.name} className="w-full h-full object-cover" />
+                  {result.match.badge && (
+                    <span className="absolute top-4 left-4 text-[10px] tracking-luxe uppercase px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
+                      {result.match.badge}
+                    </span>
+                  )}
+                </div>
               <div className="p-8 md:p-10 flex flex-col justify-center">
                 <p className="text-[10px] tracking-luxe uppercase text-primary">{result.match.category} · {result.match.gender}</p>
                 <h3 className="font-display text-4xl text-ivory mt-2">{result.match.name}</h3>
@@ -177,10 +180,10 @@ export default function Quiz() {
                   <span className="text-xs text-muted-foreground ml-1">({result.match.reviews})</span>
                 </div>
                 <p className="text-muted-foreground text-sm leading-relaxed mt-4">{result.match.description}</p>
-                <p className="font-display text-3xl text-gold mt-5">{formatINR(result.match.price)}</p>
+                <p className="font-display text-3xl text-gold mt-5">{formatINR(resultCardPrice)}</p>
                 <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <Button variant="luxury" size="lg" className="flex-1"
-                    onClick={() => { addToCart(result.match); toast.success(`${result.match.name} added to cart`); }}>
+                    onClick={() => { addToCart(result.match, 1, resultVolume); toast.success(`${result.match.name} added to cart`); }}>
                     <ShoppingBag className="w-4 h-4 mr-1" /> Add to Cart
                   </Button>
                   <Button asChild variant="outline-gold" size="lg" className="flex-1">
@@ -193,17 +196,22 @@ export default function Quiz() {
               <p className="text-center text-[10px] tracking-[0.5em] uppercase text-primary">You May Also Love</p>
               <h3 className="text-center font-display text-3xl text-ivory mt-2 mb-8">Other Great Matches</h3>
               <div className="grid sm:grid-cols-3 gap-6">
-                {result.alts.map(p => (
-                  <Link key={p.id} to={`/product/${p.slug}`} className="luxury-card group">
-                    <div className="aspect-[4/5] overflow-hidden bg-deep-brown">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    </div>
-                    <div className="p-4 text-center">
-                      <h4 className="font-serif text-lg text-ivory group-hover:text-primary transition-colors">{p.name}</h4>
-                      <p className="text-sm text-gold mt-1">{formatINR(p.price)}</p>
-                    </div>
-                  </Link>
-                ))}
+                {result.alts.map(p => {
+                  const defaultVolume = listingVolume(p);
+                  const cardImage = imageFor(p, defaultVolume);
+                  const { price: cardPrice } = priceFor(p, defaultVolume);
+                  return (
+                    <Link key={p.id} to={`/product/${p.slug}`} className="luxury-card group">
+                      <div className="aspect-[4/5] overflow-hidden bg-deep-brown">
+                        <img src={cardImage} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      </div>
+                      <div className="p-4 text-center">
+                        <h4 className="font-serif text-lg text-ivory group-hover:text-primary transition-colors">{p.name}</h4>
+                        <p className="text-sm text-gold mt-1">{formatINR(cardPrice)}</p>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
             <div className="flex justify-center mt-12">

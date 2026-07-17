@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Filter, X } from "lucide-react";
-import { products } from "@/data/products";
+import { products, priceFor, listingVolume } from "@/data/products";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,17 +74,20 @@ export default function Shop() {
 
     const allNotes = (p: typeof products[number]) => [...p.notes.top, ...p.notes.heart, ...p.notes.base].map(n => n.toLowerCase());
 
-    let r = products.filter(p =>
-      (!selectedGender || p.gender === selectedGender) &&
-      (!selectedCategory || p.category === selectedCategory) &&
-      (!selectedMood || p.moods.some(m => m.toLowerCase() === selectedMood.toLowerCase())) &&
-      p.price <= price[0] &&
-      (selectedNotes.length === 0 || selectedNotes.some(n => allNotes(p).some(pn => pn.includes(n.toLowerCase())))) &&
-      (selectedOccasions.length === 0 || selectedOccasions.some(o => p.occasions.some(po => po.toLowerCase() === o.toLowerCase()))) &&
-      matchesSearch(p)
-    );
-    if (sort === "price-low") r = [...r].sort((a, b) => a.price - b.price);
-    if (sort === "price-high") r = [...r].sort((a, b) => b.price - a.price);
+    let r = products.filter(p => {
+      const priceForDefault = priceFor(p, listingVolume(p)).price;
+      return (
+        (!selectedGender || p.gender === selectedGender) &&
+        (!selectedCategory || p.category === selectedCategory) &&
+        (!selectedMood || p.moods.some(m => m.toLowerCase() === selectedMood.toLowerCase())) &&
+        priceForDefault <= price[0] &&
+        (selectedNotes.length === 0 || selectedNotes.some(n => allNotes(p).some(pn => pn.includes(n.toLowerCase())))) &&
+        (selectedOccasions.length === 0 || selectedOccasions.some(o => p.occasions.some(po => po.toLowerCase() === o.toLowerCase()))) &&
+        matchesSearch(p)
+      );
+    });
+    if (sort === "price-low") r = [...r].sort((a, b) => priceFor(a, listingVolume(a)).price - priceFor(b, listingVolume(b)).price);
+    if (sort === "price-high") r = [...r].sort((a, b) => priceFor(b, listingVolume(b)).price - priceFor(a, listingVolume(a)).price);
     if (sort === "new") r = r.filter(p => p.newArrival).concat(r.filter(p => !p.newArrival));
     if (sort === "best") r = r.filter(p => p.bestSeller).concat(r.filter(p => !p.bestSeller));
     return r;

@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
-import { priceFor } from "@/data/products";
+import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
 
 export function CartDrawer() {
@@ -40,7 +40,7 @@ export function CartDrawer() {
               ) : cart.map(({ product, qty, volume }) => (
                 <motion.div key={`${product.id}::${volume}`} layout className="flex gap-4 group">
                   <Link to={`/product/${product.slug}`} onClick={() => setCartOpen(false)} className="shrink-0">
-                    <img src={product.image} alt={product.name} className="w-24 h-28 object-cover rounded-sm" />
+                    <img src={imageFor(product, volume)} alt={product.name} className="w-24 h-28 object-cover rounded-sm" />
                   </Link>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif text-lg text-ivory">{product.name}</h3>
