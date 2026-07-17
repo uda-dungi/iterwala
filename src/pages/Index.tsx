@@ -23,8 +23,17 @@ import perfumeCollectionImg from "@/assets/products/celebrity-1.jpg";
 // signature-quad's box+bottles are shot straight-on and centered, so it reads cleanly
 // even cropped tight — swap back only if you also adjust the object-position.
 import giftSetCollectionImg from "@/assets/products/giftset-signature-quad.jpg";
+import reel1 from "@/assets/reels/reel-1.mp4";
+import reel2 from "@/assets/reels/reel-2.mp4";
+import reel3 from "@/assets/reels/reel-3.mp4";
+import reel4 from "@/assets/reels/reel-4.mp4";
+import reel5 from "@/assets/reels/reel-5.mp4";
+import reel6 from "@/assets/reels/reel-6.mp4";
+import reel7 from "@/assets/reels/reel-7.mp4";
+import reel8 from "@/assets/reels/reel-8.mp4";
 
 const collectionImg = [perfumeCollectionImg, collection, giftSetCollectionImg];
+const reelAssets = [reel1, reel2, reel3, reel4, reel5, reel6, reel7, reel8];
 
 const whyChoose = [
   { Icon: Leaf, t: "Pure Ingredients", d: "Distilled in Kannauj from rose petals, oud, sandal — never synthetic shortcuts." },
@@ -40,10 +49,10 @@ const REEL_VIEWS = ["24.6K", "18.2K", "31.4K", "12.8K", "9.7K", "42.1K"];
 
 const moods = ["Romantic", "Confident", "Mysterious", "Fresh", "Opulent", "Calm"];
 const noteFamilies = [
-  { name: "Oud & Wood", desc: "Smoky · Rich · Eternal", color: "from-amber-900 to-stone-950" },
-  { name: "Rose & Floral", desc: "Petal · Soft · Luminous", color: "from-rose-900 to-stone-950" },
-  { name: "Amber & Spice", desc: "Warm · Bold · Magnetic", color: "from-orange-900 to-stone-950" },
-  { name: "Musk & Skin", desc: "Sensual · Quiet · Lasting", color: "from-stone-700 to-stone-950" },
+  { name: "Oud & Wood", desc: "Smoky · Rich · Eternal", color: "from-amber-900 to-stone-950", notes: ["Oud"] },
+  { name: "Rose & Floral", desc: "Petal · Soft · Luminous", color: "from-rose-900 to-stone-950", notes: ["Rose"] },
+  { name: "Amber & Spice", desc: "Warm · Bold · Magnetic", color: "from-orange-900 to-stone-950", notes: ["Amber"] },
+  { name: "Musk & Skin", desc: "Sensual · Quiet · Lasting", color: "from-stone-700 to-stone-950", notes: ["Musk"] },
 ];
 
 // Curated (not auto-derived) so the homepage always shows exactly these four, in this
@@ -285,10 +294,15 @@ export default function Index() {
           {noteFamilies.map((n, i) => (
             <motion.div key={n.name}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className={`luxury-card aspect-square lg:aspect-[4/5] flex flex-col justify-end p-3 lg:p-6 bg-gradient-to-br ${n.color}`}>
-              <h3 className="font-display text-lg lg:text-3xl text-ivory">{n.name}</h3>
-              <p className="text-[10px] lg:text-xs tracking-luxe uppercase text-warm-beige/80 mt-1 lg:mt-2">{n.desc}</p>
+              viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+              <Link
+                to={`/shop?notes=${n.notes.map(encodeURIComponent).join(",")}`}
+                aria-label={`Explore ${n.name} fragrances`}
+                className={`luxury-card aspect-square lg:aspect-[4/5] flex flex-col justify-end p-3 lg:p-6 bg-gradient-to-br ${n.color} transition-all hover:-translate-y-1 hover:shadow-gold`}
+              >
+                <h3 className="font-display text-lg lg:text-3xl text-ivory">{n.name}</h3>
+                <p className="text-[10px] lg:text-xs tracking-luxe uppercase text-warm-beige/80 mt-1 lg:mt-2">{n.desc}</p>
+              </Link>
             </motion.div>
           ))}
         </div>
@@ -345,7 +359,7 @@ export default function Index() {
 
       {/* INSTAGRAM REELS — drop real reel permalinks into site.instagramReels (src/config/site.ts) to replace these placeholders. Swipeable carousel with view counts + dots. */}
       <Section eyebrow="@itrawala" title="Reels We're Loving" subtitle="Straight from our Instagram — the drops, the details, the behind-the-scenes.">
-        <ReelsSlider items={(site.instagramReels.length ? site.instagramReels : products.slice(0, 6).map(p => p.image)).slice(0, 8)} />
+        <ReelsSlider items={site.instagramReels.length ? site.instagramReels : reelAssets} />
         <div className="text-center mt-8">
           <Button asChild variant="outline-gold" size="lg"><a href={instagramLink} target="_blank" rel="noopener noreferrer">Follow @{site.instagramHandle}</a></Button>
         </div>
@@ -444,6 +458,7 @@ function ReelsSlider({ items }: { items: string[] }) {
   const [api, setApi] = useState<CarouselApi>();
   const [selected, setSelected] = useState(0);
   const [dotCount, setDotCount] = useState(0);
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (!api) return;
@@ -457,32 +472,82 @@ function ReelsSlider({ items }: { items: string[] }) {
   }, [api]);
 
   return (
-    <div>
-      <Carousel setApi={setApi} opts={{ loop: true, align: "start" }} aria-label="Instagram reels, swipe to browse">
-        <CarouselContent>
-          {items.map((src, i) => (
-            <CarouselItem key={i} className="basis-[46%] sm:basis-1/3 lg:basis-1/4">
-              <motion.a href={instagramLink} target="_blank" rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: (i % 4) * 0.08 }}
-                className="relative aspect-[9/16] overflow-hidden rounded-sm luxury-card group block">
-                <img src={src} alt="Itrawala Instagram reel" loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/60 backdrop-blur flex items-center justify-center border border-primary/40 group-hover:scale-110 transition-transform">
-                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary fill-primary ml-0.5" />
-                  </div>
-                </div>
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-background/70 backdrop-blur rounded-full px-2 py-1">
-                  <Eye className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] text-ivory font-medium">{REEL_VIEWS[i % REEL_VIEWS.length]}</span>
-                </div>
-              </motion.a>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <>
+      <div>
+        <Carousel setApi={setApi} opts={{ loop: true, align: "start" }} aria-label="Instagram reels, swipe to browse">
+          <CarouselContent>
+            {items.map((src, i) => {
+              const isVideo = src.endsWith(".mp4");
+              return (
+                <CarouselItem key={i} className="basis-full min-w-full lg:basis-1/4 lg:min-w-[25%]">
+                  <motion.button
+                    type="button"
+                    onClick={() => setPreviewIndex(i)}
+                    initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }} transition={{ delay: (i % 4) * 0.08 }}
+                    className="relative aspect-[9/16] overflow-hidden rounded-sm luxury-card group block w-full text-left"
+                    aria-label={`Open reel ${i + 1} preview with sound`}
+                  >
+                    {isVideo ? (
+                      <video
+                        src={src}
+                        muted
+                        loop
+                        playsInline
+                        autoPlay
+                        preload="metadata"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img src={src} alt="Itrawala Instagram reel" loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-background/70 backdrop-blur flex items-center justify-center border border-primary/40 transition-transform group-hover:scale-110">
+                        <Play className="w-5 h-5 sm:w-6 sm:h-6 text-primary fill-primary ml-0.5" />
+                      </div>
+                      <span className="text-[11px] uppercase tracking-[0.3em] text-ivory/90 bg-background/60 backdrop-blur rounded-full px-3 py-1">
+                        Tap to unmute
+                      </span>
+                    </div>
+                    <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-background/70 backdrop-blur rounded-full px-2 py-1">
+                      <Eye className="w-3 h-3 text-primary" />
+                      <span className="text-[10px] text-ivory font-medium">{REEL_VIEWS[i % REEL_VIEWS.length]}</span>
+                    </div>
+                  </motion.button>
+                </CarouselItem>
+              );
+            })}
+          </CarouselContent>
+        </Carousel>
+      </div>
+
+      {previewIndex !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <div className="relative w-full max-w-5xl rounded-[32px] overflow-hidden bg-slate-950 shadow-2xl">
+            <button
+              type="button"
+              onClick={() => setPreviewIndex(null)}
+              className="absolute right-4 top-4 z-10 rounded-full border border-border bg-background/90 px-4 py-2 text-sm text-ivory transition hover:bg-background"
+            >
+              Close
+            </button>
+            <video
+              src={items[previewIndex]}
+              autoPlay
+              controls
+              muted={false}
+              playsInline
+              className="w-full max-h-[85vh] bg-black object-contain"
+            />
+            <div className="absolute left-4 bottom-4 rounded-full bg-background/90 px-3 py-2 text-sm text-ivory">
+              Sound is enabled for preview
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Dots */}
       <div className="flex items-center justify-center gap-2 mt-6">
         {Array.from({ length: dotCount }).map((_, i) => (
@@ -495,7 +560,7 @@ function ReelsSlider({ items }: { items: string[] }) {
           />
         ))}
       </div>
-    </div>
+    </>
   );
 }
 

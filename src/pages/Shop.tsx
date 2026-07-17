@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Filter, X } from "lucide-react";
@@ -20,8 +20,16 @@ export default function Shop() {
   const [sort, setSort] = useState(params.get("sort") || "popular");
   const [price, setPrice] = useState<[number]>([4000]);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
+  const [selectedNotes, setSelectedNotes] = useState<string[]>(() => {
+    const notes = params.get("notes");
+    return notes ? notes.split(",").filter(Boolean).map(decodeURIComponent) : [];
+  });
   const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const notes = params.get("notes");
+    setSelectedNotes(notes ? notes.split(",").filter(Boolean).map(decodeURIComponent) : []);
+  }, [params.toString()]);
 
   const selectedGender = params.get("gender");
   const selectedCategory = params.get("category");
@@ -34,8 +42,19 @@ export default function Shop() {
     setParams(next);
   };
 
+  const updateNotesParam = (nextNotes: string[]) => {
+    const next = new URLSearchParams(params);
+    if (nextNotes.length) next.set("notes", nextNotes.map(encodeURIComponent).join(","));
+    else next.delete("notes");
+    setParams(next);
+  };
+
   const toggleInList = (list: string[], val: string, setList: (v: string[]) => void) => {
-    setList(list.includes(val) ? list.filter(v => v !== val) : [...list, val]);
+    const next = list.includes(val) ? list.filter(v => v !== val) : [...list, val];
+    setList(next);
+    if (setList === setSelectedNotes) {
+      updateNotesParam(next);
+    }
   };
 
   const setSearch = (val: string) => {
@@ -116,7 +135,7 @@ export default function Shop() {
           onClick={() => {
             setSelectedNotes([]); setSelectedOccasions([]); setPrice([4000]);
             const next = new URLSearchParams(params);
-            next.delete("gender"); next.delete("category");
+            next.delete("gender"); next.delete("category"); next.delete("notes");
             setParams(next);
           }}
           className="text-xs text-primary hover:text-gold underline underline-offset-2"

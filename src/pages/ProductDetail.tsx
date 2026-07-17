@@ -25,6 +25,15 @@ export default function ProductDetail() {
   const [zoom, setZoom] = useState(false);
   const [volume, setVolume] = useState("");
   const [api, setApi] = useState<CarouselApi>();
+  const [reviewFormOpen, setReviewFormOpen] = useState(false);
+  const [reviewName, setReviewName] = useState("");
+  const [reviewText, setReviewText] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviews, setReviews] = useState([
+    { name: "Aisha M.", rating: 5, text: "Stunning. The longevity is unreal. Compliments all day." },
+    { name: "Rohan K.", rating: 5, text: "Worth every rupee. The packaging alone feels like a gift." },
+    { name: "Priya S.", rating: 5, text: "My new signature scent. Subtle, sophisticated, addictive." },
+  ]);
 
   useEffect(() => {
     if (product) { recordView(product.id); setVolume(volumesFor(product)[0]); setQty(1); setActive(0); }
@@ -277,21 +286,10 @@ export default function ProductDetail() {
             <AccordionItem value="reviews">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Reviews ({product.reviews})</AccordionTrigger>
               <AccordionContent className="space-y-4">
-                {[
-                  { n: "Aisha M.", t: "Stunning. The longevity is unreal. Compliments all day." },
-                  { n: "Rohan K.", t: "Worth every rupee. The packaging alone feels like a gift." },
-                  { n: "Priya S.", t: "My new signature scent. Subtle, sophisticated, addictive." },
-                ].map((r, i) => (
-                  <div key={i} className="border border-border p-4 rounded-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="w-3 h-3 fill-primary text-primary" />)}
-                      </div>
-                      <span className="text-sm text-primary">{r.n}</span>
-                    </div>
-                    <p className="text-muted-foreground mt-2 font-serif italic text-sm">"{r.t}"</p>
-                  </div>
-                ))}
+                <p className="text-sm text-muted-foreground">See detailed reviews in the dedicated section below, or add your own review.</p>
+                <Button variant="outline-gold" size="sm" onClick={() => setReviewFormOpen(v => !v)}>
+                  {reviewFormOpen ? "Hide review form" : "Write a review"}
+                </Button>
               </AccordionContent>
             </AccordionItem>
 
@@ -318,7 +316,134 @@ export default function ProductDetail() {
         </motion.div>
       </section>
 
+      <section className="container py-10 md:py-16">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+          <div>
+            <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Customer Reviews</p>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-ivory mt-2">Reviews ({product.reviews})</h2>
+            <p className="text-sm text-muted-foreground mt-1">From verified Itrawala customers — read what people love about this scent.</p>
+          </div>
+          <Button variant="outline-gold" size="lg" onClick={() => setReviewFormOpen(v => !v)}>
+            {reviewFormOpen ? "Hide review form" : "Write a review"}
+          </Button>
+        </div>
+
+        <div className="grid gap-4">
+          {reviews.map((review, index) => (
+            <div key={index} className="border border-border p-5 rounded-sm bg-background/60">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }).map((_, starIndex) => (
+                      <Star key={starIndex} className={cn("w-3 h-3", starIndex < review.rating ? "fill-primary text-primary" : "text-muted")} />
+                    ))}
+                  </div>
+                  <span className="text-sm text-primary font-semibold">{review.name}</span>
+                </div>
+                <span className="text-[11px] uppercase tracking-luxe text-muted-foreground">Verified Buyer</span>
+              </div>
+              <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{review.text}</p>
+            </div>
+          ))}
+        </div>
+
+        {reviewFormOpen && (
+          <div className="mt-8 border border-border rounded-sm p-6 bg-deep-brown/80">
+            <h3 className="font-display text-xl text-ivory mb-4">Share your review</h3>
+            <div className="grid gap-4">
+              <label className="space-y-2 text-sm text-muted-foreground">
+                <span>Your name</span>
+                <input
+                  value={reviewName}
+                  onChange={(e) => setReviewName(e.target.value)}
+                  className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory focus:border-primary focus:outline-none"
+                  placeholder="Aisha M."
+                />
+              </label>
+              <label className="space-y-2 text-sm text-muted-foreground">
+                <span>Rating</span>
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 5 }).map((_, starIndex) => (
+                    <button
+                      key={starIndex}
+                      type="button"
+                      onClick={() => setReviewRating(starIndex + 1)}
+                      className="text-amber-300"
+                      aria-label={`Rate ${starIndex + 1} star${starIndex === 0 ? "" : "s"}`}
+                    >
+                      <Star className={cn("w-5 h-5", starIndex < reviewRating ? "fill-primary text-primary" : "text-muted")} />
+                    </button>
+                  ))}
+                </div>
+              </label>
+              <label className="space-y-2 text-sm text-muted-foreground">
+                <span>Your review</span>
+                <textarea
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory focus:border-primary focus:outline-none"
+                  placeholder="Tell us what you loved about this fragrance..."
+                />
+              </label>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <span className="text-xs text-muted-foreground">Your review will appear below once submitted.</span>
+                <Button
+                  variant="luxury"
+                  size="lg"
+                  onClick={() => {
+                    if (!reviewName.trim() || !reviewText.trim()) {
+                      toast.error("Please enter your name and review text.");
+                      return;
+                    }
+                    setReviews(prev => [...prev, { name: reviewName.trim(), rating: reviewRating, text: reviewText.trim() }]);
+                    setReviewName("");
+                    setReviewText("");
+                    setReviewRating(5);
+                    toast.success("Thank you! Your review has been added.");
+                  }}
+                >
+                  Submit review
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
       <RecentlyViewed excludeId={product.id} />
+
+      {product.category === "Collector's Edition" && (
+        <section className="container py-10 md:py-16">
+          <div className="text-center mb-6 md:mb-12">
+            <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Collector's Edition</p>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-ivory mt-2">All Collector's Edition Photos</h2>
+            <div className="gold-divider w-24 mx-auto mt-4" />
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {products.filter((p) => p.category === "Collector's Edition").map((p) => (
+              <Link key={p.id} to={`/product/${p.slug}`} className="group overflow-hidden rounded-xl border border-border bg-background/80 transition hover:-translate-y-1">
+                <div className="overflow-hidden bg-slate-950">
+                  <img src={p.gallery[0]} alt={p.name} className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105" />
+                </div>
+                <div className="p-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    {p.gallery.map((photo, index) => (
+                      <div key={index} className="aspect-square overflow-hidden rounded-sm border border-border">
+                        <img src={photo} alt={`${p.name} photo ${index + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <h3 className="font-display text-lg text-ivory">{p.name}</h3>
+                    <p className="text-sm text-muted-foreground mt-2">{p.tagline}</p>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Related */}
       <section className="container py-10 md:py-16">

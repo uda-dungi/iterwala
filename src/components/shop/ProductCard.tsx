@@ -12,7 +12,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const wished = wishlist.includes(product.id);
   // Card shows the entry-size price (first size in the list, e.g. 50ml) — the product
   // page is where the shopper picks a size and sees that size's price.
-  const { price: cardPrice, compareAt: cardCompareAt } = priceFor(product, volumesFor(product)[0]);
+  const defaultVolume = volumesFor(product)[0];
+  const cardImage = product.galleryByVolume?.[defaultVolume]?.[0] ?? product.image;
+  const { price: cardPrice, compareAt: cardCompareAt } = priceFor(product, defaultVolume);
 
   return (
     <motion.article
