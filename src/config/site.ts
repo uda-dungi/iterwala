@@ -12,6 +12,9 @@ const env = import.meta.env;
 export const isSet = (v?: string) =>
   Boolean(v && v.trim() && !v.trim().toLowerCase().startsWith("placeholder"));
 
+const stripHandle = (value?: string) =>
+  value ? value.trim().replace(/^@+/, "") : "";
+
 export const site = {
   brand: "Itrawala",
   tagline: "Crafted Fragrances, Timeless Impressions",
@@ -30,8 +33,8 @@ export const site = {
   /** Digits only, country code first, no "+" or spaces — e.g. "919876543210". */
   whatsappNumber: (env.VITE_WHATSAPP_NUMBER as string) || "917014657175",
   amazonStoreUrl: (env.VITE_AMAZON_STORE_URL as string) || "PLACEHOLDER_AMAZON_STORE_URL",
-  instagramHandle: (env.VITE_INSTAGRAM_HANDLE as string) || "itrawalaa",
-  facebookHandle: (env.VITE_FACEBOOK_HANDLE as string) || "theitrawala",
+  instagramHandle: stripHandle(env.VITE_INSTAGRAM_HANDLE as string) || "itrawalaa",
+  facebookHandle: stripHandle(env.VITE_FACEBOOK_HANDLE as string) || "theitrawala",
   /** Public Instagram reel/post permalinks for the home Reels strip. */
   instagramReels: [] as string[],
   /** Background hero video (mp4). Leave blank to use the still hero image. */
@@ -55,7 +58,7 @@ export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
-  "Free Shipping Above ₹499",
+  "Free Shipping",
   "Amazon's Choice Products Available",
   "100% Money-Back Guarantee",
   "WhatsApp Support — We reply fast",
