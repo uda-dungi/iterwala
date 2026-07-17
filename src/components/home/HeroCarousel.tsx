@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
 import banner3 from "@/assets/brand/banner-4-collectors.png";
-import mobileBannerMain from "../../../mobile banneer3.png";
+import mobileBannerMain from "@/assets/brand/mobile-banner-main.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
