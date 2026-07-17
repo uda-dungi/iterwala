@@ -55,8 +55,11 @@ export default async function handler(req: any, res: any) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("api/admin/orders: failed to fetch orders", error.message);
-    res.status(500).json({ error: "Failed to load orders." });
+    console.error("api/admin/orders: failed to fetch orders", error.message, error.details);
+    res.status(500).json({
+      error: "Failed to load orders.",
+      details: error.message || error.details || "Unknown database error.",
+    });
     return;
   }
 

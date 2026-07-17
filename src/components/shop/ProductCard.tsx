@@ -46,7 +46,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             <Heart className={cn("w-4 h-4", wished && "fill-primary text-primary")} />
           </button>
           <img
-            src={product.image}
+            src={cardImage}
             alt={product.name}
             loading="lazy"
             className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"

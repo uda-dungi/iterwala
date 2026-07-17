@@ -63,7 +63,9 @@ export default function AdminOrders() {
         });
         const data = await res.json();
         if (!res.ok) {
-          setError(data.error || "Failed to load orders.");
+          setError(
+            `${data.error || "Failed to load orders."}${data.details ? ` (${data.details})` : ""}`
+          );
           setOrders([]);
         } else {
           setOrders(data.orders || []);
