@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/store/auth";
 import { toast } from "sonner";
 
+const ADMIN_EMAIL = "itrawalabrand@gmail.com";
+
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
@@ -54,7 +56,14 @@ export default function Auth() {
     if (mode === "login") {
       const { error } = await signIn(email, password);
       if (error) toast.error(error);
-      else { toast.success("Welcome back"); nav("/"); }
+      else {
+        toast.success("Welcome back");
+        if (email.trim().toLowerCase() === ADMIN_EMAIL) {
+          nav("/admin/orders");
+        } else {
+          nav("/");
+        }
+      }
     } else {
       const { error } = await signUp(name, email, password);
       if (error) toast.error(error);
