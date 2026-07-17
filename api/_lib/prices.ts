@@ -73,6 +73,9 @@ export const PRICE_TABLE: Record<string, PriceEntry> = {
   "g-whiteoud-blackoud-duo": { "price": 999, "compareAt": 1299, "priceByVolume": null },
   "g-mogragold-shahigulab-duo": { "price": 499, "compareAt": 1299, "priceByVolume": null },
   "g-royaloud-shyamshringar-duo": { "price": 499, "compareAt": 1299, "priceByVolume": null },
+  "ce-shabd": { "price": 1999, "compareAt": 2999, "priceByVolume": null },
+  "ce-kahani": { "price": 1999, "compareAt": 2999, "priceByVolume": null },
+  "ce-ehsaas": { "price": 1999, "compareAt": 2999, "priceByVolume": null },
 };
 
 /** Server-truth unit price for a product id + selected volume, mirroring src/data/products.ts's priceFor(). */

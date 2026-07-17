@@ -38,9 +38,6 @@ export function Footer() {
           <div className="lg:col-span-4 space-y-6">
             <div>
               <img src={logo} alt={site.brand} className="h-16 w-auto object-contain" />
-              <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground mt-2">
-                Maison de Parfum
-              </p>
             </div>
             <p className="text-base text-muted-foreground leading-relaxed max-w-sm font-serif italic">
               "{site.tagline}."

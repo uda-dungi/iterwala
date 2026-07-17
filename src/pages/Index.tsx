@@ -11,7 +11,7 @@ import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
 import { OrganizationSchema } from "@/components/seo/Schema";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
-import { products, collections, amazonChoiceProducts, getProduct, type Product } from "@/data/products";
+import { products, collections, amazonChoiceProducts, getProduct, priceFor, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
@@ -50,17 +50,32 @@ const noteFamilies = [
 // order — swap a slug here any time the featured line-up changes.
 const BEST_SELLER_SLUGS = ["celebrity", "inayat-attar", "touch", "white-musk"];
 
-// Curated for the "Luxury Gift Boxes" section — always show the flagship discovery
-// set alongside a pack-of-2 attar duo (per request), instead of whichever two gift
+// Extra picks shown only on the mobile slider (desktop keeps the original 4-up grid).
+const BEST_SELLER_MOBILE_EXTRA_SLUGS = ["oud-wood", "legend"];
+
+// Curated for the "Luxury Gift Boxes" section — lead with the pack-of-4 signature
+// quad, alongside a pack-of-2 attar duo (per request), instead of whichever two gift
 // sets happen to be first in the catalog array.
-const LUXURY_GIFT_SLUGS = ["discovery-set", "attar-duo-gift-set"];
+const LUXURY_GIFT_SLUGS = ["signature-quad-gift-set", "attar-duo-gift-set"];
+
+// Amazon's Choice feature — Touch at its 50ml size (per request).
+const AMAZON_PICK_SLUG = "touch";
+const AMAZON_PICK_VOLUME = "50ml";
+
+// Curated for the homepage "New Arrivals" strip (per request) — swap slugs here any
+// time the featured attars change, instead of relying on the newArrival flag (which
+// stays on the products themselves for the Shop page's "Sort: Newest" option).
+const NEW_ARRIVAL_SLUGS = ["rooh-chandan", "jannat-firdaus", "amber", "shahi-gulab"];
 
 export default function Index() {
   const bestSellers = BEST_SELLER_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
+  const bestSellersMobileExtra = BEST_SELLER_MOBILE_EXTRA_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
+  const bestSellersMobile = [...bestSellers, ...bestSellersMobileExtra];
   const attars = products.filter(p => p.category === "Attar");
-  const newArrivals = products.filter(p => p.newArrival && p.category === "Attar");
+  const newArrivals = NEW_ARRIVAL_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const giftSets = LUXURY_GIFT_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
-  const amazonPick = amazonChoiceProducts[0] ?? products[0];
+  const amazonPick = getProduct(AMAZON_PICK_SLUG) ?? amazonChoiceProducts[0] ?? products[0];
+  const amazonPickPrice = priceFor(amazonPick, AMAZON_PICK_VOLUME).price;
 
   return (
     <div className="overflow-hidden">
@@ -120,7 +135,7 @@ export default function Index() {
           {bestSellers.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
         <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
-          {bestSellers.slice(0, 4).map((p, i) => (
+          {bestSellersMobile.map((p, i) => (
             <div key={p.id} className="min-w-[46%] snap-start">
               <ProductCard product={p} index={i} />
             </div>
@@ -185,7 +200,9 @@ export default function Index() {
               <span className="text-sm text-muted-foreground ml-1">{amazonPick.rating} · {amazonPick.reviews} reviews</span>
             </div>
             <p className="text-muted-foreground leading-relaxed mt-4 max-w-md">{amazonPick.description}</p>
-            <p className="font-display text-3xl text-gold mt-5">{formatINR(amazonPick.price)}</p>
+            <p className="font-display text-3xl text-gold mt-5">
+              {formatINR(amazonPickPrice)} <span className="text-sm text-muted-foreground font-sans">/ {AMAZON_PICK_VOLUME}</span>
+            </p>
             <div className="flex flex-wrap gap-3 mt-6">
               <Button asChild variant="luxury" size="lg"><Link to={`/product/${amazonPick.slug}`}>Shop Now</Link></Button>
               {isSet(site.amazonStoreUrl) && (

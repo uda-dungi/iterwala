@@ -6,7 +6,10 @@ import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
-import touchImg from "@/assets/products/touch.jpg";
+import banner3 from "@/assets/brand/banner-4-collectors.png";
+import mobileBannerMain from "@/assets/brand/mobile-banner-main.jpg";
+import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
+import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -48,13 +51,24 @@ const slides: Slide[] = [
     cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" },
   },
   {
-    image: touchImg,
-    eyebrow: "Soft. Sensual. Unforgettable.",
-    title: "Touch",
-    highlight: "Eau de Parfum",
-    copy: "Touch wraps the skin like cashmere — warm vanilla and soft musk for those who whisper rather than announce. A bestseller, an Amazon's Choice.",
-    cta: { label: "Shop Touch", to: "/product/touch" },
+    image: banner3,
+    eyebrow: "Three Stories. One Legacy of Fragrance.",
+    title: "The Collector's",
+    highlight: "Edition",
+    copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy, crafted for those who collect meaning as much as scent.",
+    cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" },
   },
+];
+
+// Mobile gets its own swipeable banner set — each image already has its title/copy
+// baked into the artwork, so a slide only needs the photo + alt text + one CTA.
+// EDIT: add/remove entries here whenever the mobile banner set changes.
+type MobileSlide = { image: string; alt: string; cta: { label: string; to: string } };
+
+const mobileSlides: MobileSlide[] = [
+  { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
+  { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
+  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
 ];
 
 export function HeroCarousel() {
@@ -84,10 +98,71 @@ export function HeroCarousel() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [emblaApi, paused]);
 
+  // Separate embla instance for the mobile banner set (swipeable, autoplay, dots —
+  // same behavior as the desktop carousel above, just its own state/instance).
+  const [mEmblaRef, mEmblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
+  const [mSelected, setMSelected] = useState(0);
+  const mScrollTo = useCallback((i: number) => mEmblaApi?.scrollTo(i), [mEmblaApi]);
+
+  useEffect(() => {
+    if (!mEmblaApi) return;
+    const onSelect = () => setMSelected(mEmblaApi.selectedScrollSnap());
+    mEmblaApi.on("select", onSelect);
+    onSelect();
+    return () => { mEmblaApi.off("select", onSelect); };
+  }, [mEmblaApi]);
+
+  useEffect(() => {
+    if (!mEmblaApi) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
+    const t = setInterval(() => mEmblaApi.scrollNext(), AUTOPLAY_MS);
+    return () => clearInterval(t);
+  }, [mEmblaApi]);
+
   return (
     <>
+    {/* Mobile-only banner carousel — each image already has its title/copy baked
+        into the artwork, so every slide is just the photo with a per-slide CTA
+        pinned near the bottom, no text overlay. Desktop keeps its separate 3-up
+        carousel below (hidden on this breakpoint). */}
+    <section className="sm:hidden relative overflow-hidden min-h-[600px] noise-overlay">
+      <div className="overflow-hidden h-full" ref={mEmblaRef}>
+        <div className="flex h-full">
+          {mobileSlides.map((s, i) => (
+            <div key={s.image} className="relative flex-[0_0_100%] min-h-[600px] flex items-end justify-center pb-14 px-6" aria-hidden={mSelected !== i}>
+              <img
+                src={s.image}
+                alt={s.alt}
+                className="absolute inset-0 w-full h-full object-cover -z-10"
+                loading={i === 0 ? "eager" : "lazy"}
+              />
+              {/* Just enough of a bottom scrim to keep the button legible over the photo. */}
+              <div className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-background/85 via-background/35 to-transparent -z-10" />
+              <Button asChild variant="outline-gold" size="lg">
+                <Link to={s.cta.to}>{s.cta.label} →</Link>
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+        {mobileSlides.map((s, i) => (
+          <button
+            key={s.image}
+            onClick={() => mScrollTo(i)}
+            aria-label={`Go to mobile banner ${i + 1}`}
+            aria-current={mSelected === i}
+            className={`h-1.5 rounded-full transition-all duration-500 ${mSelected === i ? "w-6 bg-primary" : "w-1.5 bg-border"}`}
+          />
+        ))}
+      </div>
+    </section>
+
     <section
-      className="relative flex items-center pt-24 pb-14 sm:pt-28 sm:pb-14 lg:pt-10 lg:pb-0 min-h-[520px] sm:min-h-[640px] lg:min-h-screen noise-overlay overflow-hidden"
+      className="hidden sm:flex relative items-center pt-28 pb-14 lg:pt-10 lg:pb-0 min-h-[640px] lg:min-h-screen noise-overlay overflow-hidden"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       aria-roledescription="carousel"
@@ -131,7 +206,7 @@ export function HeroCarousel() {
               {slides[selected].copy}
             </p>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
-              <Button asChild variant="luxury" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to={slides[selected].cta.to}>🛒 {slides[selected].cta.label}</Link></Button>
+              <Button asChild variant="luxury" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to={slides[selected].cta.to}>{slides[selected].cta.label}</Link></Button>
               <Button asChild variant="outline-gold" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to="/shop">View All Fragrances</Link></Button>
             </div>
             {/* Desktop/tablet: stats stay inline with the copy. Mobile version renders

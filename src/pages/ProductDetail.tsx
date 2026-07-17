@@ -39,11 +39,23 @@ export default function ProductDetail() {
     return () => { api.off("select", onSelect); };
   }, [api]);
 
+  // When the selected size has its own gallery (per galleryByVolume), reset back to
+  // the first image so switching sizes doesn't leave the carousel/thumbnail grid
+  // pointed at an index that belongs to the previous size's photo set.
+  useEffect(() => {
+    setActive(0);
+    api?.scrollTo(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volume]);
+
   if (!product) return <Navigate to="/shop" />;
   const wished = wishlist.includes(product.id);
   const vols = volumesFor(product);
   const selectedVol = volume || vols[0];
   const { price: unitPrice, compareAt: unitCompareAt } = priceFor(product, selectedVol);
+  // Some products (e.g. Celebrity, Sukoon) use a genuinely different bottle photo per
+  // size — fall back to the flat gallery for everything else.
+  const gallery = product.galleryByVolume?.[selectedVol] ?? product.gallery;
   const related = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
   const buyNow = () => { addToCart(product, qty, selectedVol); setCartOpen(false); window.location.href = "/checkout"; };
 
@@ -65,9 +77,9 @@ export default function ProductDetail() {
         <div className="space-y-4">
           {/* Mobile carousel */}
           <div className="lg:hidden relative">
-            <Carousel setApi={setApi} opts={{ loop: product.gallery.length > 1 }}>
+            <Carousel setApi={setApi} opts={{ loop: gallery.length > 1 }}>
               <CarouselContent>
-                {product.gallery.map((g, i) => (
+                {gallery.map((g, i) => (
                   <CarouselItem key={i}>
                     <div className="relative aspect-square bg-deep-brown">
                       <img src={g} alt={product.name} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
@@ -88,9 +100,9 @@ export default function ProductDetail() {
             >
               <Heart className={cn("w-4 h-4", wished ? "fill-primary text-primary" : "text-ivory")} />
             </button>
-            {product.gallery.length > 1 && (
+            {gallery.length > 1 && (
               <div className="flex items-center justify-center gap-1.5 mt-3">
-                {product.gallery.map((_, i) => (
+                {gallery.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => api?.scrollTo(i)}
@@ -110,7 +122,7 @@ export default function ProductDetail() {
               onClick={() => setZoom(z => !z)}
             >
               <img
-                src={product.gallery[active]}
+                src={gallery[active] ?? gallery[0]}
                 alt={product.name}
                 className={cn("w-full h-full object-cover transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
               />
@@ -121,7 +133,7 @@ export default function ProductDetail() {
               )}
             </motion.div>
             <div className="grid grid-cols-4 gap-3">
-              {product.gallery.map((g, i) => (
+              {gallery.map((g, i) => (
                 <button key={i} onClick={() => setActive(i)}
                   className={cn("aspect-square overflow-hidden border rounded-sm transition-all",
                     active === i ? "border-primary shadow-gold" : "border-border hover:border-primary/50")}>
@@ -207,7 +219,7 @@ export default function ProductDetail() {
           {/* Trust badges — compact strip, always visible */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
             {[
-              { Icon: Truck, t: "Free Shipping", s: "Above ₹1,999" },
+              { Icon: Truck, t: "Free Shipping", s: "Above ₹499" },
               { Icon: ShieldCheck, t: "Authentic", s: "100% Original" },
               { Icon: Sparkles, t: "Gift Wrap", s: "Complimentary" },
             ].map(t => (

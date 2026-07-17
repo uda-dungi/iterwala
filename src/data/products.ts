@@ -20,6 +20,10 @@ export type Product = {
   gender: "Men" | "Women" | "Unisex";
   image: string;
   gallery: string[];
+  /** When a product's photos differ by size (e.g. two distinct bottle designs for
+   *  50ml vs 100ml), map each volume to its own gallery here. ProductDetail falls
+   *  back to `gallery` for any volume not listed. */
+  galleryByVolume?: Record<string, string[]>;
   notes: { top: string[]; heart: string[]; base: string[] };
   longevity: string;
   projection: string;
@@ -77,6 +81,10 @@ export const products: Product[] = [
     price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 649, compareAt: 849 }, "100ml": { price: 1099, compareAt: 1399 } },
     image: img("celebrity-real"), gallery: [img("celebrity-real"), img("celebrity-2"), img("celebrity-3")],
+    // celebrity-real is the gold/cream 100ml bottle; celebrity-2/3 are the distinct
+    // red-and-black bottle explicitly labeled "50 ml" on its box — so the gallery
+    // must switch with the size selector instead of always showing the 100ml photo.
+    galleryByVolume: { "50ml": [img("celebrity-2"), img("celebrity-3")], "100ml": [img("celebrity-real")] },
     notes: { top: ["Bergamot", "Pink Pepper"], heart: ["Jasmine", "Saffron"], base: ["Amber", "Vanilla", "Musk"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Evening", "Date Night", "Celebrations"], moods: ["Confident", "Magnetic"],
@@ -125,6 +133,9 @@ export const products: Product[] = [
     price: 899, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 549 }, "100ml": { price: 899 } },
     image: img("sukoon-1"), gallery: [img("sukoon-1"), img("sukoon-2")],
+    // sukoon-1 shows the 100ml bottle (label reads "100 ml"); sukoon-2 is a
+    // distinctly different bottle design used for the 50ml size.
+    galleryByVolume: { "50ml": [img("sukoon-2")], "100ml": [img("sukoon-1")] },
     notes: { top: ["Lavender", "Bergamot"], heart: ["Cedar", "Iris"], base: ["Amber", "Tonka", "Musk"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Office", "Relaxed Evenings"], moods: ["Calm", "Grounded"],
@@ -587,7 +598,7 @@ export const products: Product[] = [
 
   // ─────────────── NEW GIFT SETS (added from price sheet import) ───────────────
   {
-    id: "g-signature-quad", slug: "signature-quad-gift-set", name: "Signature Quad Gift Set", tagline: "Touch, Wild, Temptation & Smoke — 20ml each",
+    id: "g-signature-quad", slug: "signature-quad-gift-set", name: "Signature Quad Gift Set", tagline: "Pack of 4 — Touch, Wild, Temptation & Smoke, 20ml each",
     price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
     image: img("giftset-signature-quad"), gallery: [img("giftset-signature-quad")],
     notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
@@ -697,6 +708,39 @@ export const products: Product[] = [
     ingredients: "Two alcohol-free attars presented in a luxury gift box.",
     description: "The king of attars meets our devotional favorite — Royal Oud and Shyam Shringar, paired in one gift-ready box.",
     rating: 4.8, reviews: 18, newArrival: true,
+  },
+  {
+    id: "ce-shabd", slug: "shabd", name: "Shabd", tagline: "The first word of every story",
+    price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
+    image: img("collector-shabd-1"), gallery: [img("collector-shabd-1"), img("collector-shabd-2")],
+    notes: { top: ["Bergamot", "Black Pepper"], heart: ["Saffron", "Aged Oud"], base: ["Amber", "Musk", "Sandalwood"] },
+    longevity: "10-12 hours", projection: "Strong",
+    occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Bold", "Timeless"],
+    ingredients: "High-concentration Extrait de Parfum oils, French-grade alcohol base.",
+    description: "Shabd — the word — opens our Collector's Edition trilogy. A rich, French-inspired Extrait de Parfum with spiced bergamot and saffron over aged oud, amber and musk, built to last up to 24 hours. Presented in a hand-finished 100ml bottle with luxury gift packaging.",
+    rating: 4.9, reviews: 24, badge: "Collector's Edition", newArrival: true,
+  },
+  {
+    id: "ce-kahani", slug: "kahani", name: "Kahani", tagline: "A story worth keeping",
+    price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
+    image: img("collector-kahani-1"), gallery: [img("collector-kahani-1"), img("collector-kahani-2")],
+    notes: { top: ["Cardamom", "Pink Pepper"], heart: ["Rose", "Leather"], base: ["Vanilla", "Amber", "Oud"] },
+    longevity: "10-12 hours", projection: "Strong",
+    occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Warm", "Narrative"],
+    ingredients: "High-concentration Extrait de Parfum oils, French-grade alcohol base.",
+    description: "Kahani — the story — layers spiced cardamom and rose over leather, vanilla, amber and oud. A rich, French-inspired Extrait de Parfum built to last up to 24 hours, presented in a hand-finished 100ml bottle with luxury gift packaging.",
+    rating: 5.0, reviews: 19, badge: "Collector's Edition", newArrival: true,
+  },
+  {
+    id: "ce-ehsaas", slug: "ehsaas", name: "Ehsaas", tagline: "A feeling that stays",
+    price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
+    image: img("collector-ehsaas-1"), gallery: [img("collector-ehsaas-1"), img("collector-ehsaas-2")],
+    notes: { top: ["Bergamot", "Saffron"], heart: ["Jasmine", "Oud"], base: ["Musk", "Sandalwood", "Amber"] },
+    longevity: "10-12 hours", projection: "Strong",
+    occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Sensual", "Intimate"],
+    ingredients: "High-concentration Extrait de Parfum oils, French-grade alcohol base.",
+    description: "Ehsaas — the feeling — closes the trilogy as a luxury oriental woody Extrait de Parfum, layering jasmine and oud over saffron, musk and sandalwood. A high-concentration formula built to stay fresh for up to 24 hours, elegant enough for the office and warm enough for date nights, weddings and festive occasions. Designed unisex, and presented in a hand-finished 100ml bottle with premium gift packaging — a perfect gift for birthdays, anniversaries and celebrations.",
+    rating: 4.9, reviews: 22, badge: "Collector's Edition", newArrival: true,
   },
 ];
 
