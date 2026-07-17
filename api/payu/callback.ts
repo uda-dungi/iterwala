@@ -1,5 +1,6 @@
 import { verifyPayuResponseHash } from "../_lib/payu.js";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
+import { sendOrderConfirmationEmail } from "../_lib/email.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -59,7 +60,7 @@ export default async function handler(req: any, res: any) {
     if (isSupabaseAdminConfigured() && txnid) {
       const admin = getSupabaseAdmin();
       if (admin) {
-        await admin
+        const { data: updated } = await admin
           .from("orders")
           .update({
             status: paid ? "paid" : "failed",
@@ -67,7 +68,23 @@ export default async function handler(req: any, res: any) {
             payu_mode: body.mode || null,
             updated_at: new Date().toISOString(),
           })
-          .eq("txnid", txnid);
+          .eq("txnid", txnid)
+          .select("email, name, items, total")
+          .maybeSingle();
+
+        // Awaited (not fire-and-forget): serverless functions can be frozen/killed the
+        // moment the response is sent, so a detached promise here might never actually
+        // send. sendOrderConfirmationEmail() swallows its own errors and no-ops if
+        // Resend isn't configured, so this never throws or blocks the redirect for long.
+        if (paid && updated?.email) {
+          await sendOrderConfirmationEmail({
+            email: updated.email,
+            name: updated.name ?? undefined,
+            txnid,
+            items: Array.isArray(updated.items) ? updated.items : [],
+            total: Number(updated.total) || 0,
+          });
+        }
       }
     }
 

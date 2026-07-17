@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
+import touchImg from "@/assets/products/touch.jpg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -45,6 +46,14 @@ const slides: Slide[] = [
     highlight: "Collection",
     copy: "Firdaus, Tulsi, Ruh-Kewra, Mogra Gold, Inayat and more — pure, alcohol-free attars hand-distilled in Kannauj for a scent that lasts all day.",
     cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" },
+  },
+  {
+    image: touchImg,
+    eyebrow: "Soft. Sensual. Unforgettable.",
+    title: "Touch",
+    highlight: "Eau de Parfum",
+    copy: "Touch wraps the skin like cashmere — warm vanilla and soft musk for those who whisper rather than announce. A bestseller, an Amazon's Choice.",
+    cta: { label: "Shop Touch", to: "/product/touch" },
   },
 ];
 

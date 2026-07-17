@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -18,11 +18,21 @@ export default function Auth() {
   const [linkSent, setLinkSent] = useState(false);
   const { signIn, signUp, sendMagicLink, signInWithGoogle, configured } = useAuth();
   const nav = useNavigate();
+  const emailRef = useRef<HTMLInputElement>(null);
 
+  // Previously this button was `disabled` whenever the email field was empty — which
+  // meant clicking it before typing an email did nothing at all, with zero feedback,
+  // and looked exactly like a broken/unclickable button. It's now always clickable
+  // (except while busy or right after a link is sent) and tells you what's missing.
   const submitMagicLink = async () => {
-    if (!email || busy) return;
+    if (busy || linkSent) return;
+    if (!email.trim()) {
+      toast.error("Enter your email above first");
+      emailRef.current?.focus();
+      return;
+    }
     setBusy(true);
-    const { error } = await sendMagicLink(email);
+    const { error } = await sendMagicLink(email.trim());
     if (error) toast.error(error);
     else { toast.success("Magic link sent — check your inbox."); setLinkSent(true); }
     setBusy(false);
@@ -62,7 +72,6 @@ export default function Auth() {
         className="luxury-card p-6 sm:p-10 w-full max-w-md">
         <div className="text-center mb-6 sm:mb-8">
           <Link to="/" className="font-display text-3xl sm:text-4xl text-gold">Itrawala</Link>
-          <p className="text-[10px] tracking-[0.4em] uppercase text-muted-foreground mt-1">Maison de Parfum</p>
         </div>
 
         {!configured && (
@@ -111,7 +120,7 @@ export default function Auth() {
           )}
           <div className="space-y-1.5">
             <Label className="text-xs tracking-luxe uppercase text-muted-foreground">Email</Label>
-            <Input type="email" required value={email} onChange={e => setEmail(e.target.value)} />
+            <Input ref={emailRef} type="email" required value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs tracking-luxe uppercase text-muted-foreground">Password</Label>
@@ -129,8 +138,8 @@ export default function Auth() {
               Ordered with us before? Your account was created automatically — skip the password:
             </p>
             <button
-              type="button" onClick={submitMagicLink} disabled={busy || !email || linkSent}
-              className="text-xs text-primary hover:text-gold underline underline-offset-4 mt-1 disabled:opacity-50"
+              type="button" onClick={submitMagicLink} disabled={busy || linkSent}
+              className="text-xs text-primary hover:text-gold underline underline-offset-4 mt-1 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               {linkSent ? "Magic link sent — check your email" : "Email me a magic sign-in link"}
             </button>

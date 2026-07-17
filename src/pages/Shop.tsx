@@ -18,8 +18,10 @@ const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "F
 export default function Shop() {
   const [params, setParams] = useSearchParams();
   const [sort, setSort] = useState(params.get("sort") || "popular");
-  const [price, setPrice] = useState<[number]>([8000]);
+  const [price, setPrice] = useState<[number]>([4000]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
 
   const selectedGender = params.get("gender");
   const selectedCategory = params.get("category");
@@ -30,6 +32,10 @@ export default function Shop() {
     const next = new URLSearchParams(params);
     if (next.get(key) === val) next.delete(key); else next.set(key, val);
     setParams(next);
+  };
+
+  const toggleInList = (list: string[], val: string, setList: (v: string[]) => void) => {
+    setList(list.includes(val) ? list.filter(v => v !== val) : [...list, val]);
   };
 
   const setSearch = (val: string) => {
@@ -47,11 +53,15 @@ export default function Shop() {
         ...p.moods, ...p.occasions,
       ].some(s => s.toLowerCase().includes(q));
 
+    const allNotes = (p: typeof products[number]) => [...p.notes.top, ...p.notes.heart, ...p.notes.base].map(n => n.toLowerCase());
+
     let r = products.filter(p =>
       (!selectedGender || p.gender === selectedGender) &&
       (!selectedCategory || p.category === selectedCategory) &&
       (!selectedMood || p.moods.some(m => m.toLowerCase() === selectedMood.toLowerCase())) &&
       p.price <= price[0] &&
+      (selectedNotes.length === 0 || selectedNotes.some(n => allNotes(p).some(pn => pn.includes(n.toLowerCase())))) &&
+      (selectedOccasions.length === 0 || selectedOccasions.some(o => p.occasions.some(po => po.toLowerCase() === o.toLowerCase()))) &&
       matchesSearch(p)
     );
     if (sort === "price-low") r = [...r].sort((a, b) => a.price - b.price);
@@ -59,7 +69,7 @@ export default function Shop() {
     if (sort === "new") r = r.filter(p => p.newArrival).concat(r.filter(p => !p.newArrival));
     if (sort === "best") r = r.filter(p => p.bestSeller).concat(r.filter(p => !p.bestSeller));
     return r;
-  }, [selectedGender, selectedCategory, selectedMood, price, search, sort]);
+  }, [selectedGender, selectedCategory, selectedMood, price, search, sort, selectedNotes, selectedOccasions]);
 
   const Filters = () => (
     <aside className="space-y-8">
@@ -78,23 +88,42 @@ export default function Shop() {
         ))}
       </FilterGroup>
       <FilterGroup title="Price">
-        <Slider value={price} onValueChange={(v) => setPrice(v as [number])} max={8000} step={500} className="mt-4" />
+        <Slider value={price} onValueChange={(v) => setPrice(v as [number])} max={4000} step={100} className="mt-4" />
         <p className="text-xs text-muted-foreground mt-2">Up to ₹{price[0].toLocaleString("en-IN")}</p>
       </FilterGroup>
       <FilterGroup title="Fragrance Notes">
         <div className="flex flex-wrap gap-2">
           {noteList.map(n => (
-            <button key={n} className="text-xs px-3 py-1 border border-border rounded-sm hover:border-primary hover:text-primary transition-colors">{n}</button>
+            <button key={n} onClick={() => toggleInList(selectedNotes, n, setSelectedNotes)}
+              className={`text-xs px-3 py-1 border rounded-sm transition-colors ${selectedNotes.includes(n) ? "border-primary text-primary bg-primary/10" : "border-border hover:border-primary hover:text-primary"}`}>
+              {n}
+            </button>
           ))}
         </div>
       </FilterGroup>
       <FilterGroup title="Occasion">
         <div className="flex flex-wrap gap-2">
           {occasions.map(o => (
-            <button key={o} className="text-xs px-3 py-1 border border-border rounded-sm hover:border-primary hover:text-primary transition-colors">{o}</button>
+            <button key={o} onClick={() => toggleInList(selectedOccasions, o, setSelectedOccasions)}
+              className={`text-xs px-3 py-1 border rounded-sm transition-colors ${selectedOccasions.includes(o) ? "border-primary text-primary bg-primary/10" : "border-border hover:border-primary hover:text-primary"}`}>
+              {o}
+            </button>
           ))}
         </div>
       </FilterGroup>
+      {(selectedNotes.length > 0 || selectedOccasions.length > 0 || selectedGender || selectedCategory || price[0] < 4000) && (
+        <button
+          onClick={() => {
+            setSelectedNotes([]); setSelectedOccasions([]); setPrice([4000]);
+            const next = new URLSearchParams(params);
+            next.delete("gender"); next.delete("category");
+            setParams(next);
+          }}
+          className="text-xs text-primary hover:text-gold underline underline-offset-2"
+        >
+          Clear all filters
+        </button>
+      )}
     </aside>
   );
 
@@ -111,7 +140,7 @@ export default function Shop() {
       </section>
 
       <div className="container pb-14 sm:pb-24 grid lg:grid-cols-[260px_1fr] gap-6 lg:gap-10">
-        <div className="hidden lg:block sticky top-32 self-start">
+        <div className="hidden lg:block sticky top-32 self-start max-h-[calc(100vh-9rem)] overflow-y-auto pr-1">
           <Filters />
         </div>
 

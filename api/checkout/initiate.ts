@@ -1,5 +1,6 @@
 import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_ACTION_URL } from "../_lib/payu.js";
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
+import { priceForServer, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/prices.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -46,7 +47,30 @@ export default async function handler(req: any, res: any) {
       res.status(400).json({ error: "Cart is empty." });
       return;
     }
-    const total = Number(amounts?.total);
+
+    // Security: never trust a client-supplied total for what actually gets charged.
+    // Recompute every line from the server's own price table (api/_lib/prices.ts) so a
+    // tampered request (e.g. a hand-edited fetch call) can't pay less than the real
+    // cart value — the PayU hash below is generated from `subtotal`/`total`, not from
+    // anything the browser sent.
+    let subtotal = 0;
+    for (const line of items) {
+      const qty = Number(line?.qty);
+      if (!line?.id || !Number.isFinite(qty) || qty <= 0 || qty > 50) {
+        res.status(400).json({ error: "Invalid item in cart. Please refresh and try again." });
+        return;
+      }
+      const unitPrice = priceForServer(String(line.id), line.volume ? String(line.volume) : undefined);
+      if (unitPrice == null) {
+        res.status(400).json({ error: "One of the items in your cart is no longer available." });
+        return;
+      }
+      subtotal += unitPrice * qty;
+    }
+    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+    const gift = Boolean(amounts?.gift);
+    const total = subtotal + shipping + (gift ? GIFT_WRAP_FEE : 0);
+
     if (!total || total <= 0) {
       res.status(400).json({ error: "Invalid order total." });
       return;
@@ -83,9 +107,9 @@ export default async function handler(req: any, res: any) {
           name: fullName,
           address,
           items,
-          subtotal: amounts?.subtotal ?? null,
-          shipping: amounts?.shipping ?? null,
-          gift_wrap: Boolean(amounts?.gift),
+          subtotal,
+          shipping,
+          gift_wrap: gift,
           total,
           status: "pending",
         });

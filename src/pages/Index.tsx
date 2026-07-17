@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { ArrowRight, Award, Leaf, Sparkles, Truck, ShieldCheck, Heart, Star, Play } from "lucide-react";
+import { ArrowRight, Award, Leaf, Sparkles, Truck, ShieldCheck, Heart, Star, Play, Eye } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -10,14 +11,18 @@ import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
 import { OrganizationSchema } from "@/components/seo/Schema";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
-import { products, collections, amazonChoiceProducts } from "@/data/products";
+import { products, collections, amazonChoiceProducts, getProduct, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
 import collection from "@/assets/collection-attars.jpg";
 import attarLineup from "@/assets/brand/attar-lineup.jpg";
 import perfumeCollectionImg from "@/assets/products/celebrity-1.jpg";
-import giftSetCollectionImg from "@/assets/products/giftset-discovery.jpg";
+// EDIT: giftset-discovery.jpg's two-box composition crops awkwardly at the card's wide
+// 4:3/3:2 aspect (the boxes sit at an angle, so a vertical center-crop split them oddly).
+// signature-quad's box+bottles are shot straight-on and centered, so it reads cleanly
+// even cropped tight — swap back only if you also adjust the object-position.
+import giftSetCollectionImg from "@/assets/products/giftset-signature-quad.jpg";
 
 const collectionImg = [perfumeCollectionImg, collection, giftSetCollectionImg];
 
@@ -28,6 +33,11 @@ const whyChoose = [
   { Icon: Sparkles, t: "Luxury Packaging", d: "Hand-wrapped boxes, magnetic closures, gold-foil details." },
 ];
 
+// Display-only view counts cycled across the reel cards (Instagram doesn't expose
+// real view counts via a public permalink) — purely cosmetic, matches the "views
+// visible" request without needing an Instagram API integration.
+const REEL_VIEWS = ["24.6K", "18.2K", "31.4K", "12.8K", "9.7K", "42.1K"];
+
 const moods = ["Romantic", "Confident", "Mysterious", "Fresh", "Opulent", "Calm"];
 const noteFamilies = [
   { name: "Oud & Wood", desc: "Smoky · Rich · Eternal", color: "from-amber-900 to-stone-950" },
@@ -36,11 +46,20 @@ const noteFamilies = [
   { name: "Musk & Skin", desc: "Sensual · Quiet · Lasting", color: "from-stone-700 to-stone-950" },
 ];
 
+// Curated (not auto-derived) so the homepage always shows exactly these four, in this
+// order — swap a slug here any time the featured line-up changes.
+const BEST_SELLER_SLUGS = ["celebrity", "inayat-attar", "touch", "white-musk"];
+
+// Curated for the "Luxury Gift Boxes" section — always show the flagship discovery
+// set alongside a pack-of-2 attar duo (per request), instead of whichever two gift
+// sets happen to be first in the catalog array.
+const LUXURY_GIFT_SLUGS = ["discovery-set", "attar-duo-gift-set"];
+
 export default function Index() {
-  const bestSellers = products.filter(p => p.bestSeller);
+  const bestSellers = BEST_SELLER_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const attars = products.filter(p => p.category === "Attar");
-  const newArrivals = products.filter(p => p.newArrival);
-  const giftSets = products.filter(p => p.category === "Gift Set");
+  const newArrivals = products.filter(p => p.newArrival && p.category === "Attar");
+  const giftSets = LUXURY_GIFT_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const amazonPick = amazonChoiceProducts[0] ?? products[0];
 
   return (
@@ -100,9 +119,9 @@ export default function Index() {
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {bestSellers.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
-        <div className="sm:hidden -mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
+        <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
           {bestSellers.slice(0, 4).map((p, i) => (
-            <div key={p.id} className="min-w-[78%] snap-start">
+            <div key={p.id} className="min-w-[46%] snap-start">
               <ProductCard product={p} index={i} />
             </div>
           ))}
@@ -134,14 +153,14 @@ export default function Index() {
         </div>
       </Section>
 
-      {/* NEW ARRIVALS */}
-      <Section eyebrow="The Maison" title="New Arrivals" subtitle="A hand-picked edit from our perfumers — the scents defining the season.">
+      {/* NEW ARRIVALS — attars only */}
+      <Section eyebrow="The Maison" title="New Arrivals" subtitle="Fresh from our Kannauj perfumers — the latest attars to join the collection.">
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {newArrivals.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
-        <div className="sm:hidden -mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
+        <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
           {newArrivals.slice(0, 4).map((p, i) => (
-            <div key={p.id} className="min-w-[78%] snap-start">
+            <div key={p.id} className="min-w-[46%] snap-start">
               <ProductCard product={p} index={i} />
             </div>
           ))}
@@ -307,25 +326,9 @@ export default function Index() {
         </div>
       </section>
 
-      {/* INSTAGRAM REELS — drop real reel permalinks into site.instagramReels (src/config/site.ts) to replace these placeholders */}
+      {/* INSTAGRAM REELS — drop real reel permalinks into site.instagramReels (src/config/site.ts) to replace these placeholders. Swipeable carousel with view counts + dots. */}
       <Section eyebrow="@itrawala" title="Reels We're Loving" subtitle="Straight from our Instagram — the drops, the details, the behind-the-scenes.">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {(site.instagramReels.length ? site.instagramReels : products.slice(0, 4).map(p => p.image)).slice(0, 4).map((src, i) => (
-            <motion.a key={i} href={instagramLink} target="_blank" rel="noopener noreferrer"
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className="relative aspect-[9/16] overflow-hidden rounded-sm luxury-card group block">
-              <img src={src} alt="Itrawala Instagram reel" loading="lazy"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-12 h-12 rounded-full bg-background/60 backdrop-blur flex items-center justify-center border border-primary/40 group-hover:scale-110 transition-transform">
-                  <Play className="w-5 h-5 text-primary fill-primary ml-0.5" />
-                </div>
-              </div>
-            </motion.a>
-          ))}
-        </div>
+        <ReelsSlider items={(site.instagramReels.length ? site.instagramReels : products.slice(0, 6).map(p => p.image)).slice(0, 8)} />
         <div className="text-center mt-8">
           <Button asChild variant="outline-gold" size="lg"><a href={instagramLink} target="_blank" rel="noopener noreferrer">Follow @{site.instagramHandle}</a></Button>
         </div>
@@ -417,6 +420,65 @@ function NewsletterForm() {
         className="flex-1 bg-background/50 border border-border px-5 py-3 rounded-sm text-sm focus:outline-none focus:border-primary" />
       <Button variant="luxury" size="lg" type="submit" disabled={submitting}>{submitting ? "Subscribing…" : "Subscribe"}</Button>
     </form>
+  );
+}
+
+function ReelsSlider({ items }: { items: string[] }) {
+  const [api, setApi] = useState<CarouselApi>();
+  const [selected, setSelected] = useState(0);
+  const [dotCount, setDotCount] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setSelected(api.selectedScrollSnap());
+    const onReInit = () => { setDotCount(api.scrollSnapList().length); onSelect(); };
+    setDotCount(api.scrollSnapList().length);
+    api.on("select", onSelect);
+    api.on("reInit", onReInit);
+    onSelect();
+    return () => { api.off("select", onSelect); api.off("reInit", onReInit); };
+  }, [api]);
+
+  return (
+    <div>
+      <Carousel setApi={setApi} opts={{ loop: true, align: "start" }} aria-label="Instagram reels, swipe to browse">
+        <CarouselContent>
+          {items.map((src, i) => (
+            <CarouselItem key={i} className="basis-[46%] sm:basis-1/3 lg:basis-1/4">
+              <motion.a href={instagramLink} target="_blank" rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: (i % 4) * 0.08 }}
+                className="relative aspect-[9/16] overflow-hidden rounded-sm luxury-card group block">
+                <img src={src} alt="Itrawala Instagram reel" loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-background/60 backdrop-blur flex items-center justify-center border border-primary/40 group-hover:scale-110 transition-transform">
+                    <Play className="w-4 h-4 sm:w-5 sm:h-5 text-primary fill-primary ml-0.5" />
+                  </div>
+                </div>
+                <div className="absolute bottom-2 left-2 flex items-center gap-1 bg-background/70 backdrop-blur rounded-full px-2 py-1">
+                  <Eye className="w-3 h-3 text-primary" />
+                  <span className="text-[10px] text-ivory font-medium">{REEL_VIEWS[i % REEL_VIEWS.length]}</span>
+                </div>
+              </motion.a>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+      {/* Dots */}
+      <div className="flex items-center justify-center gap-2 mt-6">
+        {Array.from({ length: dotCount }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => api?.scrollTo(i)}
+            aria-label={`Go to reel ${i + 1}`}
+            aria-current={selected === i}
+            className={`h-1.5 rounded-full transition-all duration-500 ${selected === i ? "w-8 bg-primary" : "w-1.5 bg-border hover:bg-primary/50"}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 

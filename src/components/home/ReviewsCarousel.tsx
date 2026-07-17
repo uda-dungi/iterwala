@@ -22,7 +22,19 @@ const reviews = [
 export function ReviewsCarousel() {
   const [api, setApi] = useState<CarouselApi>();
   const [paused, setPaused] = useState(false);
+  const [selected, setSelected] = useState(0);
+  const [dotCount, setDotCount] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (!api) return;
+    const onSelect = () => setSelected(api.selectedScrollSnap());
+    setDotCount(api.scrollSnapList().length);
+    api.on("select", onSelect);
+    api.on("reInit", () => { setDotCount(api.scrollSnapList().length); onSelect(); });
+    onSelect();
+    return () => { api.off("select", onSelect); };
+  }, [api]);
 
   useEffect(() => {
     if (!api) return;
@@ -56,6 +68,18 @@ export function ReviewsCarousel() {
           ))}
         </CarouselContent>
       </Carousel>
+      {/* Dots */}
+      <div className="flex items-center justify-center gap-2 mt-6">
+        {Array.from({ length: dotCount }).map((_, i) => (
+          <button
+            key={i}
+            onClick={() => api?.scrollTo(i)}
+            aria-label={`Go to review ${i + 1}`}
+            aria-current={selected === i}
+            className={`h-1.5 rounded-full transition-all duration-500 ${selected === i ? "w-8 bg-primary" : "w-1.5 bg-border hover:bg-primary/50"}`}
+          />
+        ))}
+      </div>
     </div>
   );
 }

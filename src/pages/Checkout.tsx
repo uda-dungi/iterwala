@@ -45,7 +45,9 @@ export default function Checkout() {
       const payload = {
         customer: { firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone },
         address: { line1: form.address, city: form.city, state: form.state, pin: form.pin, country: form.country },
-        items: cart.map(({ product, qty, volume }) => ({ id: product.id, name: `${product.name} (${volume})`, price: priceFor(product, volume).price, qty })),
+        // `volume` is included alongside the display price so the server can recompute
+        // the real total from its own price table rather than trusting this `price`.
+        items: cart.map(({ product, qty, volume }) => ({ id: product.id, volume, name: `${product.name} (${volume})`, price: priceFor(product, volume).price, qty })),
         amounts: { subtotal, shipping, gift, total },
       };
 
