@@ -1,0 +1,1554 @@
+{
+  "summary": {
+    "processed": 141,
+    "imported": 22,
+    "updated": 48,
+    "skipped": 1,
+    "failedDownloads": 0,
+    "errors": [],
+    "products": [
+      {
+        "action": "updated",
+        "id": "a-tulsi",
+        "name": "Tulsi",
+        "price": 499,
+        "image": "attar-tulsi"
+      },
+      {
+        "action": "updated",
+        "id": "p-oud-wood",
+        "name": "Oud Wood",
+        "price": 899,
+        "image": "oud-wood"
+      },
+      {
+        "action": "updated",
+        "id": "p-dubai-fame",
+        "name": "Dubai Fame",
+        "price": 549,
+        "image": "dubai-fame"
+      },
+      {
+        "action": "updated",
+        "id": "a-kesar-gulab",
+        "name": "Kesar Gulab",
+        "price": 499,
+        "image": "kesar-gulab"
+      },
+      {
+        "action": "updated",
+        "id": "g-signature-quad",
+        "name": "Signature Quad Gift Set",
+        "price": 699,
+        "image": "giftset-signature-quad"
+      },
+      {
+        "action": "updated",
+        "id": "p-million",
+        "name": "Million",
+        "price": 749,
+        "image": "million"
+      },
+      {
+        "action": "updated",
+        "id": "p-smoke",
+        "name": "Smoke",
+        "price": 749,
+        "image": "smoke"
+      },
+      {
+        "action": "updated",
+        "id": "p-temptation",
+        "name": "Temptation",
+        "price": 1399,
+        "image": "temptation"
+      },
+      {
+        "action": "updated",
+        "id": "a-aseel",
+        "name": "Aseel",
+        "price": 499,
+        "image": "attar-aseel"
+      },
+      {
+        "action": "updated",
+        "id": "p-black-gold",
+        "name": "Black Gold",
+        "price": 549,
+        "image": "black-gold"
+      },
+      {
+        "action": "updated",
+        "id": "p-valentine",
+        "name": "Valentine",
+        "price": 749,
+        "image": "valentine"
+      },
+      {
+        "action": "updated",
+        "id": "g-pack-of-2-combo",
+        "name": "Pack of 2 Combo",
+        "price": 1699,
+        "image": "giftset-pack-of-2-combo"
+      },
+      {
+        "action": "updated",
+        "id": "p-ocean-water",
+        "name": "Ocean Water",
+        "price": 749,
+        "image": "ocean-water"
+      },
+      {
+        "action": "updated",
+        "id": "g-aqua-duo",
+        "name": "Aqua Duo Gift Set",
+        "price": 599,
+        "image": "giftset-frozenblue-oceanwater"
+      },
+      {
+        "action": "updated",
+        "id": "p-sukoon",
+        "name": "Sukoon",
+        "price": 899,
+        "image": "sukoon"
+      },
+      {
+        "action": "updated",
+        "id": "p-aura",
+        "name": "Aura",
+        "price": 949,
+        "image": "aura"
+      },
+      {
+        "action": "updated",
+        "id": "p-melody",
+        "name": "Melody",
+        "price": 549,
+        "image": "melody"
+      },
+      {
+        "action": "imported",
+        "id": "a-celebrity",
+        "name": "Celebrity Attar",
+        "price": 499,
+        "image": "attar-celebrity"
+      },
+      {
+        "action": "updated",
+        "id": "p-celebrity",
+        "name": "Celebrity",
+        "price": 1699,
+        "image": "celebrity"
+      },
+      {
+        "action": "updated",
+        "id": "p-impression",
+        "name": "Impression",
+        "price": 1099,
+        "image": "impression"
+      },
+      {
+        "action": "updated",
+        "id": "p-choco-blast",
+        "name": "Choco Blast",
+        "price": 999,
+        "image": "choco-blast"
+      },
+      {
+        "action": "updated",
+        "id": "a-sukoon",
+        "name": "Sukoon Attar",
+        "price": 949,
+        "image": "attar-sukoon"
+      },
+      {
+        "action": "updated",
+        "id": "p-blue-ice",
+        "name": "Blue Ice",
+        "price": 549,
+        "image": "blue-ice"
+      },
+      {
+        "action": "imported",
+        "id": "p-wild",
+        "name": "Wild",
+        "price": 899,
+        "image": "wild"
+      },
+      {
+        "action": "updated",
+        "id": "a-oud-wood",
+        "name": "Oud Wood Attar",
+        "price": 499,
+        "image": "attar-oud-wood"
+      },
+      {
+        "action": "imported",
+        "id": "a-saffron-sandal",
+        "name": "Saffron Sandal",
+        "price": 499,
+        "image": "saffron-sandal"
+      },
+      {
+        "action": "updated",
+        "id": "a-famous",
+        "name": "Famous",
+        "price": 499,
+        "image": "famous"
+      },
+      {
+        "action": "updated",
+        "id": "a-feel-good",
+        "name": "Feel Good Attar",
+        "price": 499,
+        "image": "attar-feel-good"
+      },
+      {
+        "action": "imported",
+        "id": "p-feel-good",
+        "name": "Feel Good",
+        "price": 1499,
+        "image": "feel-good"
+      },
+      {
+        "action": "updated",
+        "id": "a-guldasta",
+        "name": "Guldasta",
+        "price": 499,
+        "image": "guldasta"
+      },
+      {
+        "action": "updated",
+        "id": "a-honeymoon",
+        "name": "Honeymoon Attar",
+        "price": 499,
+        "image": "attar-honeymoon"
+      },
+      {
+        "action": "updated",
+        "id": "p-honeymoon",
+        "name": "Honeymoon",
+        "price": 1299,
+        "image": "honeymoon"
+      },
+      {
+        "action": "updated",
+        "id": "g-discovery",
+        "name": "Signature Discovery Set",
+        "price": 699,
+        "image": "giftset-discovery"
+      },
+      {
+        "action": "imported",
+        "id": "a-impression",
+        "name": "Impression Attar",
+        "price": 499,
+        "image": "attar-impression"
+      },
+      {
+        "action": "updated",
+        "id": "p-inayat",
+        "name": "Inayat",
+        "price": 649,
+        "image": "inayat"
+      },
+      {
+        "action": "updated",
+        "id": "p-legend",
+        "name": "Legend",
+        "price": 1399,
+        "image": "legend"
+      },
+      {
+        "action": "updated",
+        "id": "p-rose-petals",
+        "name": "Rose Petals",
+        "price": 1399,
+        "image": "rose-petals"
+      },
+      {
+        "action": "updated",
+        "id": "p-white-musk",
+        "name": "White Musk",
+        "price": 1299,
+        "image": "white-musk"
+      },
+      {
+        "action": "updated",
+        "id": "a-amber",
+        "name": "Amber",
+        "price": 699,
+        "image": "attar-amber"
+      },
+      {
+        "action": "imported",
+        "id": "a-choco-blast",
+        "name": "Choco Blast Attar",
+        "price": 599,
+        "image": "attar-choco-blast"
+      },
+      {
+        "action": "updated",
+        "id": "a-lotus",
+        "name": "Lotus",
+        "price": 699,
+        "image": "attar-lotus"
+      },
+      {
+        "action": "updated",
+        "id": "a-maati",
+        "name": "Maati",
+        "price": 1099,
+        "image": "attar-maati"
+      },
+      {
+        "action": "updated",
+        "id": "a-ruh-heena",
+        "name": "Ruh Heena",
+        "price": 1399,
+        "image": "attar-ruh-heena"
+      },
+      {
+        "action": "updated",
+        "id": "a-ruh-khus",
+        "name": "Ruh Khus",
+        "price": 1999,
+        "image": "attar-ruh-khus"
+      },
+      {
+        "action": "updated",
+        "id": "a-ruh-kewra",
+        "name": "Ruh Kewra",
+        "price": 2199,
+        "image": "attar-ruh-kewra"
+      },
+      {
+        "action": "updated",
+        "id": "a-ruh-mogra",
+        "name": "Ruh Mogra",
+        "price": 1599,
+        "image": "attar-ruh-mogra"
+      },
+      {
+        "action": "updated",
+        "id": "g-attar-duo",
+        "name": "Premium Attar Duo",
+        "price": 499,
+        "image": "giftset-attar-duo"
+      },
+      {
+        "action": "updated",
+        "id": "g-mogragold-shahigulab-duo",
+        "name": "Mogra Gold & Shahi Gulab Duo",
+        "price": 499,
+        "image": "giftset-mogragold-shahigulab"
+      },
+      {
+        "action": "updated",
+        "id": "g-rooh-chandan-duo",
+        "name": "Rooh Chandan Duo",
+        "price": 499,
+        "image": "giftset-rooh-chandan-duo"
+      },
+      {
+        "action": "updated",
+        "id": "g-royaloud-shyamshringar-duo",
+        "name": "Royal Oud & Shyam Shringar Duo",
+        "price": 499,
+        "image": "giftset-royaloud-shyamshringar"
+      },
+      {
+        "action": "updated",
+        "id": "g-whiteoud-blackoud-duo",
+        "name": "White Oud & Black Oud Duo",
+        "price": 999,
+        "image": "giftset-whiteoud-blackoud"
+      },
+      {
+        "action": "imported",
+        "id": "p-chemistry",
+        "name": "Chemistry",
+        "price": 1299,
+        "image": "chemistry"
+      },
+      {
+        "action": "updated",
+        "id": "p-touch",
+        "name": "Touch",
+        "price": 899,
+        "image": "touch"
+      },
+      {
+        "action": "updated",
+        "id": "a-inayat",
+        "name": "Inayat Attar",
+        "price": 549,
+        "image": "attar-inayat"
+      },
+      {
+        "action": "imported",
+        "id": "a-shanaya",
+        "name": "Shanaya",
+        "price": 569,
+        "image": "shanaya"
+      },
+      {
+        "action": "imported",
+        "id": "a-khawab",
+        "name": "Khawab",
+        "price": 1354,
+        "image": "khawab"
+      },
+      {
+        "action": "imported",
+        "id": "a-million",
+        "name": "Million Attar",
+        "price": 949,
+        "image": "attar-million"
+      },
+      {
+        "action": "imported",
+        "id": "a-noor-jahan",
+        "name": "Noor Jahan",
+        "price": 994,
+        "image": "noor-jahan"
+      },
+      {
+        "action": "imported",
+        "id": "a-fitoor",
+        "name": "Fitoor",
+        "price": 549,
+        "image": "fitoor"
+      },
+      {
+        "action": "imported",
+        "id": "p-poetry",
+        "name": "Poetry",
+        "price": 999,
+        "image": "poetry"
+      },
+      {
+        "action": "imported",
+        "id": "p-rebel",
+        "name": "Rebel",
+        "price": 999,
+        "image": "rebel"
+      },
+      {
+        "action": "imported",
+        "id": "g-royal-oud",
+        "name": "Royal Oud Duo",
+        "price": 499,
+        "image": "giftset-royal-oud-duo"
+      },
+      {
+        "action": "imported",
+        "id": "a-smoke",
+        "name": "Smoke Attar",
+        "price": 949,
+        "image": "attar-smoke"
+      },
+      {
+        "action": "imported",
+        "id": "a-dargah",
+        "name": "Dargah",
+        "price": 549,
+        "image": "dargah"
+      },
+      {
+        "action": "imported",
+        "id": "a-touch",
+        "name": "Touch Attar",
+        "price": 949,
+        "image": "attar-touch"
+      },
+      {
+        "action": "imported",
+        "id": "a-white-oud",
+        "name": "White Oud Attar",
+        "price": 949,
+        "image": "white-oud"
+      },
+      {
+        "action": "imported",
+        "id": "a-wild",
+        "name": "Wild Attar",
+        "price": 949,
+        "image": "attar-wild"
+      },
+      {
+        "action": "imported",
+        "id": "p-wanted",
+        "name": "Wanted",
+        "price": 899,
+        "image": "wanted"
+      },
+      {
+        "action": "updated",
+        "id": "a-jannat-firdaus",
+        "name": "Jannat Firdaus",
+        "price": 649,
+        "image": "attar-jannat-firdaus"
+      },
+      {
+        "action": "imported",
+        "id": "a-zannat",
+        "name": "Zannat",
+        "price": 999,
+        "image": "zannat"
+      }
+    ]
+  },
+  "skipped": [
+    {
+      "row": 5,
+      "sku": "1W-4PO5-D5DY",
+      "reason": "could not extract product name",
+      "title": "ITRA WALA Attar for Men & Women | Ittar Long Lasting Fragrance | Itra 10 ML"
+    }
+  ],
+  "groups": [
+    {
+      "id": "a-tulsi",
+      "name": "Tulsi",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-tulsi"
+    },
+    {
+      "id": "p-oud-wood",
+      "name": "Oud Wood",
+      "category": "Perfume",
+      "price": 899,
+      "volumes": {
+        "50ml": {
+          "price": 449,
+          "compareAt": 899
+        },
+        "100ml": {
+          "price": 899,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "oud-wood"
+    },
+    {
+      "id": "p-dubai-fame",
+      "name": "Dubai Fame",
+      "category": "Perfume",
+      "price": 549,
+      "volumes": {
+        "50ml": {
+          "price": 349,
+          "compareAt": 749
+        },
+        "100ml": {
+          "price": 549,
+          "compareAt": 999
+        }
+      },
+      "imageKey": "dubai-fame"
+    },
+    {
+      "id": "a-kesar-gulab",
+      "name": "Kesar Gulab",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "kesar-gulab"
+    },
+    {
+      "id": "g-signature-quad",
+      "name": "Signature Quad Gift Set",
+      "category": "Gift Set",
+      "price": 699,
+      "volumes": {
+        "Gift Box": {
+          "price": 699,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-signature-quad"
+    },
+    {
+      "id": "p-million",
+      "name": "Million",
+      "category": "Perfume",
+      "price": 749,
+      "volumes": {
+        "100ml": {
+          "price": 749,
+          "compareAt": 1099
+        },
+        "50ml": {
+          "price": 489,
+          "compareAt": 1799
+        }
+      },
+      "imageKey": "million"
+    },
+    {
+      "id": "p-smoke",
+      "name": "Smoke",
+      "category": "Perfume",
+      "price": 749,
+      "volumes": {
+        "100ml": {
+          "price": 749,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "smoke"
+    },
+    {
+      "id": "p-temptation",
+      "name": "Temptation",
+      "category": "Perfume",
+      "price": 1399,
+      "volumes": {
+        "100ml": {
+          "price": 1399,
+          "compareAt": 1399
+        },
+        "20ml": {
+          "price": 299,
+          "compareAt": 349
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "temptation"
+    },
+    {
+      "id": "a-aseel",
+      "name": "Aseel",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-aseel"
+    },
+    {
+      "id": "p-black-gold",
+      "name": "Black Gold",
+      "category": "Perfume",
+      "price": 549,
+      "volumes": {
+        "100ml": {
+          "price": 549,
+          "compareAt": 999
+        }
+      },
+      "imageKey": "black-gold"
+    },
+    {
+      "id": "p-valentine",
+      "name": "Valentine",
+      "category": "Perfume",
+      "price": 749,
+      "volumes": {
+        "100ml": {
+          "price": 749,
+          "compareAt": 1099
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 1799
+        }
+      },
+      "imageKey": "valentine"
+    },
+    {
+      "id": "g-pack-of-2-combo",
+      "name": "Pack of 2 Combo",
+      "category": "Gift Set",
+      "price": 1699,
+      "volumes": {
+        "Gift Box": {
+          "price": 1699,
+          "compareAt": 1699
+        }
+      },
+      "imageKey": "giftset-pack-of-2-combo"
+    },
+    {
+      "id": "p-ocean-water",
+      "name": "Ocean Water",
+      "category": "Perfume",
+      "price": 749,
+      "volumes": {
+        "100ml": {
+          "price": 749,
+          "compareAt": 1099
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 1799
+        }
+      },
+      "imageKey": "ocean-water"
+    },
+    {
+      "id": "g-aqua-duo",
+      "name": "Aqua Duo Gift Set",
+      "category": "Gift Set",
+      "price": 599,
+      "volumes": {
+        "Gift Box": {
+          "price": 599,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-frozenblue-oceanwater"
+    },
+    {
+      "id": "p-sukoon",
+      "name": "Sukoon",
+      "category": "Perfume",
+      "price": 899,
+      "volumes": {
+        "100ml": {
+          "price": 899,
+          "compareAt": 999
+        },
+        "20ml": {
+          "price": 249,
+          "compareAt": 999
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 999
+        }
+      },
+      "imageKey": "sukoon"
+    },
+    {
+      "id": "p-aura",
+      "name": "Aura",
+      "category": "Perfume",
+      "price": 949,
+      "volumes": {
+        "100ml": {
+          "price": 949,
+          "compareAt": 1299
+        },
+        "50ml": {
+          "price": 649,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "aura"
+    },
+    {
+      "id": "p-melody",
+      "name": "Melody",
+      "category": "Perfume",
+      "price": 549,
+      "volumes": {
+        "100ml": {
+          "price": 549,
+          "compareAt": 999
+        },
+        "50ml": {
+          "price": 349,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "melody"
+    },
+    {
+      "id": "a-celebrity",
+      "name": "Celebrity Attar",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-celebrity"
+    },
+    {
+      "id": "p-celebrity",
+      "name": "Celebrity",
+      "category": "Perfume",
+      "price": 1699,
+      "volumes": {
+        "100ml": {
+          "price": 1699,
+          "compareAt": 1699
+        },
+        "50ml": {
+          "price": 649,
+          "compareAt": 1099
+        },
+        "20ml": {
+          "price": 299,
+          "compareAt": 349
+        }
+      },
+      "imageKey": "celebrity"
+    },
+    {
+      "id": "p-impression",
+      "name": "Impression",
+      "category": "Perfume",
+      "price": 1099,
+      "volumes": {
+        "100ml": {
+          "price": 1099,
+          "compareAt": 1399
+        },
+        "50ml": {
+          "price": 649,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "impression"
+    },
+    {
+      "id": "p-choco-blast",
+      "name": "Choco Blast",
+      "category": "Perfume",
+      "price": 999,
+      "volumes": {
+        "100ml": {
+          "price": 999,
+          "compareAt": 999
+        },
+        "20ml": {
+          "price": 299,
+          "compareAt": 349
+        },
+        "50ml": {
+          "price": 489,
+          "compareAt": 999
+        }
+      },
+      "imageKey": "choco-blast"
+    },
+    {
+      "id": "a-sukoon",
+      "name": "Sukoon Attar",
+      "category": "Attar",
+      "price": 949,
+      "volumes": {
+        "10ml": {
+          "price": 949,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "attar-sukoon"
+    },
+    {
+      "id": "p-blue-ice",
+      "name": "Blue Ice",
+      "category": "Perfume",
+      "price": 549,
+      "volumes": {
+        "100ml": {
+          "price": 549,
+          "compareAt": 999
+        },
+        "50ml": {
+          "price": 349,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "blue-ice"
+    },
+    {
+      "id": "p-wild",
+      "name": "Wild",
+      "category": "Perfume",
+      "price": 899,
+      "volumes": {
+        "100ml": {
+          "price": 899,
+          "compareAt": 1799
+        },
+        "50ml": {
+          "price": 449,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "wild"
+    },
+    {
+      "id": "a-oud-wood",
+      "name": "Oud Wood Attar",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-oud-wood"
+    },
+    {
+      "id": "a-saffron-sandal",
+      "name": "Saffron Sandal",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "saffron-sandal"
+    },
+    {
+      "id": "a-famous",
+      "name": "Famous",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "famous"
+    },
+    {
+      "id": "a-feel-good",
+      "name": "Feel Good Attar",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-feel-good"
+    },
+    {
+      "id": "p-feel-good",
+      "name": "Feel Good",
+      "category": "Perfume",
+      "price": 1499,
+      "volumes": {
+        "100ml": {
+          "price": 1499,
+          "compareAt": 1499
+        },
+        "50ml": {
+          "price": 489,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "feel-good"
+    },
+    {
+      "id": "a-guldasta",
+      "name": "Guldasta",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "guldasta"
+    },
+    {
+      "id": "a-honeymoon",
+      "name": "Honeymoon Attar",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-honeymoon"
+    },
+    {
+      "id": "p-honeymoon",
+      "name": "Honeymoon",
+      "category": "Perfume",
+      "price": 1299,
+      "volumes": {
+        "100ml": {
+          "price": 1299,
+          "compareAt": 1299
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "honeymoon"
+    },
+    {
+      "id": "g-discovery",
+      "name": "Signature Discovery Set",
+      "category": "Gift Set",
+      "price": 699,
+      "volumes": {
+        "Gift Box": {
+          "price": 699,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-discovery"
+    },
+    {
+      "id": "a-impression",
+      "name": "Impression Attar",
+      "category": "Attar",
+      "price": 499,
+      "volumes": {
+        "10ml": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-impression"
+    },
+    {
+      "id": "p-inayat",
+      "name": "Inayat",
+      "category": "Perfume",
+      "price": 649,
+      "volumes": {
+        "100ml": {
+          "price": 649,
+          "compareAt": 849
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "inayat"
+    },
+    {
+      "id": "p-legend",
+      "name": "Legend",
+      "category": "Perfume",
+      "price": 1399,
+      "volumes": {
+        "100ml": {
+          "price": 1399,
+          "compareAt": 1399
+        },
+        "20ml": {
+          "price": 299,
+          "compareAt": 349
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "legend"
+    },
+    {
+      "id": "p-rose-petals",
+      "name": "Rose Petals",
+      "category": "Perfume",
+      "price": 1399,
+      "volumes": {
+        "100ml": {
+          "price": 1399,
+          "compareAt": 1399
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "rose-petals"
+    },
+    {
+      "id": "p-white-musk",
+      "name": "White Musk",
+      "category": "Perfume",
+      "price": 1299,
+      "volumes": {
+        "100ml": {
+          "price": 1299,
+          "compareAt": 1299
+        },
+        "20ml": {
+          "price": 299,
+          "compareAt": 349
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 749
+        }
+      },
+      "imageKey": "white-musk"
+    },
+    {
+      "id": "a-amber",
+      "name": "Amber",
+      "category": "Attar",
+      "price": 699,
+      "volumes": {
+        "10ml": {
+          "price": 699,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-amber"
+    },
+    {
+      "id": "a-choco-blast",
+      "name": "Choco Blast Attar",
+      "category": "Attar",
+      "price": 599,
+      "volumes": {
+        "10ml": {
+          "price": 599,
+          "compareAt": 999
+        }
+      },
+      "imageKey": "attar-choco-blast"
+    },
+    {
+      "id": "a-lotus",
+      "name": "Lotus",
+      "category": "Attar",
+      "price": 699,
+      "volumes": {
+        "10ml": {
+          "price": 699,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-lotus"
+    },
+    {
+      "id": "a-maati",
+      "name": "Maati",
+      "category": "Attar",
+      "price": 1099,
+      "volumes": {
+        "10ml": {
+          "price": 1099,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "attar-maati"
+    },
+    {
+      "id": "a-ruh-heena",
+      "name": "Ruh Heena",
+      "category": "Attar",
+      "price": 1399,
+      "volumes": {
+        "10ml": {
+          "price": 1399,
+          "compareAt": 1599
+        }
+      },
+      "imageKey": "attar-ruh-heena"
+    },
+    {
+      "id": "a-ruh-khus",
+      "name": "Ruh Khus",
+      "category": "Attar",
+      "price": 1999,
+      "volumes": {
+        "10ml": {
+          "price": 1999,
+          "compareAt": 2499
+        }
+      },
+      "imageKey": "attar-ruh-khus"
+    },
+    {
+      "id": "a-ruh-kewra",
+      "name": "Ruh Kewra",
+      "category": "Attar",
+      "price": 2199,
+      "volumes": {
+        "10ml": {
+          "price": 2199,
+          "compareAt": 2599
+        }
+      },
+      "imageKey": "attar-ruh-kewra"
+    },
+    {
+      "id": "a-ruh-mogra",
+      "name": "Ruh Mogra",
+      "category": "Attar",
+      "price": 1599,
+      "volumes": {
+        "10ml": {
+          "price": 1599,
+          "compareAt": 2499
+        }
+      },
+      "imageKey": "attar-ruh-mogra"
+    },
+    {
+      "id": "g-attar-duo",
+      "name": "Premium Attar Duo",
+      "category": "Gift Set",
+      "price": 499,
+      "volumes": {
+        "Gift Box": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-attar-duo"
+    },
+    {
+      "id": "g-mogragold-shahigulab-duo",
+      "name": "Mogra Gold & Shahi Gulab Duo",
+      "category": "Gift Set",
+      "price": 499,
+      "volumes": {
+        "Gift Box": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-mogragold-shahigulab"
+    },
+    {
+      "id": "g-rooh-chandan-duo",
+      "name": "Rooh Chandan Duo",
+      "category": "Gift Set",
+      "price": 499,
+      "volumes": {
+        "Gift Box": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-rooh-chandan-duo"
+    },
+    {
+      "id": "g-royaloud-shyamshringar-duo",
+      "name": "Royal Oud & Shyam Shringar Duo",
+      "category": "Gift Set",
+      "price": 499,
+      "volumes": {
+        "Gift Box": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-royaloud-shyamshringar"
+    },
+    {
+      "id": "g-whiteoud-blackoud-duo",
+      "name": "White Oud & Black Oud Duo",
+      "category": "Gift Set",
+      "price": 999,
+      "volumes": {
+        "Gift Box": {
+          "price": 999,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-whiteoud-blackoud"
+    },
+    {
+      "id": "p-chemistry",
+      "name": "Chemistry",
+      "category": "Perfume",
+      "price": 1299,
+      "volumes": {
+        "100ml": {
+          "price": 1299,
+          "compareAt": 1299
+        },
+        "20ml": {
+          "price": 249,
+          "compareAt": 699
+        },
+        "50ml": {
+          "price": 499,
+          "compareAt": 899
+        }
+      },
+      "imageKey": "chemistry"
+    },
+    {
+      "id": "p-touch",
+      "name": "Touch",
+      "category": "Perfume",
+      "price": 899,
+      "volumes": {
+        "50ml": {
+          "price": 499,
+          "compareAt": 899
+        },
+        "100ml": {
+          "price": 899,
+          "compareAt": 1599
+        },
+        "20ml": {
+          "price": 249,
+          "compareAt": 1599
+        }
+      },
+      "imageKey": "touch"
+    },
+    {
+      "id": "a-inayat",
+      "name": "Inayat Attar",
+      "category": "Attar",
+      "price": 549,
+      "volumes": {
+        "10ml": {
+          "price": 549,
+          "compareAt": 999
+        }
+      },
+      "imageKey": "attar-inayat"
+    },
+    {
+      "id": "a-shanaya",
+      "name": "Shanaya",
+      "category": "Attar",
+      "price": 569,
+      "volumes": {
+        "10ml": {
+          "price": 569,
+          "compareAt": 1699
+        }
+      },
+      "imageKey": "shanaya"
+    },
+    {
+      "id": "a-khawab",
+      "name": "Khawab",
+      "category": "Attar",
+      "price": 1354,
+      "volumes": {
+        "10ml": {
+          "price": 1354,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "khawab"
+    },
+    {
+      "id": "a-million",
+      "name": "Million Attar",
+      "category": "Attar",
+      "price": 949,
+      "volumes": {
+        "10ml": {
+          "price": 949,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "attar-million"
+    },
+    {
+      "id": "a-noor-jahan",
+      "name": "Noor Jahan",
+      "category": "Attar",
+      "price": 994,
+      "volumes": {
+        "10ml": {
+          "price": 994,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "noor-jahan"
+    },
+    {
+      "id": "a-fitoor",
+      "name": "Fitoor",
+      "category": "Attar",
+      "price": 549,
+      "volumes": {
+        "10ml": {
+          "price": 549,
+          "compareAt": 1699
+        }
+      },
+      "imageKey": "fitoor"
+    },
+    {
+      "id": "p-poetry",
+      "name": "Poetry",
+      "category": "Perfume",
+      "price": 999,
+      "volumes": {
+        "100ml": {
+          "price": 999,
+          "compareAt": 1299
+        },
+        "50ml": {
+          "price": 649,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "poetry"
+    },
+    {
+      "id": "p-rebel",
+      "name": "Rebel",
+      "category": "Perfume",
+      "price": 999,
+      "volumes": {
+        "100ml": {
+          "price": 999,
+          "compareAt": 1299
+        },
+        "50ml": {
+          "price": 649,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "rebel"
+    },
+    {
+      "id": "g-royal-oud",
+      "name": "Royal Oud Duo",
+      "category": "Gift Set",
+      "price": 499,
+      "volumes": {
+        "Gift Box": {
+          "price": 499,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "giftset-royal-oud-duo"
+    },
+    {
+      "id": "a-smoke",
+      "name": "Smoke Attar",
+      "category": "Attar",
+      "price": 949,
+      "volumes": {
+        "10ml": {
+          "price": 949,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "attar-smoke"
+    },
+    {
+      "id": "a-dargah",
+      "name": "Dargah",
+      "category": "Attar",
+      "price": 549,
+      "volumes": {
+        "10ml": {
+          "price": 549,
+          "compareAt": 1699
+        }
+      },
+      "imageKey": "dargah"
+    },
+    {
+      "id": "a-touch",
+      "name": "Touch Attar",
+      "category": "Attar",
+      "price": 949,
+      "volumes": {
+        "10ml": {
+          "price": 949,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "attar-touch"
+    },
+    {
+      "id": "a-white-oud",
+      "name": "White Oud Attar",
+      "category": "Attar",
+      "price": 949,
+      "volumes": {
+        "10ml": {
+          "price": 949,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "white-oud"
+    },
+    {
+      "id": "a-wild",
+      "name": "Wild Attar",
+      "category": "Attar",
+      "price": 949,
+      "volumes": {
+        "10ml": {
+          "price": 949,
+          "compareAt": 1499
+        }
+      },
+      "imageKey": "attar-wild"
+    },
+    {
+      "id": "p-wanted",
+      "name": "Wanted",
+      "category": "Perfume",
+      "price": 899,
+      "volumes": {
+        "100ml": {
+          "price": 899,
+          "compareAt": 1499
+        },
+        "50ml": {
+          "price": 649,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "wanted"
+    },
+    {
+      "id": "a-jannat-firdaus",
+      "name": "Jannat Firdaus",
+      "category": "Attar",
+      "price": 649,
+      "volumes": {
+        "10ml": {
+          "price": 649,
+          "compareAt": 1099
+        }
+      },
+      "imageKey": "attar-jannat-firdaus"
+    },
+    {
+      "id": "a-zannat",
+      "name": "Zannat",
+      "category": "Attar",
+      "price": 999,
+      "volumes": {
+        "10ml": {
+          "price": 999,
+          "compareAt": 1299
+        }
+      },
+      "imageKey": "zannat"
+    }
+  ]
+}

@@ -25,16 +25,21 @@ export default function Shop() {
     return notes ? notes.split(",").filter(Boolean).map(decodeURIComponent) : [];
   });
   const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
+  const [searchInput, setSearchInput] = useState(() => params.get("search") || "");
 
   useEffect(() => {
     const notes = params.get("notes");
     setSelectedNotes(notes ? notes.split(",").filter(Boolean).map(decodeURIComponent) : []);
   }, [params.toString()]);
 
+  useEffect(() => {
+    setSearchInput(params.get("search") || "");
+  }, [params.toString()]);
+
   const selectedGender = params.get("gender");
   const selectedCategory = params.get("category");
   const selectedMood = params.get("mood");
-  const search = params.get("search") || "";
+  const search = searchInput;
 
   const toggleParam = (key: string, val: string) => {
     const next = new URLSearchParams(params);
@@ -58,6 +63,7 @@ export default function Shop() {
   };
 
   const setSearch = (val: string) => {
+    setSearchInput(val);
     const next = new URLSearchParams(params);
     if (val) next.set("search", val); else next.delete("search");
     setParams(next, { replace: true });
@@ -74,10 +80,16 @@ export default function Shop() {
 
     const allNotes = (p: typeof products[number]) => [...p.notes.top, ...p.notes.heart, ...p.notes.base].map(n => n.toLowerCase());
 
+    const matchesGender = (productGender: typeof products[number]["gender"]) => {
+      if (!selectedGender) return true;
+      if (selectedGender === "Unisex") return true;
+      return productGender === selectedGender || productGender === "Unisex";
+    };
+
     let r = products.filter(p => {
       const priceForDefault = priceFor(p, listingVolume(p)).price;
       return (
-        (!selectedGender || p.gender === selectedGender) &&
+        matchesGender(p.gender) &&
         (!selectedCategory || p.category === selectedCategory) &&
         (!selectedMood || p.moods.some(m => m.toLowerCase() === selectedMood.toLowerCase())) &&
         priceForDefault <= price[0] &&
@@ -97,7 +109,7 @@ export default function Shop() {
     <aside className="space-y-8">
       <div>
         <h3 className="text-xs tracking-luxe uppercase text-primary mb-3">Search</h3>
-        <Input placeholder="Find a scent..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Input placeholder="Find a scent..." value={searchInput} onChange={e => setSearch(e.target.value)} />
       </div>
       <FilterGroup title="Gender">
         {genders.map(g => (
@@ -163,7 +175,7 @@ export default function Shop() {
 
       <div className="container pb-14 sm:pb-24 grid lg:grid-cols-[260px_1fr] gap-6 lg:gap-10">
         <div className="hidden lg:block sticky top-32 self-start max-h-[calc(100vh-9rem)] overflow-y-auto pr-1">
-          <Filters />
+          {Filters()}
         </div>
 
         <div>
@@ -207,7 +219,7 @@ export default function Shop() {
               <h3 className="font-display text-2xl text-gold">Filters</h3>
               <button onClick={() => setFilterOpen(false)}><X className="w-5 h-5" /></button>
             </div>
-            <Filters />
+            {Filters()}
           </motion.div>
         </motion.div>
       )}

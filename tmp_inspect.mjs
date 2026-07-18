@@ -1,0 +1,23 @@
+import fs from 'fs';
+import path from 'path';
+import XLSX from 'xlsx';
+const ROOT = process.cwd();
+const EXCEL = path.join(ROOT, 'new price list.xlsx');
+const buf = fs.readFileSync(EXCEL);
+const wb = XLSX.read(buf, { type: 'buffer' });
+const sheet = wb.Sheets[wb.SheetNames[0]];
+const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+const seen = new Map();
+let missingPrice = 0, missingTitle = 0, missingImage = 0;
+rows.forEach((r, i) => {
+  const title = String(r.Title || r['Title'] || '').trim();
+  const price = Number(r['Selling Price'] || r.price || 0);
+  const image = String(r['Images '] || r.Images || '').trim();
+  if (!title) missingTitle++;
+  if (!price) missingPrice++;
+  if (!image) missingImage++;
+  const key = (title || '<blank>').toLowerCase();
+  if (!seen.has(key)) seen.set(key, []);
+  seen.get(key).push({ row: i + 2, title, price, image });
+});
+console.log(JSON.stringify({ totalRows: rows.length, distinctTitles: seen.size, missingTitle, missingPrice, missingImage }, null, 2));
