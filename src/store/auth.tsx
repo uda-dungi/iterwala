@@ -12,7 +12,7 @@ type AuthCtx = {
   signUp: (name: string, email: string, password: string) => Promise<Result>;
   signIn: (email: string, password: string) => Promise<Result>;
   sendMagicLink: (email: string) => Promise<Result>;
-  signInWithGoogle: () => Promise<Result>;
+  signInWithGoogle: (redirectTo?: string) => Promise<Result>;
   signOut: () => Promise<void>;
 };
 
@@ -81,11 +81,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   /** Redirects to Google's consent screen; Supabase creates/matches the account by
    *  email on return, so this works whether or not the customer has ordered before. */
-  const signInWithGoogle = async (): Promise<Result> => {
+  const signInWithGoogle = async (redirectTo?: string): Promise<Result> => {
     if (!supabase) return { error: NOT_CONFIGURED };
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: redirectTo || window.location.origin },
     });
     return { error: error?.message };
   };

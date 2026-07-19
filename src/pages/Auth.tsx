@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
@@ -6,9 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/store/auth";
+import { isAdminEmail } from "@/config/site";
 import { toast } from "sonner";
-
-const ADMIN_EMAIL = "itrawalabrand@gmail.com";
 
 export default function Auth() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -18,14 +17,16 @@ export default function Auth() {
   const [busy, setBusy] = useState(false);
   const [googleBusy, setGoogleBusy] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
-  const { signIn, signUp, sendMagicLink, signInWithGoogle, configured } = useAuth();
+  const { user, loading, signIn, signUp, sendMagicLink, signInWithGoogle, configured } = useAuth();
   const nav = useNavigate();
   const emailRef = useRef<HTMLInputElement>(null);
 
-  // Previously this button was `disabled` whenever the email field was empty — which
-  // meant clicking it before typing an email did nothing at all, with zero feedback,
-  // and looked exactly like a broken/unclickable button. It's now always clickable
-  // (except while busy or right after a link is sent) and tells you what's missing.
+  useEffect(() => {
+    if (loading || !user) return;
+    if (isAdminEmail(user.email)) nav("/admin/orders", { replace: true });
+    else nav("/", { replace: true });
+  }, [user, loading, nav]);
+
   const submitMagicLink = async () => {
     if (busy || linkSent) return;
     if (!email.trim()) {
@@ -44,7 +45,6 @@ export default function Auth() {
     if (googleBusy) return;
     setGoogleBusy(true);
     const { error } = await signInWithGoogle();
-    // On success the browser redirects to Google immediately — this only ever runs on error.
     if (error) { toast.error(error); setGoogleBusy(false); }
   };
 
@@ -53,19 +53,18 @@ export default function Auth() {
     if (busy) return;
     setBusy(true);
 
+    const trimmedEmail = email.trim();
+
     if (mode === "login") {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(trimmedEmail, password);
       if (error) toast.error(error);
       else {
         toast.success("Welcome back");
-        if (email.trim().toLowerCase() === ADMIN_EMAIL) {
-          nav("/admin/orders");
-        } else {
-          nav("/");
-        }
+        if (isAdminEmail(trimmedEmail)) nav("/admin/orders");
+        else nav("/");
       }
     } else {
-      const { error } = await signUp(name, email, password);
+      const { error } = await signUp(name, trimmedEmail, password);
       if (error) toast.error(error);
       else {
         toast.success("Account created — check your email to confirm.");
@@ -74,6 +73,14 @@ export default function Auth() {
     }
     setBusy(false);
   };
+
+  if (loading) {
+    return (
+      <div className="container py-20 flex justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="container py-10 sm:py-20 flex justify-center">
@@ -156,7 +163,10 @@ export default function Auth() {
         )}
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          By continuing you agree to our Terms and Privacy Policy.
+          By continuing you agree to our{" "}
+          <Link to="/terms" className="text-primary hover:text-gold underline underline-offset-4">Terms</Link>
+          {" "}and{" "}
+          <Link to="/privacy" className="text-primary hover:text-gold underline underline-offset-4">Privacy Policy</Link>.
         </p>
       </motion.div>
     </div>

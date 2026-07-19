@@ -20,8 +20,13 @@ const adminEmails = ((env.VITE_ADMIN_EMAILS as string) || "")
   .map((value) => value.trim().toLowerCase())
   .filter(Boolean);
 
-export const isAdminEmail = (email?: string) =>
-  Boolean(email && adminEmails.includes(email.toLowerCase()));
+/** Matches server-side admin check in api/_lib/supabaseAdmin.ts */
+export const isAdminEmail = (email?: string | null) => {
+  if (!email) return false;
+  const value = email.trim().toLowerCase();
+  if (adminEmails.includes(value)) return true;
+  return value.endsWith("@itrawala.in");
+};
 
 export const site = {
   brand: "Itrawala",

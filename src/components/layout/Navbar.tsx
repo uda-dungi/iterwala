@@ -5,7 +5,7 @@ import { ChevronDown, Heart, LogOut, Menu, MessageCircle, Search, ShoppingBag, U
 import { useShop } from "@/store/shop";
 import { useAuth, displayName } from "@/store/auth";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
-import { whatsappLink, site, isAdminEmail } from "@/config/site";
+import { whatsappLink, site } from "@/config/site";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,7 +44,6 @@ export function Navbar() {
   const { itemCount, setCartOpen, wishlist } = useShop();
   const { user, signOut } = useAuth();
   const loc = useLocation();
-  const isAdmin = Boolean(user?.email && (isAdminEmail(user.email) || user.email.toLowerCase().endsWith("@itrawala.in")));
   const nav = useNavigate();
 
   const handleSignOut = async () => {
@@ -151,11 +150,6 @@ export function Navbar() {
                   <DropdownMenuItem asChild>
                     <Link to="/orders" className="cursor-pointer">My Orders</Link>
                   </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem asChild>
-                      <Link to="/admin/orders" className="cursor-pointer">Admin Dashboard</Link>
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/wishlist" className="cursor-pointer">My Wishlist</Link>
                   </DropdownMenuItem>
@@ -223,6 +217,22 @@ export function Navbar() {
                   </Link>
                 ))}
               </nav>
+              <div className="gold-divider my-6" />
+              {user ? (
+                <nav className="flex flex-col gap-4">
+                  <Link to="/orders" className="text-sm tracking-luxe uppercase text-ivory/80 hover:text-primary">My Orders</Link>
+                  <Link to="/wishlist" className="text-sm tracking-luxe uppercase text-ivory/80 hover:text-primary">My Wishlist</Link>
+                  <button
+                    type="button"
+                    onClick={handleSignOut}
+                    className="text-left text-sm tracking-luxe uppercase text-destructive hover:text-destructive/80"
+                  >
+                    Sign Out
+                  </button>
+                </nav>
+              ) : (
+                <Link to="/auth" className="text-sm tracking-luxe uppercase text-primary hover:text-gold">Sign In</Link>
+              )}
             </motion.div>
           </motion.div>
         )}

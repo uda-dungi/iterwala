@@ -3,8 +3,7 @@ import { Loader2, Database, Mail, Package, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
-import { site, isAdminEmail } from "@/config/site";
-import { useNavigate } from "react-router-dom";
+import { site } from "@/config/site";
 
 type OrderRow = {
   id: string;
@@ -27,35 +26,20 @@ type OrderRow = {
 };
 
 export default function AdminOrders() {
-  const { user, session, loading: authLoading } = useAuth();
+  const { user, session } = useAuth();
   const [orders, setOrders] = useState<OrderRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const nav = useNavigate();
 
-  const isAdmin = useMemo(() => isAdminEmail(user?.email), [user]);
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-    if (!isAdmin) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchOrders = async () => {
-      setLoading(true);
+  const fetchOrders = useMemo(
+    () => async () => {
       setError(null);
       try {
         const token = session?.access_token;
         if (!token) {
           setError("Invalid session. Please sign in again.");
           setOrders([]);
-          setLoading(false);
           return;
         }
         const res = await fetch("/api/admin/orders", {
@@ -73,70 +57,40 @@ export default function AdminOrders() {
       } catch (err) {
         console.error(err);
         setError("Unable to contact the server. Please refresh.");
-      } finally {
-        setLoading(false);
       }
-    };
+    },
+    [session?.access_token]
+  );
 
-    fetchOrders();
-  }, [user, authLoading, isAdmin]);
+  useEffect(() => {
+    if (!user) return;
+    setLoading(true);
+    fetchOrders().finally(() => setLoading(false));
+  }, [user, fetchOrders]);
 
   const handleRefresh = async () => {
-    if (!user) return;
-    const token = session?.access_token;
-    if (!token) return;
     setRefreshing(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/admin/orders", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed to refresh orders.");
-        setOrders([]);
-      } else {
-        setOrders(data.orders || []);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Unable to contact the server. Please refresh.");
-    } finally {
-      setRefreshing(false);
-    }
+    await fetchOrders();
+    setRefreshing(false);
   };
 
-  if (authLoading || loading) {
+  if (loading) {
     return (
-      <div className="container py-16 text-center">
-        <Loader2 className="w-8 h-8 mx-auto text-primary animate-spin" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="container py-16 text-center">
-        <p className="text-muted-foreground">Sign in as an admin to view orders.</p>
-        <Button variant="luxury" onClick={() => nav("/auth")}>Sign In</Button>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="container py-16 text-center">
-        <p className="text-muted-foreground">You do not have permission to view this page.</p>
+      <div className="p-8 md:p-12 flex justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="container py-8 md:py-16">
+    <div className="p-6 md:p-10">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
         <div>
-          <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Admin Dashboard</p>
-          <h1 className="font-display text-3xl sm:text-4xl md:text-5xl text-ivory mt-3">All Orders</h1>
+          <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Purchase Data</p>
+          <h1 className="font-display text-3xl sm:text-4xl text-ivory mt-2">All Orders</h1>
+          <p className="text-sm text-muted-foreground mt-2">
+            {orders?.length ?? 0} order{(orders?.length ?? 0) === 1 ? "" : "s"} total
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline-gold" size="lg" onClick={handleRefresh} disabled={refreshing}>
@@ -208,7 +162,7 @@ export default function AdminOrders() {
   );
 }
 
-function Stat({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+function Stat({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
   return (
     <div className="rounded-sm border border-border p-4 bg-background">
       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-muted-foreground mb-2">
@@ -220,7 +174,7 @@ function Stat({ icon: Icon, label, value }: { icon: any; label: string; value: s
   );
 }
 
-function formatAddress(address: any) {
+function formatAddress(address: OrderRow["address"]) {
   if (!address) return "No address provided.";
   const parts = [address.line1, address.city, address.state, address.pin, address.country].filter(Boolean);
   return parts.join(", ") || "No address provided.";
