@@ -81,13 +81,30 @@ export default async function handler(req: any, res: any) {
     const mode = getPayuMode();
     const txnid = generateTxnId();
     const amount = total.toFixed(2);
-    const productinfo = `Itrawala order — ${items.length} item${items.length > 1 ? "s" : ""}`.slice(0, 100);
-    const firstname = String(customer.firstName).slice(0, 60);
+    // PayU recomputes the forward hash from the posted values and compares it to ours.
+    // Anything non-ASCII (an em-dash, a curly quote, an accented name) gets re-encoded
+    // somewhere in that round trip, so the two hashes stop matching and PayU shows
+    // "Sorry, some error occurred" instead of the payment page. Keep every hashed field
+    // to plain ASCII, and drop the pipe character since "|" is the hash separator.
+    const sanitize = (value: string, max: number) =>
+      value
+        .normalize("NFKD")
+        .replace(/[^\x20-\x7E]/g, "")
+        .replace(/[|"'<>\\]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, max);
+
+    const productinfo = sanitize(`Itrawala order - ${items.length} item${items.length > 1 ? "s" : ""}`, 100);
+    const firstname = sanitize(String(customer.firstName), 60) || "Customer";
     const email = String(customer.email).trim().toLowerCase();
     const phone = String(customer.phone).replace(/\D/g, "").slice(0, 15);
 
-    const proto = (req.headers["x-forwarded-proto"] as string) || "https";
     const host = (req.headers["x-forwarded-host"] as string) || req.headers.host;
+    // Local dev has no x-forwarded-proto, and hard-defaulting to https produced an
+    // unreachable "https://127.0.0.1:8080" callback URL.
+    const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])(:|$)/.test(String(host || ""));
+    const proto = (req.headers["x-forwarded-proto"] as string) || (isLocal ? "http" : "https");
     const origin = process.env.SITE_URL || `${proto}://${host}`;
     const callbackUrl = `${origin}/api/payu/callback`;
 

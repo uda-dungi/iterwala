@@ -1,8 +1,18 @@
 // Product images live in src/assets/products and are loaded by filename via Vite glob.
 const modules = import.meta.glob("../assets/products/*.jpg", { eager: true, import: "default" }) as Record<string, string>;
+// A 1x1 transparent PNG — used only when an image filename can't be resolved.
+const PLACEHOLDER_IMG =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
 const img = (name: string): string => {
   const hit = Object.entries(modules).find(([k]) => k.endsWith(`/${name}.jpg`));
-  if (!hit) throw new Error(`Missing product image: ${name}.jpg`);
+  // This runs at module-evaluation time, so throwing here would white-screen every
+  // single route (including /cart and /admin) over one renamed or deleted file.
+  // Warn loudly and keep the site up instead.
+  if (!hit) {
+    console.warn(`[products] Missing product image: ${name}.jpg — using placeholder.`);
+    return PLACEHOLDER_IMG;
+  }
   return hit[1];
 };
 
@@ -74,6 +84,10 @@ export const collections = [
 ] as const;
 
 const PERFUME_VOL = ["50ml", "100ml"];
+// Eight perfumes also sell a 20ml travel size (per "New Price sheet .xlsx"). They already
+// carried a 20ml entry in priceByVolume, but 20ml was missing from their volume array, so
+// the size was priced yet impossible to select or buy.
+const PERFUME_VOL_20 = ["20ml", "50ml", "100ml"];
 // Real inventory only ever sells attars in a single 10ml bottle (confirmed against the
 // price sheet) — a fake "6ml/12ml" size picker previously showed with no price difference.
 const ATTAR_VOL = ["10ml"];
@@ -82,8 +96,8 @@ export const products: Product[] = [
   // ─────────────── PERFUMES ───────────────
   {
     id: "p-celebrity", slug: "celebrity", name: "Celebrity", tagline: "Your red-carpet signature",
-    price: 1699, compareAt: 1699, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 1699, compareAt: 1699 }, "50ml": { price: 649, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 } },
+    price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 1099, compareAt: 1399 }, "50ml": { price: 649, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 } },
     // celebrity-2/3 labels read "50 ml"; celebrity-real/1 are the silver-cap studio bottle (100ml).
     image: img("celebrity"),
     gallery: [img("celebrity-2"), img("celebrity-3"), img("celebrity-real"), img("celebrity-1")],
@@ -147,7 +161,7 @@ export const products: Product[] = [
   },
   {
     id: "p-sukoon", slug: "sukoon", name: "Sukoon", tagline: "The scent of calm",
-    price: 899, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    price: 899, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 899, compareAt: 999 }, "20ml": { price: 249, compareAt: 999 }, "50ml": { price: 499, compareAt: 999 } },
     // Both available shots are labeled 100 ml (different bottle designs). List at 100ml
     // so shop price matches the bottle; no 50ml photo asset yet.
@@ -163,7 +177,7 @@ export const products: Product[] = [
   },
   {
     id: "p-touch", slug: "touch", name: "Touch", tagline: "Soft. Sensual. Unforgettable.",
-    price: 899, compareAt: 1599, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    price: 899, compareAt: 1599, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "50ml": { price: 499, compareAt: 899 }, "100ml": { price: 899, compareAt: 1599 }, "20ml": { price: 249, compareAt: 1599 } },
     // Only photo is labeled 50 ml.
     featuredVolume: "50ml",
@@ -190,8 +204,8 @@ export const products: Product[] = [
   },
   {
     id: "p-white-musk", slug: "white-musk", name: "White Musk", tagline: "Clean, quiet luxury",
-    price: 1299, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 1299, compareAt: 1299 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
+    price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
     // Both photos are labeled 50 ml — no 100ml asset yet.
     featuredVolume: "50ml",
     image: img("white-musk"),
@@ -205,8 +219,8 @@ export const products: Product[] = [
   },
   {
     id: "p-temptation", slug: "temptation", name: "Temptation", tagline: "Impossible to resist",
-    price: 1399, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 1399, compareAt: 1399 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
     // Both temptation shots are labeled 100 ml (different bottle styles).
     image: img("temptation"), gallery: [img("temptation-real"), img("temptation")],
@@ -219,8 +233,8 @@ export const products: Product[] = [
   },
   {
     id: "p-rose-petals", slug: "rose-petals", name: "Rose Petals", tagline: "A garden in bloom",
-    price: 1399, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 1399, compareAt: 1399 }, "50ml": { price: 499, compareAt: 749 } },
+    price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
     // Both rose-petals shots are labeled 100 ml (different bottle styles).
     image: img("rose-petals"), gallery: [img("rose-petals-real"), img("rose-petals")],
@@ -233,8 +247,8 @@ export const products: Product[] = [
   },
   {
     id: "p-legend", slug: "legend", name: "Legend", tagline: "Wear your story",
-    price: 1399, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 1399, compareAt: 1399 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
+    price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
     // Both legend shots are labeled 100 ml (different bottle styles).
     image: img("legend"), gallery: [img("legend-real"), img("legend")],
@@ -507,8 +521,8 @@ export const products: Product[] = [
   },
   {
     id: "p-choco-blast", slug: "choco-blast", name: "Choco Blast", tagline: "Sweet, cozy, addictive",
-    price: 999, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 999, compareAt: 999 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 489, compareAt: 999 } },
+    price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 489, compareAt: 999 } },
     featuredVolume: "100ml",
     image: img("choco-blast"), gallery: [img("choco-blast")],
     notes: { top: ["Cocoa", "Orange"], heart: ["Praline", "Vanilla"], base: ["Musk", "Tonka"] },
@@ -520,8 +534,8 @@ export const products: Product[] = [
   },
   {
     id: "p-honeymoon", slug: "honeymoon", name: "Honeymoon", tagline: "Made for beginnings",
-    price: 1299, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
-    priceByVolume: { "100ml": { price: 1299, compareAt: 1299 }, "50ml": { price: 499, compareAt: 749 } },
+    price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
     image: img("honeymoon"), gallery: [img("honeymoon")],
     notes: { top: ["Peach", "Bergamot"], heart: ["Jasmine", "Orchid"], base: ["Vanilla", "Musk", "Amber"] },
@@ -548,7 +562,7 @@ export const products: Product[] = [
   // ─────────────── NEW ATTARS (added from price sheet import) ───────────────
   {
     id: "a-sukoon", slug: "sukoon-attar", name: "Sukoon Attar", tagline: "Peace, in oil",
-    price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
     image: img("attar-sukoon"), gallery: [img("attar-sukoon")],
     notes: { top: ["Lavender"], heart: ["Cedar", "Iris"], base: ["Amber", "Musk"] },
     longevity: "12+ hours", projection: "Intimate",
@@ -781,9 +795,8 @@ export const products: Product[] = [
     description: "Ehsaas — the feeling — closes the trilogy as a luxury oriental woody Extrait de Parfum, layering jasmine and oud over saffron, musk and sandalwood. A high-concentration formula built to stay fresh for up to 24 hours, elegant enough for the office and warm enough for date nights, weddings and festive occasions. Designed unisex, and presented in a hand-finished 100ml bottle with premium gift packaging — a perfect gift for birthdays, anniversaries and celebrations.",
     rating: 4.9, reviews: 22, badge: "Collector's Edition", newArrival: true,
   },
-,
 
-  // ─────────────── IMPORTED FROM "new price list.xlsx" ───────────────
+  //─────────────── IMPORTED FROM "new price list.xlsx" ───────────────
   {
     id: "a-celebrity", slug: "celebrity-attar", name: "Celebrity Attar", tagline: "Discover this fragrance",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
@@ -856,7 +869,7 @@ export const products: Product[] = [
   },
   {
     id: "p-chemistry", slug: "chemistry", name: "Chemistry", tagline: "Discover this fragrance",
-    price: 1299, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
+    price: 1299, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 1299, compareAt: 1299 }, "20ml": { price: 249, compareAt: 699 }, "50ml": { price: 499, compareAt: 899 } },
     featuredVolume: "100ml",
     image: img("chemistry"), gallery: [img("chemistry")],

@@ -28,8 +28,9 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const proto = (req.headers["x-forwarded-proto"] as string) || "https";
   const host = (req.headers["x-forwarded-host"] as string) || req.headers.host;
+  const isLocal = /^(localhost|127\.0\.0\.1|\[::1\])(:|$)/.test(String(host || ""));
+  const proto = (req.headers["x-forwarded-proto"] as string) || (isLocal ? "http" : "https");
   const origin = process.env.SITE_URL || `${proto}://${host}`;
 
   try {
@@ -92,9 +93,16 @@ export default async function handler(req: any, res: any) {
       console.error("payu/callback: hash verification failed for txnid", txnid);
     }
 
+    // Without this, a payment that PayU reported as "success" but whose hash didn't
+    // verify redirected to /order/failed?reason=success — a confusing message for the
+    // customer and useless for debugging.
+    const reason = !validHash
+      ? "verification_failed"
+      : error_Message || error_message || (status && status !== "success" ? status : "payment_failed");
+
     const redirectUrl = paid
       ? `${origin}/order/success?txnid=${encodeURIComponent(txnid || "")}`
-      : `${origin}/order/failed?txnid=${encodeURIComponent(txnid || "")}&reason=${encodeURIComponent(error_Message || status || "payment_failed")}`;
+      : `${origin}/order/failed?txnid=${encodeURIComponent(txnid || "")}&reason=${encodeURIComponent(reason)}`;
 
     res.writeHead(302, { Location: redirectUrl });
     res.end();

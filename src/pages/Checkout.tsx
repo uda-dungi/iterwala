@@ -56,10 +56,29 @@ export default function Checkout() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
+
+      // If /api isn't running, the SPA fallback answers with index.html — parsing that
+      // as JSON used to throw and get swallowed by the generic "Network error" catch
+      // below, which made a missing backend look like a flaky connection.
+      const rawResponse = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawResponse);
+      } catch {
+        console.error("checkout: expected JSON from /api/checkout/initiate, got:", rawResponse.slice(0, 200));
+        toast.error("Payment service is unavailable right now. Please try again in a moment.");
+        setSubmitting(false);
+        return;
+      }
 
       if (!res.ok) {
-        toast.error(data.error || "Couldn't start payment. Please try again.");
+        toast.error(data?.error || "Couldn't start payment. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+
+      if (!data?.action || !data?.fields?.txnid) {
+        toast.error("Couldn't start payment. Please try again.");
         setSubmitting(false);
         return;
       }
@@ -83,8 +102,10 @@ export default function Checkout() {
         payuForm.appendChild(input);
       });
       document.body.appendChild(payuForm);
-      clearCart();
+      // Submit before clearing: if the handover to PayU throws, the customer keeps
+      // their bag instead of being left on an empty cart with no payment started.
       payuForm.submit();
+      clearCart();
     } catch (err) {
       console.error(err);
       toast.error("Network error — please check your connection and try again.");

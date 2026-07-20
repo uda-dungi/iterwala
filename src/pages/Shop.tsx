@@ -36,6 +36,14 @@ export default function Shop() {
     setSearchInput(params.get("search") || "");
   }, [params.toString()]);
 
+  // The navbar's "New Launches" link points at /shop?sort=new. When the user is
+  // already on /shop, React Router swaps the query string without remounting this
+  // component, so a mount-only useState left the grid on "popular" and the click
+  // appeared to do nothing.
+  useEffect(() => {
+    setSort(params.get("sort") || "popular");
+  }, [params.toString()]);
+
   const selectedGender = params.get("gender");
   const selectedCategory = params.get("category");
   const selectedMood = params.get("mood");

@@ -139,7 +139,9 @@ export default function AdminOrders() {
                 <div className="space-y-3">
                   <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Items</p>
                   <div className="space-y-2 text-sm">
-                    {order.items.map((item, idx) => (
+                    {/* `items` is a jsonb column that can be NULL on a pending order
+                        row, which used to blank the whole dashboard. */}
+                    {(order.items || []).map((item, idx) => (
                       <div key={idx} className="flex justify-between text-muted-foreground">
                         <span>{item.name || "Item"} × {item.qty}</span>
                         <span>{formatINR((item.price || 0) * item.qty)}</span>

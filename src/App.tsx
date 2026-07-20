@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShopProvider } from "@/store/shop";
 import { AuthProvider } from "@/store/auth";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import Index from "./pages/Index";
@@ -32,42 +33,57 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
-      <Sonner theme="dark" position="top-center" toastOptions={{ className: "!bg-card !text-ivory !border-border" }} />
+      <Sonner
+        theme="dark"
+        position="top-center"
+        toastOptions={{ className: "!bg-card !text-ivory !border-border" }}
+      />
       <BrowserRouter>
         <AuthProvider>
           <ShopProvider>
-            <Routes>
-              {/* Admin area — no storefront navbar, footer, cart, or marketing overlays */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Navigate to="/admin/orders" replace />} />
-                <Route path="login" element={<AdminLogin />} />
-                <Route path="orders" element={<AdminOrders />} />
-                <Route path="*" element={<Navigate to="/admin/orders" replace />} />
-              </Route>
+            <ErrorBoundary>
+              <Routes>
+                {/* Admin area — no storefront navbar, footer, cart, or marketing overlays */}
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route
+                    index
+                    element={<Navigate to="/admin/orders" replace />}
+                  />
+                  <Route path="login" element={<AdminLogin />} />
+                  <Route path="orders" element={<AdminOrders />} />
+                  <Route
+                    path="*"
+                    element={<Navigate to="/admin/orders" replace />}
+                  />
+                </Route>
 
-              {/* Public website */}
-              <Route element={<PublicLayout />}>
-                <Route path="/" element={<Index />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/product/:slug" element={<ProductDetail />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/order/success" element={<OrderSuccess />} />
-                <Route path="/order/failed" element={<OrderFailed />} />
-                <Route path="/wishlist" element={<Wishlist />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/quiz" element={<Quiz />} />
-                <Route path="/wholesale" element={<Wholesale />} />
-                <Route path="/privacy" element={<Policy kind="privacy" />} />
-                <Route path="/terms" element={<Policy kind="terms" />} />
-                <Route path="/shipping" element={<Policy kind="shipping" />} />
-                <Route path="/returns" element={<Policy kind="returns" />} />
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
+                {/* Public website */}
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/product/:slug" element={<ProductDetail />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/cart" element={<Cart />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/order/success" element={<OrderSuccess />} />
+                  <Route path="/order/failed" element={<OrderFailed />} />
+                  <Route path="/wishlist" element={<Wishlist />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/quiz" element={<Quiz />} />
+                  <Route path="/wholesale" element={<Wholesale />} />
+                  <Route path="/privacy" element={<Policy kind="privacy" />} />
+                  <Route path="/terms" element={<Policy kind="terms" />} />
+                  <Route
+                    path="/shipping"
+                    element={<Policy kind="shipping" />}
+                  />
+                  <Route path="/returns" element={<Policy kind="returns" />} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+              </Routes>
+            </ErrorBoundary>
           </ShopProvider>
         </AuthProvider>
       </BrowserRouter>
