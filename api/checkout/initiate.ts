@@ -95,7 +95,7 @@ export default async function handler(req: any, res: any) {
         .trim()
         .slice(0, max);
 
-    const productinfo = sanitize(`Itrawala order - ${items.length} item${items.length > 1 ? "s" : ""}`, 100);
+    const productinfo = `Itrawala order — ${items.length} item${items.length > 1 ? "s" : ""}`.slice(0, 100);
     const firstname = sanitize(String(customer.firstName), 60) || "Customer";
     const email = String(customer.email).trim().toLowerCase();
     const phone = String(customer.phone).replace(/\D/g, "").slice(0, 15);
