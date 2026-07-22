@@ -765,7 +765,7 @@ export const products: Product[] = [
   {
     id: "ce-shabd", slug: "shabd", name: "Shabd", tagline: "The first word of every story",
     price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
-    image: img("collector-shabd-1"), gallery: [img("collector-shabd-1"), img("collector-shabd-2")],
+    image: img("collector-shabd-1"), gallery: [img("collector-shabd-1"), img("collector-shabd-2"), img("collector-shabd-3"), img("collector-shabd-4"), img("collector-shabd-5"), img("collector-shabd-6"), img("collector-shabd-7")],
     notes: { top: ["Bergamot", "Black Pepper"], heart: ["Saffron", "Aged Oud"], base: ["Amber", "Musk", "Sandalwood"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Bold", "Timeless"],
@@ -776,7 +776,7 @@ export const products: Product[] = [
   {
     id: "ce-kahani", slug: "kahani", name: "Kahani", tagline: "A story worth keeping",
     price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
-    image: img("collector-kahani-1"), gallery: [img("collector-kahani-1"), img("collector-kahani-2")],
+    image: img("collector-kahani-6"), gallery: [img("collector-kahani-6"), img("collector-kahani-2"), img("collector-kahani-4"), img("collector-kahani-1"), img("collector-kahani-3"), img("collector-kahani-5"), img("collector-kahani-7")],
     notes: { top: ["Cardamom", "Pink Pepper"], heart: ["Rose", "Leather"], base: ["Vanilla", "Amber", "Oud"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Warm", "Narrative"],
@@ -787,7 +787,7 @@ export const products: Product[] = [
   {
     id: "ce-ehsaas", slug: "ehsaas", name: "Ehsaas", tagline: "A feeling that stays",
     price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
-    image: img("collector-ehsaas-1"), gallery: [img("collector-ehsaas-1"), img("collector-ehsaas-2")],
+    image: img("collector-ehsaas-1"), gallery: [img("collector-ehsaas-1"), img("collector-ehsaas-2"), img("collector-ehsaas-3"), img("collector-ehsaas-4"), img("collector-ehsaas-5"), img("collector-ehsaas-6")],
     notes: { top: ["Bergamot", "Saffron"], heart: ["Jasmine", "Oud"], base: ["Musk", "Sandalwood", "Amber"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Sensual", "Intimate"],
