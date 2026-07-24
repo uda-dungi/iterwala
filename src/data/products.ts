@@ -98,12 +98,17 @@ export const products: Product[] = [
     id: "p-celebrity", slug: "celebrity", name: "Celebrity", tagline: "Your red-carpet signature",
     price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 1099, compareAt: 1399 }, "50ml": { price: 649, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 } },
-    // celebrity-2/3 labels read "50 ml"; celebrity-real/1 are the silver-cap studio bottle (100ml).
-    image: img("celebrity"),
-    gallery: [img("celebrity-2"), img("celebrity-3"), img("celebrity-real"), img("celebrity-1")],
+    // New studio + lifestyle shoot (July 2026) verified per bottle size — replaces the old
+    // generic photos. Each size has its own bottle design, so keep a dedicated default.
+    // Dark/moody lifestyle shots lead each list (site theme is dark) with the white-background
+    // studio shots kept later in the gallery for detail views.
+    featuredVolume: "50ml",
+    image: img("celebrity-50ml-lifestyle-1"),
+    gallery: [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), img("celebrity-50ml-studio-1"), img("celebrity-50ml-studio-2")],
     galleryByVolume: {
-      "50ml": [img("celebrity-2"), img("celebrity-3")],
-      "100ml": [img("celebrity-real"), img("celebrity-1")],
+      "20ml": [img("celebrity-20ml-lifestyle-1"), img("celebrity-20ml-lifestyle-2"), img("celebrity-20ml-lifestyle-3"), img("celebrity-20ml-studio-1"), img("celebrity-20ml-studio-2")],
+      "50ml": [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), img("celebrity-50ml-studio-1"), img("celebrity-50ml-studio-2")],
+      "100ml": [img("celebrity-100ml-lifestyle-1"), img("celebrity-100ml-lifestyle-3"), img("celebrity-100ml-studio-1"), img("celebrity-100ml-lifestyle-2")],
     },
     notes: { top: ["Bergamot", "Pink Pepper"], heart: ["Jasmine", "Saffron"], base: ["Amber", "Vanilla", "Musk"] },
     longevity: "8-10 hours", projection: "Strong",
@@ -135,8 +140,12 @@ export const products: Product[] = [
     id: "p-inayat", slug: "inayat", name: "Inayat", tagline: "A graceful blessing",
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "50ml": { price: 499, compareAt: 749 } },
-    // inayat.jpg label reads 50 ml; inayat-real.jpg reads 100 ml.
-    image: img("inayat"), gallery: [img("inayat"), img("inayat-real")],
+    // inayat.jpg label reads 50 ml; inayat-real.jpg reads 100 ml. inayat-gallery-1..5 are a new
+    // lifestyle/mood shoot (July 2026, not size-specific) added to the general gallery only.
+    // Dark shots (5, 1, 4) lead, medium-toned 3 next, and gallery-2 (white background — the
+    // one that clashes with the site's dark theme) is kept last.
+    image: img("inayat"),
+    gallery: [img("inayat"), img("inayat-real"), img("inayat-gallery-5"), img("inayat-gallery-1"), img("inayat-gallery-4"), img("inayat-gallery-3"), img("inayat-gallery-2")],
     galleryByVolume: { "50ml": [img("inayat")], "100ml": [img("inayat-real")] },
     notes: { top: ["Saffron", "Bergamot"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Sandalwood"] },
     longevity: "10 hours", projection: "Strong",
@@ -179,9 +188,17 @@ export const products: Product[] = [
     id: "p-touch", slug: "touch", name: "Touch", tagline: "Soft. Sensual. Unforgettable.",
     price: 899, compareAt: 1599, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "50ml": { price: 499, compareAt: 899 }, "100ml": { price: 899, compareAt: 1599 }, "20ml": { price: 249, compareAt: 1599 } },
-    // Only photo is labeled 50 ml.
+    // New studio + lifestyle shoot (July 2026) verified per bottle size — replaces the old
+    // single generic photo.
     featuredVolume: "50ml",
-    image: img("touch"), gallery: [img("touch")],
+    image: img("touch-50ml-lifestyle-1"),
+    gallery: [img("touch-50ml-lifestyle-1"), img("touch-50ml-lifestyle-2"), img("touch-50ml-lifestyle-4"), img("touch-50ml-lifestyle-5"), img("touch-50ml-lifestyle-3")],
+    galleryByVolume: {
+      // lifestyle-2 has a bright cream/light backdrop (vs the dark backgrounds of the rest) — kept last.
+      "20ml": [img("touch-20ml-studio-1"), img("touch-20ml-studio-2"), img("touch-20ml-lifestyle-1"), img("touch-20ml-lifestyle-3"), img("touch-20ml-lifestyle-2")],
+      "50ml": [img("touch-50ml-lifestyle-1"), img("touch-50ml-lifestyle-2"), img("touch-50ml-lifestyle-4"), img("touch-50ml-lifestyle-5"), img("touch-50ml-lifestyle-3")],
+      "100ml": [img("touch-100ml-studio-1"), img("touch-100ml-lifestyle-1"), img("touch-100ml-lifestyle-2"), img("touch-100ml-lifestyle-3")],
+    },
     notes: { top: ["Pear", "Pink Pepper"], heart: ["White Flowers", "Iris"], base: ["Vanilla", "Cashmere Musk"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Brunch", "Date Night"], moods: ["Romantic", "Soft"],
@@ -409,7 +426,12 @@ export const products: Product[] = [
   {
     id: "g-discovery", slug: "discovery-set", name: "Signature Discovery Set", tagline: "Eight scents, one box",
     price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-discovery"), gallery: [img("giftset-discovery")],
+    // New mockup shoot (July 2026) — Wild, Smoke, Touch, Temptation, White Musk, Chemistry,
+    // Legend, Inayat (8ml each). Confirmed with Jatin as the correct lineup for this set.
+    // discovery-set-1 has a white background (clashes with the site's dark theme) so it's
+    // kept later in the gallery; the two darker mockups lead.
+    image: img("discovery-set-2"),
+    gallery: [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
     notes: { top: ["Assorted"], heart: ["8 Signature Blends"], base: ["Perfume Testers"] },
     longevity: "Varies", projection: "Varies",
     occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
@@ -872,7 +894,16 @@ export const products: Product[] = [
     price: 1299, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 1299, compareAt: 1299 }, "20ml": { price: 249, compareAt: 699 }, "50ml": { price: 499, compareAt: 899 } },
     featuredVolume: "100ml",
-    image: img("chemistry"), gallery: [img("chemistry")],
+    // New studio + lifestyle shoot (July 2026) verified per bottle size — replaces the old
+    // single generic photo. Dark/moody lifestyle shots lead each list (site theme is dark)
+    // with the white-background studio shots kept later in the gallery for detail views.
+    image: img("chemistry-100ml-lifestyle-1"),
+    gallery: [img("chemistry-100ml-lifestyle-1"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-lifestyle-3")],
+    galleryByVolume: {
+      "20ml": [img("chemistry-20ml-lifestyle-4"), img("chemistry-20ml-lifestyle-5"), img("chemistry-20ml-lifestyle-2"), img("chemistry-20ml-lifestyle-3"), img("chemistry-20ml-studio-2"), img("chemistry-20ml-studio-1"), img("chemistry-20ml-lifestyle-1")],
+      "50ml": [img("chemistry-50ml-lifestyle-1"), img("chemistry-50ml-lifestyle-2"), img("chemistry-50ml-studio-2"), img("chemistry-50ml-studio-1"), img("chemistry-50ml-lifestyle-3"), img("chemistry-50ml-lifestyle-4")],
+      "100ml": [img("chemistry-100ml-lifestyle-1"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-lifestyle-3")],
+    },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
