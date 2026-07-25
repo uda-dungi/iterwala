@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { Product, priceFor, listingVolume } from "@/data/products";
+import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
 
 type CartItem = { product: Product; qty: number; volume: string };
 /** A cart line is identified by product + size, so 50ml and 100ml of the same fragrance
@@ -16,6 +17,11 @@ type Ctx = {
   clearCart: () => void;
   toggleWishlist: (id: string) => void;
   subtotal: number;
+  /** Friendship Sale auto-discount (subtotal is pre-discount; total = subtotal − offerDiscount). */
+  offerDiscount: number;
+  offers: OfferLine[];
+  /** Copy nudging the shopper to complete/extend an offer, or null. */
+  offerNudge: string | null;
   itemCount: number;
 };
 
@@ -60,8 +66,15 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const subtotal = useMemo(() => cart.reduce((s, i) => s + priceFor(i.product, i.volume).price * i.qty, 0), [cart]);
   const itemCount = useMemo(() => cart.reduce((s, i) => s + i.qty, 0), [cart]);
 
+  // Friendship Sale offers — computed from the same line prices the cart displays; the
+  // server re-derives the identical discount in api/checkout/initiate for the real charge.
+  const offerState = useMemo(() => {
+    const lines = cart.map(i => ({ id: i.product.id, qty: i.qty, unitPrice: priceFor(i.product, i.volume).price }));
+    return { ...computeOffers(lines), nudge: offerNudge(lines) };
+  }, [cart]);
+
   return (
-    <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, itemCount }}>
+    <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, offerDiscount: offerState.discount, offers: offerState.offers, offerNudge: offerState.nudge, itemCount }}>
       {children}
     </ShopCtx.Provider>
   );

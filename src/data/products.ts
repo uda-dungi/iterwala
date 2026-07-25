@@ -675,7 +675,14 @@ export const products: Product[] = [
   {
     id: "g-signature-quad", slug: "signature-quad-gift-set", name: "Signature Quad Gift Set", tagline: "Pack of 4 — Touch, Wild, Temptation & Smoke, 20ml each",
     price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-signature-quad"), gallery: [img("giftset-signature-quad")],
+    image: img("giftset-signature-quad"),
+    gallery: [
+      img("giftset-signature-quad"),
+      img("giftset-signature-quad-2"),
+      img("giftset-signature-quad-4"),
+      img("giftset-signature-quad-3"),
+      img("giftset-signature-quad-lifestyle"),
+    ],
     notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
     longevity: "Varies", projection: "Varies",
     occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
@@ -897,12 +904,16 @@ export const products: Product[] = [
     // New studio + lifestyle shoot (July 2026) verified per bottle size — replaces the old
     // single generic photo. Dark/moody lifestyle shots lead each list (site theme is dark)
     // with the white-background studio shots kept later in the gallery for detail views.
-    image: img("chemistry-100ml-lifestyle-1"),
-    gallery: [img("chemistry-100ml-lifestyle-1"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-lifestyle-3")],
+    // "chemistry-100ml-lifestyle-1" is actually the "Fragrance Notes" infographic collage
+    // (misnamed by the shoot import) — it doesn't work as the hero/default photo, so
+    // lifestyle-2 (the outdoor bottle shot) leads instead and the collage is kept later
+    // in the gallery, still viewable but not the default.
+    image: img("chemistry-100ml-lifestyle-2"),
+    gallery: [img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-3"), img("chemistry-100ml-lifestyle-1")],
     galleryByVolume: {
       "20ml": [img("chemistry-20ml-lifestyle-4"), img("chemistry-20ml-lifestyle-5"), img("chemistry-20ml-lifestyle-2"), img("chemistry-20ml-lifestyle-3"), img("chemistry-20ml-studio-2"), img("chemistry-20ml-studio-1"), img("chemistry-20ml-lifestyle-1")],
       "50ml": [img("chemistry-50ml-lifestyle-1"), img("chemistry-50ml-lifestyle-2"), img("chemistry-50ml-studio-2"), img("chemistry-50ml-studio-1"), img("chemistry-50ml-lifestyle-3"), img("chemistry-50ml-lifestyle-4")],
-      "100ml": [img("chemistry-100ml-lifestyle-1"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-lifestyle-3")],
+      "100ml": [img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-3"), img("chemistry-100ml-lifestyle-1")],
     },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",

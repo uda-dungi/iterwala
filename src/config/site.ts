@@ -72,6 +72,7 @@ export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
+  "✦ Friendship Sale is Live Now ✦",
   "Free Shipping",
   "Amazon's Choice Products Available",
   "100% Money-Back Guarantee",

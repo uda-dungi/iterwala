@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Sparkles } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
@@ -9,15 +9,16 @@ import { toast } from "sonner";
 import { site } from "@/config/site";
 
 export default function Cart() {
-  const { cart, updateQty, removeFromCart, subtotal } = useShop();
+  const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge } = useShop();
   const [coupon, setCoupon] = useState("");
-  const [discount, setDiscount] = useState(0);
-  const shipping = subtotal >= site.freeShippingThreshold || subtotal === 0 ? 0 : 99;
-  const total = Math.max(0, subtotal - discount + shipping);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
+  const shipping = 0; // Free shipping on all orders.
+  const total = Math.max(0, discountedSubtotal - couponDiscount + shipping);
 
   const apply = () => {
-    if (coupon.toUpperCase() === "WELCOME10") { setDiscount(Math.round(subtotal * 0.1)); toast.success("Coupon applied: 10% off"); }
-    else { setDiscount(0); toast.error("Invalid code"); }
+    if (coupon.toUpperCase() === "WELCOME10") { setCouponDiscount(Math.round(discountedSubtotal * 0.1)); toast.success("Coupon applied: 10% off"); }
+    else { setCouponDiscount(0); toast.error("Invalid code"); }
   };
 
   if (cart.length === 0) {
@@ -74,11 +75,25 @@ export default function Cart() {
           <h2 className="font-display text-2xl text-gold">Order Summary</h2>
           <div className="space-y-3 text-sm">
             <Row label="Subtotal" v={formatINR(subtotal)} />
+            {offers.map(o => (
+              <div key={o.code} className="flex justify-between text-primary">
+                <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> {o.label}</span>
+                <span>− {formatINR(o.amount)}</span>
+              </div>
+            ))}
             <Row label="Shipping" v={shipping === 0 ? "Free" : formatINR(shipping)} />
-            {discount > 0 && <Row label="Discount" v={`− ${formatINR(discount)}`} className="text-primary" />}
+            {couponDiscount > 0 && <Row label="Coupon (WELCOME10)" v={`− ${formatINR(couponDiscount)}`} className="text-primary" />}
           </div>
+          {offerNudge && (
+            <div className="rounded-sm border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 shrink-0" /> {offerNudge}
+            </div>
+          )}
           <div className="gold-divider" />
           <Row label="Total" v={formatINR(total)} className="font-serif text-xl text-ivory" />
+          {offerDiscount > 0 && (
+            <p className="text-[11px] text-primary text-right -mt-2">Friendship Sale saves you {formatINR(offerDiscount)} 🎉</p>
+          )}
 
           <div className="space-y-2">
             <p className="text-xs tracking-luxe uppercase text-primary">Promo Code</p>

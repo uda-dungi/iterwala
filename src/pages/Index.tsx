@@ -89,7 +89,7 @@ export default function Index() {
   return (
     <div className="overflow-hidden">
       <OrganizationSchema />
-      {/* HERO — auto-scrolling 3-banner carousel (swap images/copy in HeroCarousel.tsx) */}
+      {/* HERO — auto-scrolling banner carousel (swap images/copy in HeroCarousel.tsx) */}
       <HeroCarousel />
 
       {/* Trust strip — category ticker */}
@@ -398,7 +398,7 @@ export default function Index() {
               { q: "How long do Itrawala fragrances last?", a: "Our perfumes typically last 8-12 hours on skin, with our attars often performing for 12-14+ hours due to their oil base. Longevity also depends on skin type, climate, and how it's applied." },
               { q: "Are your fragrances cruelty-free and vegan?", a: "Yes. All Itrawala fragrances are cruelty-free. Most are vegan, with a few exceptions clearly marked (e.g., natural beeswax in Royal Sandal)." },
               { q: "What is an attar and how is it different from perfume?", a: "Attars are concentrated, alcohol-free fragrance oils traditionally distilled in Kannauj, India. They are skin-warming, intimate, and incredibly long-lasting compared to alcohol-based perfumes." },
-              { q: "Do you ship internationally?", a: "We currently ship only within India. Free shipping on orders above ₹499." },
+              { q: "Do you ship internationally?", a: "We currently ship only within India — with free shipping on all orders." },
               { q: "Can I return a fragrance if I don't love it?", a: "We offer a 7-day return policy on all unopened bottles." },
               { q: "How should I store my fragrance?", a: "Keep your bottle in a cool, dark place away from direct sunlight. Avoid bathrooms — humidity and heat can degrade the composition over time." },
             ].map((f, i) => (

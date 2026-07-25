@@ -6,10 +6,12 @@ import { useShop, formatINR } from "@/store/shop";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
+import { offerForProduct } from "@/lib/offers";
 
 export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
   const { addToCart, toggleWishlist, wishlist } = useShop();
   const wished = wishlist.includes(product.id);
+  const offer = offerForProduct(product.id);
   // Card shows the bottle photo's size (featuredVolume / galleryByVolume) so the
   // price on the tile always matches the ml printed on the bottle.
   const defaultVolume = listingVolume(product);
@@ -25,12 +27,22 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       className="group relative"
     >
       <Link to={`/product/${product.slug}`} className="block luxury-card">
-        <div className="relative aspect-[4/5] overflow-hidden bg-deep-brown">
-          <div className="absolute top-3 left-3 z-10 flex flex-col items-start gap-1.5">
-            {product.badge && (
-              <span className="text-[10px] tracking-luxe uppercase px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
-                {product.badge}
+        {/* Square to match the catalogue's 1:1 product photos — a 4:5 box cropped the
+            sides off every bottle (worst on small mobile cards). */}
+        <div className="relative aspect-square overflow-hidden bg-deep-brown">
+          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 flex flex-col items-start gap-1.5">
+            {/* The offer badge wins the spot — hide the plain product badge alongside it
+                so small mobile cards don't stack two labels over the same corner. */}
+            {offer ? (
+              <span className="text-[9px] sm:text-[10px] tracking-luxe uppercase px-2 py-1 bg-primary text-primary-foreground font-semibold rounded-sm shadow-gold">
+                {offer.badge}
               </span>
+            ) : (
+              product.badge && (
+                <span className="text-[9px] sm:text-[10px] tracking-luxe uppercase px-2 sm:px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
+                  {product.badge}
+                </span>
+              )
             )}
             {product.amazonChoice && <AmazonChoiceBadge />}
           </div>

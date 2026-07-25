@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2, X, Sparkles } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
 
 export function CartDrawer() {
-  const { cart, cartOpen, setCartOpen, removeFromCart, updateQty, subtotal } = useShop();
+  const { cart, cartOpen, setCartOpen, removeFromCart, updateQty, subtotal, offerDiscount, offerNudge } = useShop();
+  const total = Math.max(0, subtotal - offerDiscount);
   return (
     <AnimatePresence>
       {cartOpen && (
@@ -63,9 +64,20 @@ export function CartDrawer() {
 
             {cart.length > 0 && (
               <footer className="border-t border-border p-6 space-y-4 bg-deep-brown/30">
+                {offerNudge && (
+                  <div className="rounded-sm border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 shrink-0" /> {offerNudge}
+                  </div>
+                )}
+                {offerDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-primary">
+                    <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Friendship Sale</span>
+                    <span>− {formatINR(offerDiscount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-serif text-xl text-gold">{formatINR(subtotal)}</span>
+                  <span className="text-muted-foreground">{offerDiscount > 0 ? "Total" : "Subtotal"}</span>
+                  <span className="font-serif text-xl text-gold">{formatINR(total)}</span>
                 </div>
                 <p className="text-xs text-muted-foreground">Shipping and taxes calculated at checkout.</p>
                 <Button asChild variant="luxury" size="lg" className="w-full">

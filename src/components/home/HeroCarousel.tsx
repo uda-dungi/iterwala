@@ -7,7 +7,11 @@ import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
 import banner3 from "@/assets/brand/banner-4-collectors.png";
+import promoPack4 from "@/assets/brand/promo-pack-of-4.png";
+import promoCollectors from "@/assets/brand/promo-collectors-trilogy.png";
 import mobileBannerMain from "@/assets/brand/mobile-banner-main.jpg";
+import mobileBannerCollectors from "@/assets/brand/mobile-banner-collectors.jpg";
+import mobileBannerPack4 from "@/assets/brand/mobile-banner-pack4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
@@ -34,6 +38,23 @@ type Slide = {
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
 const slides: Slide[] = [
+  // Friendship Sale promo banners — placed first so the live offers show on load.
+  {
+    image: promoPack4,
+    eyebrow: "Friendship Day Sale · Live Now",
+    title: "The Pack of 4",
+    highlight: "Buy 1 Get 1 Free",
+    copy: "Four signature 20ml eau de parfums in a keepsake gift box — add two and pay just ₹1049 for both. The perfect Friendship Day gift.",
+    cta: { label: "Shop the Pack of 4", to: "/product/signature-quad-gift-set" },
+  },
+  {
+    image: promoCollectors,
+    eyebrow: "Friendship Day's Best Offer",
+    title: "Collector's Edition",
+    highlight: "Buy 2 Get 1 Free",
+    copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
+    cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" },
+  },
   {
     image: banner1,
     eyebrow: "Red-Carpet Ready",
@@ -63,9 +84,17 @@ const slides: Slide[] = [
 // Mobile gets its own swipeable banner set — each image already has its title/copy
 // baked into the artwork, so a slide only needs the photo + alt text + one CTA.
 // EDIT: add/remove entries here whenever the mobile banner set changes.
-type MobileSlide = { image: string; alt: string; cta: { label: string; to: string } };
+type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
 const mobileSlides: MobileSlide[] = [
+  // Promo banners are landscape (1920×800), so they use object-contain to stay uncropped
+  // in the tall mobile hero; the portrait brand banners below keep object-cover.
+  // Proper portrait mobile banner for the Pack of 4 offer — full-bleed (object-cover),
+  // replacing the letterboxed landscape promoPack4 on mobile.
+  { image: mobileBannerPack4, alt: "Friendship Sale — Pack of 4, Buy 1 Get 1 at ₹1049", cta: { label: "Shop the Pack of 4", to: "/product/signature-quad-gift-set" } },
+  // Proper portrait mobile banner for the Collector's Edition offer — full-bleed
+  // (object-cover), replacing the letterboxed landscape promoCollectors on mobile.
+  { image: mobileBannerCollectors, alt: "The Collector's Edition Trilogy — Buy 2 Get 1 Free", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
   { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
@@ -134,7 +163,7 @@ export function HeroCarousel() {
               <img
                 src={s.image}
                 alt={s.alt}
-                className="absolute inset-0 w-full h-full object-cover -z-10"
+                className={`absolute inset-0 w-full h-full -z-10 ${s.fit === "contain" ? "object-contain" : "object-cover"}`}
                 loading={i === 0 ? "eager" : "lazy"}
               />
               {/* Just enough of a bottom scrim to keep the button legible over the photo. */}

@@ -3,6 +3,10 @@ import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2 } from "lucide-react";
 import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor } from "@/data/products";
+import { seedReviewsFor } from "@/data/reviews";
+import { offerForProduct } from "@/lib/offers";
+import { CollectorStory } from "@/components/product/CollectorStory";
+import { collectorStories } from "@/data/collectorStories";
 import { useShop, formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -29,14 +33,19 @@ export default function ProductDetail() {
   const [reviewName, setReviewName] = useState("");
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
-  const [reviews, setReviews] = useState([
-    { name: "Aisha M.", rating: 5, text: "Stunning. The longevity is unreal. Compliments all day." },
-    { name: "Rohan K.", rating: 5, text: "Worth every rupee. The packaging alone feels like a gift." },
-    { name: "Priya S.", rating: 5, text: "My new signature scent. Subtle, sophisticated, addictive." },
-  ]);
+  const [reviews, setReviews] = useState(() => (product ? seedReviewsFor(product) : []));
 
   useEffect(() => {
-    if (product) { recordView(product.id); setVolume(listingVolume(product)); setQty(1); setActive(0); }
+    if (product) {
+      recordView(product.id);
+      setVolume(listingVolume(product));
+      setQty(1);
+      setActive(0);
+      // Reseed on every product change — this component stays mounted across
+      // /product/:slug navigations, so without this every product kept showing
+      // whichever product's reviews were seeded first.
+      setReviews(seedReviewsFor(product));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
@@ -63,6 +72,7 @@ export default function ProductDetail() {
   const selectedVol = volume || listingVolume(product);
   const { price: unitPrice, compareAt: unitCompareAt } = priceFor(product, selectedVol);
   const gallery = galleryFor(product, selectedVol);
+  const productOffer = offerForProduct(product.id);
   const related = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
   const buyNow = () => { addToCart(product, qty, selectedVol); setCartOpen(false); window.location.href = "/checkout"; };
 
@@ -89,7 +99,7 @@ export default function ProductDetail() {
                 {gallery.map((g, i) => (
                   <CarouselItem key={i}>
                     <div className="relative aspect-square bg-deep-brown">
-                      <img src={g} alt={`${product.name} ${selectedVol}`} className="w-full h-full object-cover" loading={i === 0 ? "eager" : "lazy"} />
+                      <img src={g} alt={`${product.name} ${selectedVol}`} className="w-full h-full object-contain" loading={i === 0 ? "eager" : "lazy"} />
                     </div>
                   </CarouselItem>
                 ))}
@@ -125,13 +135,13 @@ export default function ProductDetail() {
           <div className="hidden lg:block space-y-4" key={selectedVol}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}
-              className="relative aspect-[4/5] overflow-hidden rounded-sm border border-border bg-deep-brown cursor-zoom-in"
+              className="relative aspect-square overflow-hidden rounded-sm border border-border bg-deep-brown cursor-zoom-in"
               onClick={() => setZoom(z => !z)}
             >
               <img
                 src={gallery[active] ?? gallery[0]}
                 alt={`${product.name} ${selectedVol}`}
-                className={cn("w-full h-full object-cover transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
+                className={cn("w-full h-full object-contain transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
               />
               {product.badge && (
                 <span className="absolute top-5 left-5 text-[10px] tracking-luxe uppercase px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
@@ -144,7 +154,7 @@ export default function ProductDetail() {
                 <button key={i} onClick={() => setActive(i)}
                   className={cn("aspect-square overflow-hidden border rounded-sm transition-all",
                     active === i ? "border-primary shadow-gold" : "border-border hover:border-primary/50")}>
-                  <img src={g} alt="" className="w-full h-full object-cover" />
+                  <img src={g} alt="" className="w-full h-full object-contain" />
                 </button>
               ))}
             </div>
@@ -185,7 +195,18 @@ export default function ProductDetail() {
               </span>
             )}
           </div>
-          <p className="text-[11px] sm:text-xs text-muted-foreground -mt-3 sm:-mt-2">Inclusive of all taxes · Free shipping above ₹499</p>
+          <p className="text-[11px] sm:text-xs text-muted-foreground -mt-3 sm:-mt-2">Inclusive of all taxes · Free shipping on all orders</p>
+
+          {/* Friendship Sale offer callout (only on participating products) */}
+          {productOffer && (
+            <div className="rounded-sm border border-primary/40 bg-gradient-to-r from-primary/15 to-primary/5 p-3 sm:p-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-sm sm:text-base font-serif text-ivory">{productOffer.headline}</span>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 pl-6">{productOffer.detail}</p>
+            </div>
+          )}
 
           {/* Volume selector */}
           <div>
@@ -226,7 +247,7 @@ export default function ProductDetail() {
           {/* Trust badges — compact strip, always visible */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
             {[
-              { Icon: Truck, t: "Free Shipping", s: "Above ₹499" },
+              { Icon: Truck, t: "Free Shipping", s: "On all orders" },
               { Icon: ShieldCheck, t: "Authentic", s: "100% Original" },
               { Icon: Sparkles, t: "Gift Wrap", s: "Complimentary" },
             ].map(t => (
@@ -411,7 +432,11 @@ export default function ProductDetail() {
 
       <RecentlyViewed excludeId={product.id} />
 
-      {product.category === "Collector's Edition" && (
+      {/* Collector's Edition bottles with a bespoke editorial story (Shabd, Kahani,
+          Ehsaas) render it here; any other CE product falls back to the photo grid. */}
+      {collectorStories[product.slug] && <CollectorStory images={collectorStories[product.slug]} name={product.name} />}
+
+      {product.category === "Collector's Edition" && !collectorStories[product.slug] && (
         <section className="container py-10 md:py-16">
           <div className="text-center mb-6 md:mb-12">
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Collector's Edition</p>

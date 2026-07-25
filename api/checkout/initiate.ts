@@ -1,6 +1,7 @@
 import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_ACTION_URL } from "../_lib/payu.js";
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { priceForServer, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/prices.js";
+import { computeOffers } from "../_lib/offers.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -54,6 +55,7 @@ export default async function handler(req: any, res: any) {
     // cart value — the PayU hash below is generated from `subtotal`/`total`, not from
     // anything the browser sent.
     let subtotal = 0;
+    const offerLines: { id: string; qty: number; unitPrice: number }[] = [];
     for (const line of items) {
       const qty = Number(line?.qty);
       if (!line?.id || !Number.isFinite(qty) || qty <= 0 || qty > 50) {
@@ -66,10 +68,17 @@ export default async function handler(req: any, res: any) {
         return;
       }
       subtotal += unitPrice * qty;
+      offerLines.push({ id: String(line.id), qty, unitPrice });
     }
-    const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+
+    // Friendship Sale discount — recomputed server-side from the same prices above, so
+    // the amount charged (and signed into the PayU hash) matches what the cart showed
+    // and can't be inflated/faked by a tampered request.
+    const { discount } = computeOffers(offerLines);
+    const discountedSubtotal = Math.max(0, subtotal - discount);
+    const shipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const gift = Boolean(amounts?.gift);
-    const total = subtotal + shipping + (gift ? GIFT_WRAP_FEE : 0);
+    const total = discountedSubtotal + shipping + (gift ? GIFT_WRAP_FEE : 0);
 
     if (!total || total <= 0) {
       res.status(400).json({ error: "Invalid order total." });
@@ -95,7 +104,7 @@ export default async function handler(req: any, res: any) {
         .trim()
         .slice(0, max);
 
-    const productinfo = `Itrawala order — ${items.length} item${items.length > 1 ? "s" : ""}`.slice(0, 100);
+    const productinfo = sanitize(`Itrawala order - ${items.length} item${items.length > 1 ? "s" : ""}`, 100);
     const firstname = sanitize(String(customer.firstName), 60) || "Customer";
     const email = String(customer.email).trim().toLowerCase();
     const phone = String(customer.phone).replace(/\D/g, "").slice(0, 15);

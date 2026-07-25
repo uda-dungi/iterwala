@@ -110,6 +110,8 @@ export function priceForServer(productId: string, volume?: string): number | nul
   return entry.price;
 }
 
-export const FREE_SHIPPING_THRESHOLD = 499;
-export const SHIPPING_FEE = 99;
+export const FREE_SHIPPING_THRESHOLD = 0;
+// Shipping is free on every order — set to 0 so no delivery fee is ever charged. Restore
+// a value here (and in Cart.tsx / Checkout.tsx) to bring the fee back.
+export const SHIPPING_FEE = 0;
 export const GIFT_WRAP_FEE = 49;

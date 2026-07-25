@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift } from "lucide-react";
+import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
@@ -24,14 +24,17 @@ const emptyForm: FormState = {
 };
 
 export default function Checkout() {
-  const { cart, subtotal, clearCart } = useShop();
+  const { cart, subtotal, offerDiscount, offers, clearCart } = useShop();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [gift, setGift] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  const shipping = subtotal >= site.freeShippingThreshold ? 0 : 99;
-  const total = subtotal + shipping + (gift ? GIFT_FEE : 0);
+  // Mirror the server's math (api/checkout/initiate): shipping is judged on the
+  // post-discount subtotal, and the discount comes off the total.
+  const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
+  const shipping = 0; // Free shipping on all orders.
+  const total = discountedSubtotal + shipping + (gift ? GIFT_FEE : 0);
 
   const setField = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
@@ -207,11 +210,20 @@ export default function Checkout() {
           <div className="gold-divider" />
           <div className="space-y-2 text-sm">
             <Row label="Subtotal" v={formatINR(subtotal)} />
+            {offers.map(o => (
+              <div key={o.code} className="flex justify-between text-primary">
+                <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> {o.label}</span>
+                <span>− {formatINR(o.amount)}</span>
+              </div>
+            ))}
             <Row label="Shipping" v={shipping === 0 ? "Free" : formatINR(shipping)} />
             {gift && <Row label="Gift wrapping" v={formatINR(GIFT_FEE)} />}
             <div className="flex justify-between font-serif text-xl text-ivory pt-2 border-t border-border">
               <span>Total</span><span className="text-gold">{formatINR(total)}</span>
             </div>
+            {offerDiscount > 0 && (
+              <p className="text-[11px] text-primary text-right">You save {formatINR(offerDiscount)} with the Friendship Sale 🎉</p>
+            )}
           </div>
           <Button type="submit" variant="luxury" size="xl" className="w-full" disabled={submitting}>
             {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Lock className="w-4 h-4 mr-2" />}
