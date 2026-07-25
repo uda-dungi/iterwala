@@ -91,13 +91,13 @@ const mobileSlides: MobileSlide[] = [
   // in the tall mobile hero; the portrait brand banners below keep object-cover.
   // Proper portrait mobile banner for the Pack of 4 offer — full-bleed (object-cover),
   // replacing the letterboxed landscape promoPack4 on mobile.
-  { image: mobileBannerPack4, alt: "Friendship Sale — Pack of 4, Buy 1 Get 1 at ₹1049", cta: { label: "Shop the Pack of 4", to: "/product/signature-quad-gift-set" } },
+  { image: mobileBannerPack4, alt: "Friendship Sale — Pack of 4, Buy 1 Get 1 at ₹1049", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/signature-quad-gift-set" } },
   // Proper portrait mobile banner for the Collector's Edition offer — full-bleed
   // (object-cover), replacing the letterboxed landscape promoCollectors on mobile.
-  { image: mobileBannerCollectors, alt: "The Collector's Edition Trilogy — Buy 2 Get 1 Free", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
-  { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
-  { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
-  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
+  { image: mobileBannerCollectors, alt: "The Collector's Edition Trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
+  { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "cover", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
+  { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "cover", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
+  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
 ];
 
 export function HeroCarousel() {
