@@ -10,8 +10,8 @@ import banner3 from "@/assets/brand/banner-4-collectors.png";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.png";
 import promoCollectors from "@/assets/brand/promo-collectors-trilogy.png";
 import mobileBannerMain from "@/assets/brand/mobile-banner-main.jpg";
-import mobileBannerCollectors from "@/assets/brand/mobile-banner-collectors.jpg";
-import mobileBannerPack4 from "@/assets/brand/mobile-banner-pack4.jpg";
+import mobileBannerCollectors from "@/assets/brand/mobile banner 08 .png";
+import mobileBannerPack4 from "@/assets/brand/mobile banner 09 .png";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
