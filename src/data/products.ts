@@ -402,7 +402,18 @@ export const products: Product[] = [
   {
     id: "a-inayat", slug: "inayat-attar", name: "Inayat Attar", tagline: "Grace in oil",
     price: 549, compareAt: 999, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-inayat"), gallery: [img("attar-inayat")],
+    // attar-inayat-gallery-1..5 are the new lifestyle/mood shoot added to the gallery
+    // (July 2026). Dark/moody shots lead; gallery-5 (white background — clashes with
+    // the site's dark theme) is kept last.
+    image: img("attar-inayat"),
+    gallery: [
+      img("attar-inayat"),
+      img("attar-inayat-gallery-1"),
+      img("attar-inayat-gallery-2"),
+      img("attar-inayat-gallery-3"),
+      img("attar-inayat-gallery-4"),
+      img("attar-inayat-gallery-5"),
+    ],
     notes: { top: ["Saffron"], heart: ["Rose", "Oud"], base: ["Amber", "Sandalwood", "Musk"] },
     longevity: "12+ hours", projection: "Moderate",
     occasions: ["Festive", "Special Occasions", "Evening"], moods: ["Opulent", "Elegant"],
