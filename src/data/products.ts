@@ -16,6 +16,103 @@ const img = (name: string): string => {
   return hit[1];
 };
 
+// Newer per-size product photography lives in
+// src/assets/Product Gallery/<Product folder>/<Size folder>/*.{png,jpg} — added by Jatin
+// directly on disk, one subfolder per bottle size (NOTE: no "products" sub-folder — the
+// product folders sit directly under "Product Gallery"). Loaded here via glob (rather
+// than by filename like `img()` above) since filenames inside each size folder are
+// arbitrary export names, not a known list.
+const galleryModules = import.meta.glob(
+  "../assets/Product Gallery/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+  { eager: true, import: "default" }
+) as Record<string, string>;
+
+// Ordered dark-background-first per product/size folder, derived from an automated
+// brightness analysis of each photo's border region (Jul 2026) so the product page
+// always leads with a dark-bg shot matching the site's dark theme. Any file dropped into
+// a folder later that isn't listed here just sorts after the analyzed ones, alphabetically.
+// NOTE: "White MUSK/100 ml" has no dark-bg photo in any of its 5 files today (173-255
+// brightness range) — the least-light one is listed first, but a proper dark shot for
+// White Musk 100ml is still needed.
+//
+// Jul 31 2026 update: for the 100ml/main-size folder of several products, the file that
+// scored darkest was actually a text-heavy "Fragrance Profile" marketing card (bottle +
+// notes/ingredient panel), not a clean standalone product photo. Per Jatin's request the
+// lead image should be the *product itself* on a dark background, so for Million/Out wood/
+// Sukoon/legend we now lead with an existing plain product shot from the same folder that
+// already has a dark background. Poetry/Rebel/Wanted/aura had no such plain shot in their
+// folder (only the profile card, white-background renders, or a lifestyle/model photo), so
+// a cropped version of each profile card was made — same bottle, same dark background,
+// with the top title band and the right-side notes column cut off (files suffixed
+// "-hero-crop.png", generated Jul 31 2026, sit alongside the originals in the same folder).
+// "Rose Petel/100 ml" still has no plain dark-bg product shot available (its non-model
+// options are all white-background or a light/cream infographic) — 89.png (a lifestyle
+// photo, dark background, model holding the bottle) remains the least-bad choice; a plain
+// studio shot on a dark background is still needed for a true fix. Guldasta and Khawab
+// (single flat img() photos, no per-size Product Gallery folder) were checked too — both
+// already show the bottle on a dark background, so no change was needed there.
+const GALLERY_ORDER: Record<string, string[]> = {
+  "Million/100 ml": ["Untitled design (4).png", "Gemini_Generated_Image_fepd8rfepd8rfepd.png", "story (6).png", "Untitled design (5).png"],
+  "Million/20 ml": ["ChatGPT Image Jul 6, 2026, 10_06_04 PM.png", "1.png", "ChatGPT Image Jul 6, 2026, 09_54_30 PM.png", "ChatGPT Image Jul 6, 2026, 09_30_50 PM.png", "ChatGPT Image Jul 6, 2026, 09_39_11 PM.png"],
+  "Million/50 ml": ["ChatGPT Image Jul 6, 2026, 08_19_14 PM.png", "ChatGPT Image Jul 6, 2026, 08_52_47 PM.png", "ChatGPT Image Jul 6, 2026, 08_45_04 PM.png", "ChatGPT Image Jul 6, 2026, 08_47_29 PM.png"],
+  "Out wood/100 ml": ["118.png", "116.png", "120.png", "117.png", "119.png"],
+  "Out wood/20 ml": ["126.png", "128.png", "127.png", "130.png", "129.png"],
+  "Out wood/50 ml": ["125.png", "124.png", "123.png", "122.png", "121.png"],
+  "Poetry/100 ml": ["poetry-hero-crop.png", "Gemini_Generated_Image_94b0n094b0n094b0.png", "Gemini_Generated_Image_gjlh2xgjlh2xgjlh.png", "3.png", "5-768x768.png"],
+  "Poetry/50 ml": ["ChatGPT Image Jul 6, 2026, 08_15_56 PM.png", "Jul 4, 2026, 04_29_04 PM.png", "3-1-768x768.png", "Gemini_Generated_Image_n7wn2en7wn2en7wn.png"],
+  "Rebel/100 ml": ["rebel-hero-crop.png", "Gemini_Generated_Image_pwy2vnpwy2vnpwy2.png", "Untitled design.jpg", "6-768x768.png", "4.png"],
+  "Rebel/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_12 PM.png", "ChatGPT Image Jul 4, 2026, 04_37_27 PM.png", "7-768x768.png", "Untitled design (3).png"],
+  "Rose Petel/100 ml": ["89.png", "90.png", "88.png", "87.png", "86.png"],
+  "Rose Petel/20 ml": ["99.png", "98.png", "100.png", "97.png", "96.png"],
+  "Rose Petel/50 ml": ["94.png", "91.png", "92.png", "93.png", "95.png"],
+  "Sukoon/100 ml": ["54.png", "55.png", "53.png", "56.png", "52.png"],
+  "Sukoon/20 ml": ["48.png", "50.png", "46.png", "49.png", "47.png", "51.png"],
+  "Sukoon/50 ml": ["60.png", "ChatGPT Image Jul 30, 2026, 11_13_42 AM.png", "59.png", "58.png", "57.png"],
+  "Valentine/100 ml": ["106.png", "109.png", "108.png", "107.png", "110.png"],
+  "Valentine/20 ml": ["101.png", "104.png", "105.png", "102.png", "103.png"],
+  "Valentine/50 ml": ["ChatGPT Image Jul 30, 2026, 11_03_13 AM.png", "ChatGPT Image Jul 30, 2026, 11_05_20 AM.png", "114.png", "115.png", "112.png"],
+  "Wanted/100 ml": ["wanted-hero-crop.png", "Gemini_Generated_Image_dyod9zdyod9zdyod.png", "Untitled design (1).jpg", "Gemini_Generated_Image_i2wwgqi2wwgqi2ww.png", "5.png"],
+  "Wanted/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_29 PM.png", "ChatGPT Image Jul 4, 2026, 04_43_42 PM.png", "ChatGPT Image Jul 4, 2026, 04_49_05 PM.png", "10-768x768.png"],
+  "White MUSK/100 ml": ["8.png", "10.png", "7.png", "9.png", "6.png"],
+  "White MUSK/20 ml": ["2.png", "3.png", "1.png", "4.png", "5.png"],
+  "White MUSK/50 ml": ["12.png", "14.png", "13.png", "15.png", "11.png"],
+  "aura/100 ml": ["aura-hero-crop.png", "Gemini_Generated_Image_uxfqzguxfqzguxfq.png", "Gemini_Generated_Image_gjlh2xgjlh2xgjlh.png", "Gemini_Generated_Image_3a71ql3a71ql3a71.png", "2.png"],
+  "aura/50 ml": ["ChatGPT Image Jul 6, 2026, 08_08_09 PM.png", "ChatGPT Image Jul 4, 2026, 05_52_44 PM.png", "2-1-768x768.png", "ChatGPT Image Jul 4, 2026, 06_00_13 PM.png"],
+  "inayat/100 ML": ["132.png", "131.png", "135.png", "134.png", "133.png"],
+  "inayat/25 ML": ["145.png", "141.png", "142.png", "143.png", "144.png"],
+  "inayat/50 ML": ["138.png", "137.png", "139.png", "136.png", "140.png"],
+  "legend/100 ML": ["39.png", "40.png", "38.png", "37.png", "36.png"],
+  "legend/20 ML": ["45.png", "44.png", "43.png", "42.png", "41.png"],
+  "legend/50 ML": ["Apparel Eau-de-Parfum 50 ml (7).jpg", "32.png", "35.png", "34.png", "31.png"],
+  "temptation/100 ml": ["25.png", "23.png", "24.png", "21.png", "22.png"],
+  "temptation/20 ml": ["28.png", "29.png", "27.png", "26.png", "30.png"],
+  "temptation/50 ml": ["18.png", "19.png", "20.png", "16.png", "17.png"],
+};
+
+/** All photos under Product Gallery/<productFolder>/<sizeFolder>/, ordered dark-background
+ *  shots first (per GALLERY_ORDER above) so the lead/main image always matches the site's
+ *  dark theme. Returns [] (never throws) when the folder is missing or renamed, so a
+ *  typo'd folder name can't white-screen the site. */
+const galleryImagesFor = (productFolder: string, sizeFolder: string): string[] => {
+  const prefix = `../assets/Product Gallery/${productFolder}/${sizeFolder}/`;
+  const order = GALLERY_ORDER[`${productFolder}/${sizeFolder}`];
+  const rank = (filename: string) => {
+    const idx = order?.indexOf(filename) ?? -1;
+    return idx === -1 ? Infinity : idx;
+  };
+  return Object.keys(galleryModules)
+    .filter((k) => k.startsWith(prefix))
+    .sort((a, b) => {
+      const fa = a.slice(prefix.length);
+      const fb = b.slice(prefix.length);
+      const ra = rank(fa);
+      const rb = rank(fb);
+      if (ra !== rb) return ra - rb;
+      return fa.localeCompare(fb);
+    })
+    .map((k) => galleryModules[k]);
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -144,9 +241,16 @@ export const products: Product[] = [
     // lifestyle/mood shoot (July 2026, not size-specific) added to the general gallery only.
     // Dark shots (5, 1, 4) lead, medium-toned 3 next, and gallery-2 (white background — the
     // one that clashes with the site's dark theme) is kept last.
-    image: img("inayat"),
-    gallery: [img("inayat"), img("inayat-real"), img("inayat-gallery-5"), img("inayat-gallery-1"), img("inayat-gallery-4"), img("inayat-gallery-3"), img("inayat-gallery-2")],
-    galleryByVolume: { "50ml": [img("inayat")], "100ml": [img("inayat-real")] },
+    // New dedicated per-size studio photos from the "Product Gallery" folder (Jul 2026) now
+    // lead each size's gallery, with the old size photo kept as an extra shot after them.
+    // A "25 ML" folder also exists there, but Inayat only sells 50ml/100ml today, so it isn't
+    // wired to a size — flag to Jatin if a 25ml size should be added for sale.
+    image: galleryImagesFor("inayat", "100 ML")[0] ?? img("inayat"),
+    gallery: [...galleryImagesFor("inayat", "100 ML"), img("inayat-real"), img("inayat-gallery-5"), img("inayat-gallery-1"), img("inayat-gallery-4"), img("inayat-gallery-3"), img("inayat-gallery-2")],
+    galleryByVolume: {
+      "50ml": [...galleryImagesFor("inayat", "50 ML"), img("inayat")],
+      "100ml": [...galleryImagesFor("inayat", "100 ML"), img("inayat-real")],
+    },
     notes: { top: ["Saffron", "Bergamot"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Sandalwood"] },
     longevity: "10 hours", projection: "Strong",
     occasions: ["Festive", "Special Occasions", "Evening"], moods: ["Opulent", "Elegant"],
@@ -158,9 +262,16 @@ export const products: Product[] = [
     id: "p-oud-wood", slug: "oud-wood", name: "Oud Wood", tagline: "The rarest wood",
     price: 899, compareAt: 1499, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 899 }, "100ml": { price: 899, compareAt: 1499 } },
-    // oud-wood.jpg label reads 50 ml; oud-wood-real.jpg reads 100 ml.
-    image: img("oud-wood"), gallery: [img("oud-wood"), img("oud-wood-real")],
-    galleryByVolume: { "50ml": [img("oud-wood")], "100ml": [img("oud-wood-real")] },
+    // oud-wood.jpg label reads 50 ml; oud-wood-real.jpg reads 100 ml — kept as extra shots
+    // after the new dedicated per-size studio photos below ("Out wood" Product Gallery
+    // folder, Jul 2026). That folder also has a "20 ml" set, but Oud Wood only sells
+    // 50ml/100ml today, so it isn't wired to a size — flag to Jatin if 20ml should be added.
+    image: galleryImagesFor("Out wood", "100 ml")[0] ?? img("oud-wood-real"),
+    gallery: [...galleryImagesFor("Out wood", "100 ml"), img("oud-wood-real"), img("oud-wood")],
+    galleryByVolume: {
+      "50ml": [...galleryImagesFor("Out wood", "50 ml"), img("oud-wood")],
+      "100ml": [...galleryImagesFor("Out wood", "100 ml"), img("oud-wood-real")],
+    },
     notes: { top: ["Black Pepper", "Cardamom"], heart: ["Aged Oud", "Leather"], base: ["Sandalwood", "Vetiver", "Amber"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Evening", "Formal", "Winter"], moods: ["Bold", "Mysterious"],
@@ -173,10 +284,17 @@ export const products: Product[] = [
     price: 899, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 899, compareAt: 999 }, "20ml": { price: 249, compareAt: 999 }, "50ml": { price: 499, compareAt: 999 } },
     // Both available shots are labeled 100 ml (different bottle designs). List at 100ml
-    // so shop price matches the bottle; no 50ml photo asset yet.
+    // so shop price matches the bottle; kept as extra shots after the new dedicated
+    // per-size studio photos below (Product Gallery folder, Jul 2026) — that folder now
+    // also fills in 20ml/50ml photos we previously had none of.
     featuredVolume: "100ml",
-    image: img("sukoon"),
-    gallery: [img("sukoon-1"), img("sukoon-2")],
+    image: galleryImagesFor("Sukoon", "100 ml")[0] ?? img("sukoon"),
+    gallery: [...galleryImagesFor("Sukoon", "100 ml"), img("sukoon-1"), img("sukoon-2")],
+    galleryByVolume: {
+      "20ml": galleryImagesFor("Sukoon", "20 ml").length ? galleryImagesFor("Sukoon", "20 ml") : [img("sukoon")],
+      "50ml": galleryImagesFor("Sukoon", "50 ml").length ? galleryImagesFor("Sukoon", "50 ml") : [img("sukoon")],
+      "100ml": [...galleryImagesFor("Sukoon", "100 ml"), img("sukoon-1"), img("sukoon-2")],
+    },
     notes: { top: ["Lavender", "Bergamot"], heart: ["Cedar", "Iris"], base: ["Amber", "Tonka", "Musk"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Office", "Relaxed Evenings"], moods: ["Calm", "Grounded"],
@@ -223,10 +341,17 @@ export const products: Product[] = [
     id: "p-white-musk", slug: "white-musk", name: "White Musk", tagline: "Clean, quiet luxury",
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
-    // Both photos are labeled 50 ml — no 100ml asset yet.
+    // Both photos are labeled 50 ml — kept as extra shots after the new dedicated per-size
+    // studio photos below ("White MUSK" Product Gallery folder, Jul 2026), which now also
+    // fills in the 100ml photo we previously had none of.
     featuredVolume: "50ml",
-    image: img("white-musk"),
-    gallery: [img("white-musk-real"), img("white-musk")],
+    image: galleryImagesFor("White MUSK", "50 ml")[0] ?? img("white-musk"),
+    gallery: [...galleryImagesFor("White MUSK", "50 ml"), img("white-musk-real"), img("white-musk")],
+    galleryByVolume: {
+      "20ml": galleryImagesFor("White MUSK", "20 ml").length ? galleryImagesFor("White MUSK", "20 ml") : [img("white-musk")],
+      "50ml": [...galleryImagesFor("White MUSK", "50 ml"), img("white-musk-real"), img("white-musk")],
+      "100ml": galleryImagesFor("White MUSK", "100 ml").length ? galleryImagesFor("White MUSK", "100 ml") : [img("white-musk")],
+    },
     notes: { top: ["Aldehydes", "Bergamot"], heart: ["White Musk", "Lily"], base: ["Cedar", "Soft Amber"] },
     longevity: "8 hours", projection: "Soft",
     occasions: ["Daily Wear", "Office", "Layering"], moods: ["Clean", "Elegant"],
@@ -239,8 +364,16 @@ export const products: Product[] = [
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
-    // Both temptation shots are labeled 100 ml (different bottle styles).
-    image: img("temptation"), gallery: [img("temptation-real"), img("temptation")],
+    // Both temptation shots are labeled 100 ml (different bottle styles) — kept as extra
+    // shots after the new dedicated per-size studio photos below (Product Gallery
+    // folder, Jul 2026).
+    image: galleryImagesFor("temptation", "100 ml")[0] ?? img("temptation"),
+    gallery: [...galleryImagesFor("temptation", "100 ml"), img("temptation-real"), img("temptation")],
+    galleryByVolume: {
+      "20ml": galleryImagesFor("temptation", "20 ml").length ? galleryImagesFor("temptation", "20 ml") : [img("temptation")],
+      "50ml": galleryImagesFor("temptation", "50 ml").length ? galleryImagesFor("temptation", "50 ml") : [img("temptation")],
+      "100ml": [...galleryImagesFor("temptation", "100 ml"), img("temptation-real"), img("temptation")],
+    },
     notes: { top: ["Black Currant", "Raspberry"], heart: ["Orchid", "Rose"], base: ["Vanilla", "Praline", "Musk"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Date Night", "Evening", "Parties"], moods: ["Romantic", "Bold"],
@@ -253,8 +386,16 @@ export const products: Product[] = [
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
-    // Both rose-petals shots are labeled 100 ml (different bottle styles).
-    image: img("rose-petals"), gallery: [img("rose-petals-real"), img("rose-petals")],
+    // Both rose-petals shots are labeled 100 ml (different bottle styles) — kept as extra
+    // shots after the new dedicated per-size studio photos below ("Rose Petel" Product
+    // Gallery folder, Jul 2026). That folder also has a "20 ml" set, but Rose Petals only
+    // sells 50ml/100ml today, so it isn't wired to a size — flag to Jatin if 20ml is wanted.
+    image: galleryImagesFor("Rose Petel", "100 ml")[0] ?? img("rose-petals-real"),
+    gallery: [...galleryImagesFor("Rose Petel", "100 ml"), img("rose-petals-real"), img("rose-petals")],
+    galleryByVolume: {
+      "50ml": [...galleryImagesFor("Rose Petel", "50 ml"), img("rose-petals")],
+      "100ml": [...galleryImagesFor("Rose Petel", "100 ml"), img("rose-petals-real")],
+    },
     notes: { top: ["Rose Petals", "Lychee"], heart: ["Turkish Rose", "Peony"], base: ["White Musk", "Sandalwood"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Weddings", "Gifting"], moods: ["Feminine", "Joyful"],
@@ -267,8 +408,15 @@ export const products: Product[] = [
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
-    // Both legend shots are labeled 100 ml (different bottle styles).
-    image: img("legend"), gallery: [img("legend-real"), img("legend")],
+    // Both legend shots are labeled 100 ml (different bottle styles) — kept as extra shots
+    // after the new dedicated per-size studio photos below (Product Gallery folder, Jul 2026).
+    image: galleryImagesFor("legend", "100 ML")[0] ?? img("legend"),
+    gallery: [...galleryImagesFor("legend", "100 ML"), img("legend-real"), img("legend")],
+    galleryByVolume: {
+      "20ml": galleryImagesFor("legend", "20 ML").length ? galleryImagesFor("legend", "20 ML") : [img("legend")],
+      "50ml": galleryImagesFor("legend", "50 ML").length ? galleryImagesFor("legend", "50 ML") : [img("legend")],
+      "100ml": [...galleryImagesFor("legend", "100 ML"), img("legend-real"), img("legend")],
+    },
     notes: { top: ["Lavender", "Mint"], heart: ["Sage", "Geranium"], base: ["Cedar", "Tonka", "Amber"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Office", "Evening", "Formal"], moods: ["Confident", "Classic"],
@@ -479,7 +627,15 @@ export const products: Product[] = [
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "50ml": { price: 489, compareAt: 1799 } },
     featuredVolume: "100ml",
-    image: img("million"), gallery: [img("million")],
+    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
+    // A "20 ml" folder also exists there, but Million only sells 50ml/100ml today, so
+    // it isn't wired to a size — flag to Jatin if a 20ml size should be added for sale.
+    image: galleryImagesFor("Million", "100 ml")[0] ?? img("million"),
+    gallery: galleryImagesFor("Million", "100 ml").length ? galleryImagesFor("Million", "100 ml") : [img("million")],
+    galleryByVolume: {
+      "50ml": galleryImagesFor("Million", "50 ml").length ? galleryImagesFor("Million", "50 ml") : [img("million")],
+      "100ml": galleryImagesFor("Million", "100 ml").length ? galleryImagesFor("Million", "100 ml") : [img("million")],
+    },
     notes: { top: ["Bergamot", "Mandarin"], heart: ["Cinnamon", "Rose"], base: ["Amber", "Patchouli", "Leather"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Evening", "Parties", "Special Occasions"], moods: ["Bold", "Magnetic"],
@@ -518,7 +674,15 @@ export const products: Product[] = [
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "50ml": { price: 499, compareAt: 1799 } },
     featuredVolume: "100ml",
-    image: img("valentine"), gallery: [img("valentine")],
+    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
+    // A "20 ml" folder also exists there, but Valentine only sells 50ml/100ml today, so
+    // it isn't wired to a size — flag to Jatin if a 20ml size should be added for sale.
+    image: galleryImagesFor("Valentine", "100 ml")[0] ?? img("valentine"),
+    gallery: galleryImagesFor("Valentine", "100 ml").length ? galleryImagesFor("Valentine", "100 ml") : [img("valentine")],
+    galleryByVolume: {
+      "50ml": galleryImagesFor("Valentine", "50 ml").length ? galleryImagesFor("Valentine", "50 ml") : [img("valentine")],
+      "100ml": galleryImagesFor("Valentine", "100 ml").length ? galleryImagesFor("Valentine", "100 ml") : [img("valentine")],
+    },
     notes: { top: ["Red Berries", "Pink Pepper"], heart: ["Rose", "Peony"], base: ["Musk", "Vanilla"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Date Night", "Evening", "Celebrations"], moods: ["Romantic", "Playful"],
@@ -531,7 +695,13 @@ export const products: Product[] = [
     price: 949, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 949, compareAt: 1299 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    image: img("aura"), gallery: [img("aura")],
+    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
+    image: galleryImagesFor("aura", "100 ml")[0] ?? img("aura"),
+    gallery: galleryImagesFor("aura", "100 ml").length ? galleryImagesFor("aura", "100 ml") : [img("aura")],
+    galleryByVolume: {
+      "50ml": galleryImagesFor("aura", "50 ml").length ? galleryImagesFor("aura", "50 ml") : [img("aura")],
+      "100ml": galleryImagesFor("aura", "100 ml").length ? galleryImagesFor("aura", "100 ml") : [img("aura")],
+    },
     notes: { top: ["Bergamot", "Iris"], heart: ["Woody Florals"], base: ["Sandalwood", "Amber", "Musk"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Office", "Evening"], moods: ["Elegant", "Grounded"],
@@ -993,7 +1163,13 @@ export const products: Product[] = [
     price: 999, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 999, compareAt: 1299 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    image: img("poetry"), gallery: [img("poetry")],
+    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
+    image: galleryImagesFor("Poetry", "100 ml")[0] ?? img("poetry"),
+    gallery: galleryImagesFor("Poetry", "100 ml").length ? galleryImagesFor("Poetry", "100 ml") : [img("poetry")],
+    galleryByVolume: {
+      "50ml": galleryImagesFor("Poetry", "50 ml").length ? galleryImagesFor("Poetry", "50 ml") : [img("poetry")],
+      "100ml": galleryImagesFor("Poetry", "100 ml").length ? galleryImagesFor("Poetry", "100 ml") : [img("poetry")],
+    },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1006,7 +1182,13 @@ export const products: Product[] = [
     price: 999, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 999, compareAt: 1299 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    image: img("rebel"), gallery: [img("rebel")],
+    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
+    image: galleryImagesFor("Rebel", "100 ml")[0] ?? img("rebel"),
+    gallery: galleryImagesFor("Rebel", "100 ml").length ? galleryImagesFor("Rebel", "100 ml") : [img("rebel")],
+    galleryByVolume: {
+      "50ml": galleryImagesFor("Rebel", "50 ml").length ? galleryImagesFor("Rebel", "50 ml") : [img("rebel")],
+      "100ml": galleryImagesFor("Rebel", "100 ml").length ? galleryImagesFor("Rebel", "100 ml") : [img("rebel")],
+    },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1085,7 +1267,13 @@ export const products: Product[] = [
     price: 899, compareAt: 1499, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 899, compareAt: 1499 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    image: img("wanted"), gallery: [img("wanted")],
+    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
+    image: galleryImagesFor("Wanted", "100 ml")[0] ?? img("wanted"),
+    gallery: galleryImagesFor("Wanted", "100 ml").length ? galleryImagesFor("Wanted", "100 ml") : [img("wanted")],
+    galleryByVolume: {
+      "50ml": galleryImagesFor("Wanted", "50 ml").length ? galleryImagesFor("Wanted", "50 ml") : [img("wanted")],
+      "100ml": galleryImagesFor("Wanted", "100 ml").length ? galleryImagesFor("Wanted", "100 ml") : [img("wanted")],
+    },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
