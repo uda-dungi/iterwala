@@ -113,6 +113,79 @@ const galleryImagesFor = (productFolder: string, sizeFolder: string): string[] =
     .map((k) => galleryModules[k]);
 };
 
+// New "Pack of 4" / "Pack of 8" gift-box mockups (5 fragrance lineups for the 4-pack,
+// 2 lineups for the 8-pack) live in src/assets/Pack of 4 and 8/<pack>/<variant>/ —
+// added by Jatin directly on disk, one subfolder per lineup. Loaded via glob since
+// filenames inside each folder are arbitrary export names, not a known list.
+// NOTE (Aug 2026): "pack of 4/variant 5" was added as an empty folder — no images were
+// ever dropped in, so it has no product below. "pack of 4/variant 4" is a byte-for-byte
+// duplicate of "variant 3" (same 5 files, same sizes) — treated as a duplicate upload,
+// not a 4th distinct lineup, so only variant 3 got a product. Flag to Jatin if variant 4
+// was meant to be a different lineup and variant 5's photos are still coming.
+const packModules = import.meta.glob(
+  "../assets/Pack of 4 and 8/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+  { eager: true, import: "default" }
+) as Record<string, string>;
+
+// A generic box-back mockup ("ChatGPT Image Jul 23, 2026, 02_02_50 AM.png", reused
+// verbatim — including its "Copy of Copy of Copy of" duplicate — across several variant
+// folders) prints "8 N X 8 ml" fill info on what is otherwise a 4-pack folder, and a
+// MRP/price that matches neither this site's pack-of-4 nor pack-of-8 pricing. It's a
+// leftover shared placeholder, not real per-variant packaging, so it's excluded below.
+const PACK_EXCLUDE = /02_02_50 AM\.png$/;
+
+// Lead-image order per pack/variant folder (best hero shot first), mirroring
+// GALLERY_ORDER above.
+const PACK_GALLERY_ORDER: Record<string, string[]> = {
+  "pack of 4/variant 1": [
+    "ChatGPT Image Jul 24, 2026, 05_45_24 PM.png",
+    "ChatGPT Image Jul 24, 2026, 06_44_42 PM.png",
+    "ChatGPT Image Jul 24, 2026, 06_32_17 PM.png",
+    "Apparel Eau-de-Parfum 50 ml (5).jpg",
+  ],
+  "pack of 4/variant 2": [
+    "ChatGPT Image Jul 24, 2026, 05_16_31 PM.png",
+    "ChatGPT Image Jul 23, 2026, 02_50_53 AM.png",
+    "ChatGPT Image Jul 24, 2026, 05_14_49 PM.png",
+    "ChatGPT Image Jul 23, 2026, 02_44_37 AM.png",
+  ],
+  "pack of 4/variant 3": [
+    "ChatGPT Image Jul 24, 2026, 07_07_32 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_22_31 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_36_18 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_42_05 PM.png",
+  ],
+  "Pack of 8/variant 1": [
+    "ChatGPT Image Jul 24, 2026, 07_50_08 PM.png",
+    "ChatGPT Image Jul 23, 2026, 02_26_03 AM.png",
+    "ChatGPT Image Jul 23, 2026, 02_22_27 AM.png",
+    "ChatGPT Image Jul 23, 2026, 02_40_02 AM.png",
+  ],
+};
+
+/** All photos under "Pack of 4 and 8/<folder>/" (folder = e.g. "pack of 4/variant 1"),
+ *  ordered per PACK_GALLERY_ORDER, excluding the generic mismatched box-back mockup.
+ *  Returns [] (never throws) so a typo'd folder name can't white-screen the site. */
+const packGalleryFor = (folder: string): string[] => {
+  const prefix = `../assets/Pack of 4 and 8/${folder}/`;
+  const order = PACK_GALLERY_ORDER[folder];
+  const rank = (filename: string) => {
+    const idx = order?.indexOf(filename) ?? -1;
+    return idx === -1 ? Infinity : idx;
+  };
+  return Object.keys(packModules)
+    .filter((k) => k.startsWith(prefix) && !PACK_EXCLUDE.test(k))
+    .sort((a, b) => {
+      const fa = a.slice(prefix.length);
+      const fb = b.slice(prefix.length);
+      const ra = rank(fa);
+      const rb = rank(fb);
+      if (ra !== rb) return ra - rb;
+      return fa.localeCompare(fb);
+    })
+    .map((k) => packModules[k]);
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -598,6 +671,25 @@ export const products: Product[] = [
     description: "Eight of our most-loved fragrances in a beautiful gift box — the perfect way to discover your signature or gift someone the whole world of Itrawala.",
     rating: 4.9, reviews: 142, badge: "Best Gift", bestSeller: true,
   },
+  // Second Pack-of-8 lineup, added Aug 2026 from the new mockup shoot in
+  // "Pack of 4 and 8/Pack of 8/variant 1" — same price as the Discovery Set above
+  // (per Jatin: "price remain same"). "Pack of 8/Variant 2" in that same folder is a
+  // reshoot of this exact same 8-scent lineup (Wild, Smoke, Touch, Temptation, White
+  // Musk, Chemistry, Legend, Inayat) already live above as the Signature Discovery Set,
+  // so it wasn't added as a separate listing — flag to Jatin if those newer photos
+  // should replace the Discovery Set's current gallery instead.
+  {
+    id: "g-octet-secret-crush", slug: "secret-crush-octet-gift-set", name: "Secret Crush Octet Gift Set", tagline: "Pack of 8 — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity & Choco Blast, 8ml each",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: packGalleryFor("Pack of 8/variant 1")[0],
+    gallery: packGalleryFor("Pack of 8/variant 1"),
+    notes: { top: ["Assorted"], heart: ["8 Signature Blends"], base: ["Perfume Testers"] },
+    longevity: "Varies", projection: "Varies",
+    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
+    ingredients: "Eight 8ml premium eau de parfum sprays in a luxury gift box.",
+    description: "Eight fan favourites — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity and Choco Blast — presented together in a signature gift box.",
+    rating: 4.8, reviews: 0, newArrival: true,
+  },
   {
     id: "g-aqua-duo", slug: "aqua-duo-gift-set", name: "Aqua Duo Gift Set", tagline: "Frozen Blue & Ocean Water",
     price: 599, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
@@ -870,6 +962,46 @@ export const products: Product[] = [
     ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
     description: "Four of our most-loved fragrances — Touch, Wild, Temptation and Smoke — presented together in a signature gift box.",
     rating: 4.8, reviews: 22, newArrival: true,
+  },
+  // Three more Pack-of-4 lineups, added Aug 2026 from the new mockup shoot in
+  // "Pack of 4 and 8" — same price as the original Signature Quad above (per Jatin:
+  // "price remain same"). See PACK_GALLERY_ORDER note above for why there's no 4th/5th
+  // lineup here (variant 4 duplicated variant 3; variant 5's folder was empty).
+  {
+    id: "g-quad-legend", slug: "legend-quad-gift-set", name: "Legend Quad Gift Set", tagline: "Pack of 4 — Legend, Sukoon, Choco Blast & Ocean Water, 20ml each",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: packGalleryFor("pack of 4/variant 1")[0],
+    gallery: packGalleryFor("pack of 4/variant 1"),
+    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
+    longevity: "Varies", projection: "Varies",
+    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
+    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
+    description: "Four fan favourites — Legend, Sukoon, Choco Blast and Ocean Water — presented together in a signature gift box.",
+    rating: 4.8, reviews: 0, newArrival: true,
+  },
+  {
+    id: "g-quad-secret-crush", slug: "secret-crush-quad-gift-set", name: "Secret Crush Quad Gift Set", tagline: "Pack of 4 — Secret Crush, Valentine, Chemistry & White Musk, 20ml each",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: packGalleryFor("pack of 4/variant 2")[0],
+    gallery: packGalleryFor("pack of 4/variant 2"),
+    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
+    longevity: "Varies", projection: "Varies",
+    occasions: ["Gifting", "Date Night", "Festive"], moods: ["Romantic", "Playful"],
+    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
+    description: "A romantic quartet — Secret Crush, Valentine, Chemistry and White Musk — presented together in a signature gift box.",
+    rating: 4.8, reviews: 0, newArrival: true,
+  },
+  {
+    id: "g-quad-honeymoon", slug: "honeymoon-quad-gift-set", name: "Honeymoon Quad Gift Set", tagline: "Pack of 4 — Honeymoon, Ocean Water, Choco Blast & Sukoon, 20ml each",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: packGalleryFor("pack of 4/variant 3")[0],
+    gallery: packGalleryFor("pack of 4/variant 3"),
+    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
+    longevity: "Varies", projection: "Varies",
+    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
+    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
+    description: "Four fan favourites — Honeymoon, Ocean Water, Choco Blast and Sukoon — presented together in a signature gift box.",
+    rating: 4.8, reviews: 0, newArrival: true,
   },
   {
     id: "g-rooh-chandan-duo", slug: "rooh-chandan-duo-gift-set", name: "Rooh Chandan Duo", tagline: "Two bottles, one sacred sandalwood",
