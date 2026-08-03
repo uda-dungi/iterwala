@@ -63,7 +63,7 @@ export const PRICE_TABLE: Record<string, PriceEntry> = {
   "a-ruh-heena": { "price": 1399, "compareAt": 1599, "priceByVolume": null },
   "a-ruh-khus": { "price": 1999, "compareAt": 2499, "priceByVolume": null },
   "a-ruh-mogra": { "price": 1599, "compareAt": 2499, "priceByVolume": null },
-  "g-signature-quad": { "price": 699, "compareAt": 1299, "priceByVolume": null },
+  "g-pack-of-4": { "price": 699, "compareAt": 1299, "priceByVolume": null },
   "g-rooh-chandan-duo": { "price": 499, "compareAt": 1299, "priceByVolume": null },
   "p-black-gold": { "price": 549, "compareAt": 999, "priceByVolume": null },
   "a-famous": { "price": 499, "compareAt": 1299, "priceByVolume": null },

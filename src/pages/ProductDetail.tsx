@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2 } from "lucide-react";
-import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor } from "@/data/products";
+import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor, contentFor } from "@/data/products";
 import { seedReviewsFor } from "@/data/reviews";
 import { offerForProduct } from "@/lib/offers";
 import { CollectorStory } from "@/components/product/CollectorStory";
@@ -72,6 +72,7 @@ export default function ProductDetail() {
   const selectedVol = volume || listingVolume(product);
   const { price: unitPrice, compareAt: unitCompareAt } = priceFor(product, selectedVol);
   const gallery = galleryFor(product, selectedVol);
+  const content = contentFor(product, selectedVol);
   const productOffer = offerForProduct(product.id);
   const related = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
   const buyNow = () => { addToCart(product, qty, selectedVol); setCartOpen(false); window.location.href = "/checkout"; };
@@ -171,7 +172,7 @@ export default function ProductDetail() {
               {product.amazonChoice && <AmazonChoiceBadge />}
             </div>
             <h1 className="font-display text-2xl sm:text-4xl md:text-6xl text-ivory mt-2">{product.name}</h1>
-            <p className="font-serif italic text-sm sm:text-lg text-muted-foreground mt-1">{product.tagline}</p>
+            <p className="font-serif italic text-sm sm:text-lg text-muted-foreground mt-1">{content.tagline}</p>
             <p className="flex items-center gap-1.5 text-xs sm:text-sm text-green-500 mt-2 sm:mt-3">
               <CheckCircle2 className="w-4 h-4" /> In Stock — ready to ship
             </p>
@@ -208,21 +209,46 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Volume selector */}
+          {/* Volume / variant selector. Gift sets where each option is actually a
+              different fragrance lineup (product.variantLabel is set) get a bigger,
+              image-led picker so the box art itself tells the sets apart — a plain
+              text pill like "Signature" vs "Secret Crush" doesn't show what's inside.
+              Plain bottle-size products (Perfume/Attar) keep the compact text pills. */}
           <div>
-            <p className="text-[10px] tracking-luxe uppercase text-primary mb-2">Size</p>
-            <div className="flex gap-2 sm:gap-3">
-              {vols.map(v => (
-                <button key={v} onClick={() => setVolume(v)}
-                  className={cn("flex-1 sm:flex-none px-3 sm:px-5 py-2 border rounded-sm text-xs sm:text-sm transition-all",
-                    selectedVol === v ? "border-primary text-primary shadow-gold" : "border-border text-muted-foreground hover:border-primary/50")}>
-                  {v}
-                </button>
-              ))}
-            </div>
+            <p className="text-[10px] tracking-luxe uppercase text-primary mb-2">{product.variantLabel ?? "Size"}</p>
+            {product.variantLabel ? (
+              <div className="flex gap-3 sm:gap-4 flex-wrap">
+                {vols.map(v => {
+                  const thumb = product.galleryByVolume?.[v]?.[0] ?? product.image;
+                  return (
+                    <button key={v} onClick={() => setVolume(v)}
+                      className={cn("flex flex-col items-center gap-2 w-24 sm:w-28 p-2 border rounded-sm transition-all",
+                        selectedVol === v ? "border-primary shadow-gold" : "border-border hover:border-primary/50")}>
+                      <span className="w-full aspect-square overflow-hidden rounded-sm bg-deep-brown">
+                        <img src={thumb} alt={v} className="w-full h-full object-cover" />
+                      </span>
+                      <span className={cn("text-[11px] sm:text-xs text-center leading-tight",
+                        selectedVol === v ? "text-primary font-semibold" : "text-muted-foreground")}>
+                        {v}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex gap-2 sm:gap-3">
+                {vols.map(v => (
+                  <button key={v} onClick={() => setVolume(v)}
+                    className={cn("flex-1 sm:flex-none px-3 sm:px-5 py-2 border rounded-sm text-xs sm:text-sm transition-all",
+                      selectedVol === v ? "border-primary text-primary shadow-gold" : "border-border text-muted-foreground hover:border-primary/50")}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed line-clamp-3 sm:line-clamp-none">{product.description}</p>
+          <p className="text-sm sm:text-base text-muted-foreground leading-relaxed line-clamp-3 sm:line-clamp-none">{content.description}</p>
 
           {/* Qty + Actions */}
           <div className="flex items-center gap-3 pt-1 sm:pt-2">
@@ -290,7 +316,7 @@ export default function ProductDetail() {
             <AccordionItem value="description">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Full Description</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed space-y-3">
-                <p>{product.description}</p>
+                <p>{content.description}</p>
                 <p>Best suited for: {product.occasions.join(", ")}. Mood: {product.moods.join(", ")}.</p>
               </AccordionContent>
             </AccordionItem>
@@ -298,7 +324,7 @@ export default function ProductDetail() {
             <AccordionItem value="ingredients">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Ingredients</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed">
-                <p>{product.ingredients}</p>
+                <p>{content.ingredients}</p>
               </AccordionContent>
             </AccordionItem>
 

@@ -208,6 +208,13 @@ export type Product = {
    *  default selection use this so price matches the bottle shown. When omitted,
    *  the first entry in `volume` is used (usually 50ml). */
   featuredVolume?: string;
+  /** Per-variant tagline/description/ingredients text — used for products where each
+   *  `volume` entry isn't a bottle size but a different fragrance lineup (e.g. Pack of 4 /
+   *  Pack of 8 gift sets). ProductDetail falls back to the flat tagline/description/
+   *  ingredients below for any variant not listed here. */
+  contentByVolume?: Record<string, { tagline?: string; description?: string; ingredients?: string }>;
+  /** Label shown above the variant selector on the product page. Defaults to "Size". */
+  variantLabel?: string;
   notes: { top: string[]; heart: string[]; base: string[] };
   longevity: string;
   projection: string;
@@ -249,7 +256,7 @@ export const collections = [
     // 6 tags (matching the other two cards) so all three "Shop by Collection" cards
     // render the same number of tag rows and end up the same height — a short sub
     // list here was making this card visibly shorter/misaligned next to the others.
-    sub: ["Discovery Set", "Perfume Duos", "Attar Combos", "Signature Quad", "Aqua Duo", "Rooh Chandan Duo"],
+    sub: ["Pack of 8", "Perfume Duos", "Attar Combos", "Pack of 4", "Aqua Duo", "Rooh Chandan Duo"],
   },
 ] as const;
 
@@ -655,40 +662,45 @@ export const products: Product[] = [
   },
 
   // ─────────────── GIFT SETS ───────────────
+  // Merged Aug 2026: this was two separate listings (Signature Discovery Set + Secret
+  // Crush Octet Gift Set) for what is really one product with two fragrance lineups to
+  // choose from — now a single "Pack of 8" product with a variant selector (mirrors how
+  // Pack of 4 works below). Kept the original id/slug so the existing bestseller URL
+  // keeps working. "Pack of 8/Variant 2" in the shoot folder is a reshoot of the exact
+  // same Signature lineup already live here — per Jatin, kept the original Discovery Set
+  // photos rather than swapping to the reshoot.
   {
-    id: "g-discovery", slug: "discovery-set", name: "Signature Discovery Set", tagline: "Eight scents, one box",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    id: "g-discovery", slug: "discovery-set", name: "Pack of 8 Gift Set", tagline: "Pack of 8 — pick your favourite 8-scent lineup",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Signature", "Secret Crush"],
+    featuredVolume: "Signature", variantLabel: "Choose Your Set",
     // New mockup shoot (July 2026) — Wild, Smoke, Touch, Temptation, White Musk, Chemistry,
     // Legend, Inayat (8ml each). Confirmed with Jatin as the correct lineup for this set.
     // discovery-set-1 has a white background (clashes with the site's dark theme) so it's
     // kept later in the gallery; the two darker mockups lead.
     image: img("discovery-set-2"),
     gallery: [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
+    galleryByVolume: {
+      "Signature": [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
+      "Secret Crush": packGalleryFor("Pack of 8/variant 1"),
+    },
+    contentByVolume: {
+      "Signature": {
+        tagline: "Eight scents, one box",
+        description: "Eight of our most-loved fragrances in a beautiful gift box — the perfect way to discover your signature or gift someone the whole world of Itrawala.",
+        ingredients: "Eight 2ml premium fragrance testers in a luxury gift box.",
+      },
+      "Secret Crush": {
+        tagline: "Pack of 8 — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity & Choco Blast, 8ml each",
+        description: "Eight fan favourites — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity and Choco Blast — presented together in a signature gift box.",
+        ingredients: "Eight 8ml premium eau de parfum sprays in a luxury gift box.",
+      },
+    },
     notes: { top: ["Assorted"], heart: ["8 Signature Blends"], base: ["Perfume Testers"] },
     longevity: "Varies", projection: "Varies",
     occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
-    ingredients: "Eight 2ml premium fragrance testers in a luxury gift box.",
-    description: "Eight of our most-loved fragrances in a beautiful gift box — the perfect way to discover your signature or gift someone the whole world of Itrawala.",
+    ingredients: "Eight premium fragrances in a luxury gift box.",
+    description: "Choose from two curated 8-scent lineups — the Signature Discovery Set or the Secret Crush Octet — eight of our most-loved fragrances together in one beautiful gift box.",
     rating: 4.9, reviews: 142, badge: "Best Gift", bestSeller: true,
-  },
-  // Second Pack-of-8 lineup, added Aug 2026 from the new mockup shoot in
-  // "Pack of 4 and 8/Pack of 8/variant 1" — same price as the Discovery Set above
-  // (per Jatin: "price remain same"). "Pack of 8/Variant 2" in that same folder is a
-  // reshoot of this exact same 8-scent lineup (Wild, Smoke, Touch, Temptation, White
-  // Musk, Chemistry, Legend, Inayat) already live above as the Signature Discovery Set,
-  // so it wasn't added as a separate listing — flag to Jatin if those newer photos
-  // should replace the Discovery Set's current gallery instead.
-  {
-    id: "g-octet-secret-crush", slug: "secret-crush-octet-gift-set", name: "Secret Crush Octet Gift Set", tagline: "Pack of 8 — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity & Choco Blast, 8ml each",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: packGalleryFor("Pack of 8/variant 1")[0],
-    gallery: packGalleryFor("Pack of 8/variant 1"),
-    notes: { top: ["Assorted"], heart: ["8 Signature Blends"], base: ["Perfume Testers"] },
-    longevity: "Varies", projection: "Varies",
-    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
-    ingredients: "Eight 8ml premium eau de parfum sprays in a luxury gift box.",
-    description: "Eight fan favourites — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity and Choco Blast — presented together in a signature gift box.",
-    rating: 4.8, reviews: 0, newArrival: true,
   },
   {
     id: "g-aqua-duo", slug: "aqua-duo-gift-set", name: "Aqua Duo Gift Set", tagline: "Frozen Blue & Ocean Water",
@@ -945,9 +957,16 @@ export const products: Product[] = [
   },
 
   // ─────────────── NEW GIFT SETS (added from price sheet import) ───────────────
+  // Merged Aug 2026: this was four separate listings (Signature/Legend/Secret Crush/
+  // Honeymoon Quad Gift Sets) for what is really one product with four fragrance lineups
+  // to choose from — now a single "Pack of 4" product with a variant selector. A 5th
+  // lineup ("pack of 4/variant 5") was planned but its photo folder was left empty and no
+  // scent list was ever assigned to it — add it here once Jatin sends both (variant 4's
+  // folder was a byte-for-byte duplicate of variant 3, so it was never a real 5th option).
   {
-    id: "g-signature-quad", slug: "signature-quad-gift-set", name: "Signature Quad Gift Set", tagline: "Pack of 4 — Touch, Wild, Temptation & Smoke, 20ml each",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    id: "g-pack-of-4", slug: "pack-of-4-gift-set", name: "Pack of 4 Gift Set", tagline: "Pack of 4 — pick your favourite fragrance lineup, 20ml each",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Signature", "Legend", "Secret Crush", "Honeymoon"],
+    featuredVolume: "Signature", variantLabel: "Choose Your Set",
     image: img("giftset-signature-quad"),
     gallery: [
       img("giftset-signature-quad"),
@@ -956,52 +975,42 @@ export const products: Product[] = [
       img("giftset-signature-quad-3"),
       img("giftset-signature-quad-lifestyle"),
     ],
+    galleryByVolume: {
+      "Signature": [
+        img("giftset-signature-quad"),
+        img("giftset-signature-quad-2"),
+        img("giftset-signature-quad-4"),
+        img("giftset-signature-quad-3"),
+        img("giftset-signature-quad-lifestyle"),
+      ],
+      "Legend": packGalleryFor("pack of 4/variant 1"),
+      "Secret Crush": packGalleryFor("pack of 4/variant 2"),
+      "Honeymoon": packGalleryFor("pack of 4/variant 3"),
+    },
+    contentByVolume: {
+      "Signature": {
+        tagline: "Pack of 4 — Touch, Wild, Temptation & Smoke, 20ml each",
+        description: "Four of our most-loved fragrances — Touch, Wild, Temptation and Smoke — presented together in a signature gift box.",
+      },
+      "Legend": {
+        tagline: "Pack of 4 — Legend, Sukoon, Choco Blast & Ocean Water, 20ml each",
+        description: "Four fan favourites — Legend, Sukoon, Choco Blast and Ocean Water — presented together in a signature gift box.",
+      },
+      "Secret Crush": {
+        tagline: "Pack of 4 — Secret Crush, Valentine, Chemistry & White Musk, 20ml each",
+        description: "A romantic quartet — Secret Crush, Valentine, Chemistry and White Musk — presented together in a signature gift box.",
+      },
+      "Honeymoon": {
+        tagline: "Pack of 4 — Honeymoon, Ocean Water, Choco Blast & Sukoon, 20ml each",
+        description: "Four fan favourites — Honeymoon, Ocean Water, Choco Blast and Sukoon — presented together in a signature gift box.",
+      },
+    },
     notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
     longevity: "Varies", projection: "Varies",
     occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
     ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
-    description: "Four of our most-loved fragrances — Touch, Wild, Temptation and Smoke — presented together in a signature gift box.",
+    description: "Choose from four curated 4-scent lineups — all 20ml eau de parfum sprays presented together in a signature gift box.",
     rating: 4.8, reviews: 22, newArrival: true,
-  },
-  // Three more Pack-of-4 lineups, added Aug 2026 from the new mockup shoot in
-  // "Pack of 4 and 8" — same price as the original Signature Quad above (per Jatin:
-  // "price remain same"). See PACK_GALLERY_ORDER note above for why there's no 4th/5th
-  // lineup here (variant 4 duplicated variant 3; variant 5's folder was empty).
-  {
-    id: "g-quad-legend", slug: "legend-quad-gift-set", name: "Legend Quad Gift Set", tagline: "Pack of 4 — Legend, Sukoon, Choco Blast & Ocean Water, 20ml each",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: packGalleryFor("pack of 4/variant 1")[0],
-    gallery: packGalleryFor("pack of 4/variant 1"),
-    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
-    longevity: "Varies", projection: "Varies",
-    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
-    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
-    description: "Four fan favourites — Legend, Sukoon, Choco Blast and Ocean Water — presented together in a signature gift box.",
-    rating: 4.8, reviews: 0, newArrival: true,
-  },
-  {
-    id: "g-quad-secret-crush", slug: "secret-crush-quad-gift-set", name: "Secret Crush Quad Gift Set", tagline: "Pack of 4 — Secret Crush, Valentine, Chemistry & White Musk, 20ml each",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: packGalleryFor("pack of 4/variant 2")[0],
-    gallery: packGalleryFor("pack of 4/variant 2"),
-    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
-    longevity: "Varies", projection: "Varies",
-    occasions: ["Gifting", "Date Night", "Festive"], moods: ["Romantic", "Playful"],
-    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
-    description: "A romantic quartet — Secret Crush, Valentine, Chemistry and White Musk — presented together in a signature gift box.",
-    rating: 4.8, reviews: 0, newArrival: true,
-  },
-  {
-    id: "g-quad-honeymoon", slug: "honeymoon-quad-gift-set", name: "Honeymoon Quad Gift Set", tagline: "Pack of 4 — Honeymoon, Ocean Water, Choco Blast & Sukoon, 20ml each",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: packGalleryFor("pack of 4/variant 3")[0],
-    gallery: packGalleryFor("pack of 4/variant 3"),
-    notes: { top: ["Assorted"], heart: ["4 Signature Blends"], base: ["Perfume Testers"] },
-    longevity: "Varies", projection: "Varies",
-    occasions: ["Gifting", "Try Before You Buy", "Festive"], moods: ["Curious", "Generous"],
-    ingredients: "Four 20ml premium eau de parfum sprays in a luxury gift box.",
-    description: "Four fan favourites — Honeymoon, Ocean Water, Choco Blast and Sukoon — presented together in a signature gift box.",
-    rating: 4.8, reviews: 0, newArrival: true,
   },
   {
     id: "g-rooh-chandan-duo", slug: "rooh-chandan-duo-gift-set", name: "Rooh Chandan Duo", tagline: "Two bottles, one sacred sandalwood",
@@ -1452,4 +1461,15 @@ export const imageFor = (p: Product, volume?: string) =>
 export const priceFor = (p: Product, volume?: string): { price: number; compareAt?: number } => {
   if (volume && p.priceByVolume?.[volume]) return p.priceByVolume[volume];
   return { price: p.price, compareAt: p.compareAt };
+};
+
+/** Resolves { tagline, description, ingredients } for a given variant, falling back to
+ *  the product's flat fields when that variant has no dedicated entry in contentByVolume. */
+export const contentFor = (p: Product, volume?: string) => {
+  const override = volume ? p.contentByVolume?.[volume] : undefined;
+  return {
+    tagline: override?.tagline ?? p.tagline,
+    description: override?.description ?? p.description,
+    ingredients: override?.ingredients ?? p.ingredients,
+  };
 };
