@@ -222,7 +222,7 @@ export default function Checkout() {
               <span>Total</span><span className="text-gold">{formatINR(total)}</span>
             </div>
             {offerDiscount > 0 && (
-              <p className="text-[11px] text-primary text-right">You save {formatINR(offerDiscount)} with the Friendship Sale 🎉</p>
+              <p className="text-[11px] text-primary text-right">You save {formatINR(offerDiscount)} with the Raksha Bandhan Sale 🎉</p>
             )}
           </div>
           <Button type="submit" variant="luxury" size="xl" className="w-full" disabled={submitting}>

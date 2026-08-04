@@ -10,8 +10,8 @@
 export const FRIENDSHIP_SALE_ACTIVE = true;
 
 /** Pack of 4 (Signature Quad) — every pair of boxes costs PACK_OF_4_PAIR_PRICE. */
-export const PACK_OF_4_ID = "g-signature-quad";
-export const PACK_OF_4_PAIR_PRICE = 1049;
+export const PACK_OF_4_ID = "g-pack-of-4";
+export const PACK_OF_4_PAIR_PRICE = 999;
 
 /** Collector's Edition — buy any 3 (mix & match), cheapest is free. */
 export const COLLECTORS_EDITION_IDS = ["ce-shabd", "ce-kahani", "ce-ehsaas"];
@@ -79,14 +79,14 @@ export function offerForProduct(id: string): { badge: string; headline: string; 
   if (id === PACK_OF_4_ID) {
     return {
       badge: "Buy 1 Get 1 Free",
-      headline: "Friendship Sale · Buy 1 Get 1 Free",
+      headline: "Raksha Bandhan Sale · Buy 1 Get 1 Free",
       detail: `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)}.`,
     };
   }
   if (COLLECTORS_EDITION_IDS.includes(id)) {
     return {
       badge: "Buy 2 Get 1 Free",
-      headline: "Friendship Sale · Buy 2 Get 1 Free",
+      headline: "Raksha Bandhan Sale · Buy 2 Get 1 Free",
       detail: "Mix and match any three across Shabd, Kahani and Ehsaas.",
     };
   }

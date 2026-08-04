@@ -10,8 +10,8 @@
 
 export const FRIENDSHIP_SALE_ACTIVE = true;
 
-export const PACK_OF_4_ID = "g-signature-quad";
-export const PACK_OF_4_PAIR_PRICE = 1049;
+export const PACK_OF_4_ID = "g-pack-of-4";
+export const PACK_OF_4_PAIR_PRICE = 999;
 
 export const COLLECTORS_EDITION_IDS = ["ce-shabd", "ce-kahani", "ce-ehsaas"];
 

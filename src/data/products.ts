@@ -113,15 +113,73 @@ const galleryImagesFor = (productFolder: string, sizeFolder: string): string[] =
     .map((k) => galleryModules[k]);
 };
 
+// Second batch of studio photography, added Aug 2026 in
+// src/assets/new Product Gallery/<Product folder>[/<Size folder>]/ — flat (no size
+// subfolder) for most products; Impression has 50 ml/100 ml subfolders like the older
+// "Product Gallery" batch above. Loaded the same way, via glob.
+const newProductGalleryModules = import.meta.glob(
+  "../assets/new Product Gallery/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+  { eager: true, import: "default" }
+) as Record<string, string>;
+
+// Ordered dark-background-first per an automated brightness analysis of each photo's
+// border region (Aug 2026), same method as GALLERY_ORDER above — so the lead image is
+// always the darkest, most on-theme shot. Two manual overrides on top of pure brightness
+// (Impression/100 ml and /50 ml each had a text-heavy note/profile card that scored
+// darker than an available clean product shot purely because of its near-black
+// background — per the same "lead with the product itself" rule noted in GALLERY_ORDER,
+// the clean shot leads instead and the card sits later in the gallery).
+//
+// NOTE: "Guldasta" was NOT wired in — all 5 photos in that folder actually show bottles
+// labeled "Shahi Chandan" and "Red Rose" (neither exists in the current catalog), not
+// Guldasta. Looks like a mislabeled/misplaced folder from the shoot batch. Flag to Jatin
+// for the correct Guldasta photos; a-guldasta keeps its original single photo for now.
+const NEW_GALLERY_ORDER: Record<string, string[]> = {
+  "Celebrity Attar": ["168.jpg", "172.jpg", "169.jpg", "170.jpg", "171.jpg"],
+  "Chocoblast Attar": ["178.jpg", "179.jpg", "180.jpg", "181.jpg", "182.jpg"],
+  "Impression/100 ml": ["16.png", "15..png", "14.png"],
+  "Impression/50 ml": ["150.jpg", "152.jpg", "151.jpg", "148.jpg", "149.jpg"],
+  "Million Attar": ["173.jpg", "174.jpg", "175.jpg", "177.jpg", "176.jpg"],
+  "Ocean Water": ["complete 5 images set.jpg", "193.jpg", "197.jpg", "194.jpg", "195.jpg", "196.jpg"],
+  "Royal Oud Attar": ["156.jpg", "157.jpg", "154.jpg", "155.jpg", "153.jpg"],
+  "Shahi Gulab Attar": ["159.jpg", "160.jpg", "161.jpg", "158.jpg", "162.jpg"],
+  "Smoke Attar": ["189.jpg", "188.jpg", "191.jpg", "192.jpg", "190.jpg"],
+  "Touch Attar": ["183.jpg", "187.jpg", "184.jpg", "185.jpg", "186.jpg"],
+};
+
+/** Photos under "new Product Gallery/<folder>/" (folder = "Celebrity Attar" for a flat
+ *  product folder, or "Impression/100 ml" for one with size subfolders), ordered per
+ *  NEW_GALLERY_ORDER. Returns [] (never throws) when the folder is missing/renamed. */
+const newGalleryImagesFor = (folder: string): string[] => {
+  const prefix = `../assets/new Product Gallery/${folder}/`;
+  const order = NEW_GALLERY_ORDER[folder];
+  const rank = (filename: string) => {
+    const idx = order?.indexOf(filename) ?? -1;
+    return idx === -1 ? Infinity : idx;
+  };
+  return Object.keys(newProductGalleryModules)
+    .filter((k) => k.startsWith(prefix))
+    .sort((a, b) => {
+      const fa = a.slice(prefix.length);
+      const fb = b.slice(prefix.length);
+      const ra = rank(fa);
+      const rb = rank(fb);
+      if (ra !== rb) return ra - rb;
+      return fa.localeCompare(fb);
+    })
+    .map((k) => newProductGalleryModules[k]);
+};
+
 // New "Pack of 4" / "Pack of 8" gift-box mockups (5 fragrance lineups for the 4-pack,
 // 2 lineups for the 8-pack) live in src/assets/Pack of 4 and 8/<pack>/<variant>/ —
 // added by Jatin directly on disk, one subfolder per lineup. Loaded via glob since
 // filenames inside each folder are arbitrary export names, not a known list.
-// NOTE (Aug 2026): "pack of 4/variant 5" was added as an empty folder — no images were
-// ever dropped in, so it has no product below. "pack of 4/variant 4" is a byte-for-byte
-// duplicate of "variant 3" (same 5 files, same sizes) — treated as a duplicate upload,
-// not a 4th distinct lineup, so only variant 3 got a product. Flag to Jatin if variant 4
-// was meant to be a different lineup and variant 5's photos are still coming.
+// NOTE (Aug 2026): "pack of 4/variant 4" is a byte-for-byte duplicate of "variant 3"
+// (same 5 files, same sizes) — treated as a duplicate upload, not a distinct lineup, so
+// it has no product entry. "pack of 4/variant 5" (added later) turned out to be a
+// reshoot of variant 3's same Honeymoon lineup (identical scents, different photo
+// composition) — its photos replaced variant 3's in the Pack of 4 product below rather
+// than becoming a separate 5th listing.
 const packModules = import.meta.glob(
   "../assets/Pack of 4 and 8/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
   { eager: true, import: "default" }
@@ -152,6 +210,16 @@ const PACK_GALLERY_ORDER: Record<string, string[]> = {
   "pack of 4/variant 3": [
     "ChatGPT Image Jul 24, 2026, 07_07_32 PM.png",
     "ChatGPT Image Jul 24, 2026, 07_22_31 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_36_18 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_42_05 PM.png",
+  ],
+  // Same filenames as variant 3 (same export batch/session) but different photos — a
+  // reshoot of the identical Honeymoon lineup, now used in place of variant 3's photos.
+  // 07_22_31 PM (open box, bottles standing, all 4 labels readable) leads per Jatin's
+  // reference pick — a stronger hero shot than the flat-lay 07_07_32 PM.
+  "pack of 4/variant 5": [
+    "ChatGPT Image Jul 24, 2026, 07_22_31 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_07_32 PM.png",
     "ChatGPT Image Jul 24, 2026, 07_36_18 PM.png",
     "ChatGPT Image Jul 24, 2026, 07_42_05 PM.png",
   ],
@@ -299,12 +367,13 @@ export const products: Product[] = [
     price: 1099, compareAt: 1399, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 1099, compareAt: 1399 }, "50ml": { price: 649, compareAt: 1099 } },
     // impression-3 is the pink/black-cap bottle labeled "50 ml"; impression-real/1/2 are
-    // the silver-cap studio bottle used for 100ml.
-    image: img("impression"),
-    gallery: [img("impression-3"), img("impression-real"), img("impression-1"), img("impression-2")],
+    // the silver-cap studio bottle used for 100ml. New studio photography (Aug 2026,
+    // per size) now leads each list; the originals above are kept as a fallback.
+    image: newGalleryImagesFor("Impression/50 ml")[0] ?? img("impression"),
+    gallery: [...newGalleryImagesFor("Impression/50 ml"), img("impression-3"), img("impression-real"), img("impression-1"), img("impression-2")],
     galleryByVolume: {
-      "50ml": [img("impression-3")],
-      "100ml": [img("impression-real"), img("impression-1"), img("impression-2")],
+      "50ml": [...newGalleryImagesFor("Impression/50 ml"), img("impression-3")],
+      "100ml": [...newGalleryImagesFor("Impression/100 ml"), img("impression-real"), img("impression-1"), img("impression-2")],
     },
     notes: { top: ["Citrus", "Apple"], heart: ["Rose", "Geranium"], base: ["Oud", "Patchouli", "Amber"] },
     longevity: "8 hours", projection: "Moderate",
@@ -409,7 +478,9 @@ export const products: Product[] = [
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "50ml": { price: 499, compareAt: 1799 } },
     featuredVolume: "100ml",
-    image: img("ocean-water"), gallery: [img("ocean-water")],
+    // New studio photography (Aug 2026, 100ml bottle) leads; original photo kept after.
+    image: newGalleryImagesFor("Ocean Water")[0] ?? img("ocean-water"),
+    gallery: [...newGalleryImagesFor("Ocean Water"), img("ocean-water")],
     notes: { top: ["Marine Accord", "Citrus"], heart: ["Sage", "Lavender"], base: ["Driftwood", "Musk"] },
     longevity: "6-8 hours", projection: "Moderate",
     occasions: ["Office", "Casual", "Summer"], moods: ["Fresh", "Energetic"],
@@ -509,7 +580,9 @@ export const products: Product[] = [
   {
     id: "a-royal-oud", slug: "royal-oud", name: "Royal Oud", tagline: "The king of attars",
     price: 899, compareAt: 1199, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-royal-oud"), gallery: [img("attar-royal-oud")],
+    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    image: newGalleryImagesFor("Royal Oud Attar")[0] ?? img("attar-royal-oud"),
+    gallery: [...newGalleryImagesFor("Royal Oud Attar"), img("attar-royal-oud")],
     notes: { top: ["Smoke"], heart: ["Aged Oud", "Agarwood"], base: ["Amber", "Musk", "Resin"] },
     longevity: "14+ hours", projection: "Strong",
     occasions: ["Formal", "Special Occasions", "Winter"], moods: ["Regal", "Mysterious"],
@@ -520,7 +593,9 @@ export const products: Product[] = [
   {
     id: "a-shahi-gulab", slug: "shahi-gulab", name: "Shahi Gulab", tagline: "Royal rose, bottled",
     price: 699, category: "Attar", gender: "Women", volume: ATTAR_VOL,
-    image: img("attar-shahi-gulab-1"), gallery: [img("attar-shahi-gulab-1"), img("attar-shahi-gulab-2")],
+    // New studio photography (Aug 2026) leads; original photos kept after.
+    image: newGalleryImagesFor("Shahi Gulab Attar")[0] ?? img("attar-shahi-gulab-1"),
+    gallery: [...newGalleryImagesFor("Shahi Gulab Attar"), img("attar-shahi-gulab-1"), img("attar-shahi-gulab-2")],
     notes: { top: ["Rose Petals"], heart: ["Turkish Rose", "Saffron"], base: ["Sandalwood", "Musk"] },
     longevity: "10-12 hours", projection: "Intimate",
     occasions: ["Festive", "Daily Wear", "Gifting"], moods: ["Feminine", "Timeless"],
@@ -667,12 +742,15 @@ export const products: Product[] = [
   // choose from — now a single "Pack of 8" product with a variant selector (mirrors how
   // Pack of 4 works below). Kept the original id/slug so the existing bestseller URL
   // keeps working. "Pack of 8/Variant 2" in the shoot folder is a reshoot of the exact
-  // same Signature lineup already live here — per Jatin, kept the original Discovery Set
+  // same Variant 1 lineup already live here — per Jatin, kept the original Discovery Set
   // photos rather than swapping to the reshoot.
+  // Variant labels renamed to "Variant 1"/"Variant 2" (was "Signature"/"Secret Crush") per
+  // Jatin — the descriptive scent list still shows via contentByVolume's tagline/description
+  // right below the picker, so nothing is lost, only the pill/thumbnail caption changed.
   {
     id: "g-discovery", slug: "discovery-set", name: "Pack of 8 Gift Set", tagline: "Pack of 8 — pick your favourite 8-scent lineup",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Signature", "Secret Crush"],
-    featuredVolume: "Signature", variantLabel: "Choose Your Set",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Variant 1", "Variant 2"],
+    featuredVolume: "Variant 1", variantLabel: "Choose Your Set",
     // New mockup shoot (July 2026) — Wild, Smoke, Touch, Temptation, White Musk, Chemistry,
     // Legend, Inayat (8ml each). Confirmed with Jatin as the correct lineup for this set.
     // discovery-set-1 has a white background (clashes with the site's dark theme) so it's
@@ -680,16 +758,16 @@ export const products: Product[] = [
     image: img("discovery-set-2"),
     gallery: [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
     galleryByVolume: {
-      "Signature": [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
-      "Secret Crush": packGalleryFor("Pack of 8/variant 1"),
+      "Variant 1": [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
+      "Variant 2": packGalleryFor("Pack of 8/variant 1"),
     },
     contentByVolume: {
-      "Signature": {
+      "Variant 1": {
         tagline: "Eight scents, one box",
         description: "Eight of our most-loved fragrances in a beautiful gift box — the perfect way to discover your signature or gift someone the whole world of Itrawala.",
         ingredients: "Eight 2ml premium fragrance testers in a luxury gift box.",
       },
-      "Secret Crush": {
+      "Variant 2": {
         tagline: "Pack of 8 — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity & Choco Blast, 8ml each",
         description: "Eight fan favourites — Secret Crush, Impression, Sukoon, Honeymoon, Feel Good, Ocean Water, Celebrity and Choco Blast — presented together in a signature gift box.",
         ingredients: "Eight 8ml premium eau de parfum sprays in a luxury gift box.",
@@ -959,14 +1037,20 @@ export const products: Product[] = [
   // ─────────────── NEW GIFT SETS (added from price sheet import) ───────────────
   // Merged Aug 2026: this was four separate listings (Signature/Legend/Secret Crush/
   // Honeymoon Quad Gift Sets) for what is really one product with four fragrance lineups
-  // to choose from — now a single "Pack of 4" product with a variant selector. A 5th
-  // lineup ("pack of 4/variant 5") was planned but its photo folder was left empty and no
-  // scent list was ever assigned to it — add it here once Jatin sends both (variant 4's
-  // folder was a byte-for-byte duplicate of variant 3, so it was never a real 5th option).
+  // to choose from — now a single "Pack of 4" product with a variant selector. Variant
+  // labels renamed to "Variant 1".."Variant 4" (was Signature/Legend/Secret Crush/
+  // Honeymoon) per Jatin — the descriptive scent list still shows via contentByVolume's
+  // tagline/description right below the picker, so nothing is lost, only the
+  // pill/thumbnail caption changed.
+  // "pack of 4/variant 5" turned out to be a reshoot of the same Honeymoon lineup
+  // (identical 4 scents, different flat-lay composition) — per Jatin, swapped Variant 4's
+  // gallery to these newer photos rather than listing it as a separate 5th option
+  // ("variant 4" folder was a byte-for-byte duplicate of variant 3, so it was never a
+  // real distinct lineup either — still just these 4 total).
   {
     id: "g-pack-of-4", slug: "pack-of-4-gift-set", name: "Pack of 4 Gift Set", tagline: "Pack of 4 — pick your favourite fragrance lineup, 20ml each",
-    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Signature", "Legend", "Secret Crush", "Honeymoon"],
-    featuredVolume: "Signature", variantLabel: "Choose Your Set",
+    price: 699, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Variant 1", "Variant 2", "Variant 3", "Variant 4"],
+    featuredVolume: "Variant 1", variantLabel: "Choose Your Set",
     image: img("giftset-signature-quad"),
     gallery: [
       img("giftset-signature-quad"),
@@ -976,31 +1060,31 @@ export const products: Product[] = [
       img("giftset-signature-quad-lifestyle"),
     ],
     galleryByVolume: {
-      "Signature": [
+      "Variant 1": [
         img("giftset-signature-quad"),
         img("giftset-signature-quad-2"),
         img("giftset-signature-quad-4"),
         img("giftset-signature-quad-3"),
         img("giftset-signature-quad-lifestyle"),
       ],
-      "Legend": packGalleryFor("pack of 4/variant 1"),
-      "Secret Crush": packGalleryFor("pack of 4/variant 2"),
-      "Honeymoon": packGalleryFor("pack of 4/variant 3"),
+      "Variant 2": packGalleryFor("pack of 4/variant 1"),
+      "Variant 3": packGalleryFor("pack of 4/variant 2"),
+      "Variant 4": packGalleryFor("pack of 4/variant 5"),
     },
     contentByVolume: {
-      "Signature": {
+      "Variant 1": {
         tagline: "Pack of 4 — Touch, Wild, Temptation & Smoke, 20ml each",
         description: "Four of our most-loved fragrances — Touch, Wild, Temptation and Smoke — presented together in a signature gift box.",
       },
-      "Legend": {
+      "Variant 2": {
         tagline: "Pack of 4 — Legend, Sukoon, Choco Blast & Ocean Water, 20ml each",
         description: "Four fan favourites — Legend, Sukoon, Choco Blast and Ocean Water — presented together in a signature gift box.",
       },
-      "Secret Crush": {
+      "Variant 3": {
         tagline: "Pack of 4 — Secret Crush, Valentine, Chemistry & White Musk, 20ml each",
         description: "A romantic quartet — Secret Crush, Valentine, Chemistry and White Musk — presented together in a signature gift box.",
       },
-      "Honeymoon": {
+      "Variant 4": {
         tagline: "Pack of 4 — Honeymoon, Ocean Water, Choco Blast & Sukoon, 20ml each",
         description: "Four fan favourites — Honeymoon, Ocean Water, Choco Blast and Sukoon — presented together in a signature gift box.",
       },
@@ -1151,7 +1235,9 @@ export const products: Product[] = [
   {
     id: "a-celebrity", slug: "celebrity-attar", name: "Celebrity Attar", tagline: "Discover this fragrance",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-celebrity"), gallery: [img("attar-celebrity")],
+    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    image: newGalleryImagesFor("Celebrity Attar")[0] ?? img("attar-celebrity"),
+    gallery: [...newGalleryImagesFor("Celebrity Attar"), img("attar-celebrity")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1210,7 +1296,9 @@ export const products: Product[] = [
   {
     id: "a-choco-blast", slug: "choco-blast-attar", name: "Choco Blast Attar", tagline: "Discover this fragrance",
     price: 599, compareAt: 999, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-choco-blast"), gallery: [img("attar-choco-blast")],
+    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    image: newGalleryImagesFor("Chocoblast Attar")[0] ?? img("attar-choco-blast"),
+    gallery: [...newGalleryImagesFor("Chocoblast Attar"), img("attar-choco-blast")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1269,7 +1357,9 @@ export const products: Product[] = [
   {
     id: "a-million", slug: "million-attar", name: "Million Attar", tagline: "Discover this fragrance",
     price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-million"), gallery: [img("attar-million")],
+    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    image: newGalleryImagesFor("Million Attar")[0] ?? img("attar-million"),
+    gallery: [...newGalleryImagesFor("Million Attar"), img("attar-million")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1351,7 +1441,9 @@ export const products: Product[] = [
   {
     id: "a-smoke", slug: "smoke-attar", name: "Smoke Attar", tagline: "Discover this fragrance",
     price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-smoke"), gallery: [img("attar-smoke")],
+    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    image: newGalleryImagesFor("Smoke Attar")[0] ?? img("attar-smoke"),
+    gallery: [...newGalleryImagesFor("Smoke Attar"), img("attar-smoke")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1373,7 +1465,9 @@ export const products: Product[] = [
   {
     id: "a-touch", slug: "touch-attar", name: "Touch Attar", tagline: "Discover this fragrance",
     price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-touch"), gallery: [img("attar-touch")],
+    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    image: newGalleryImagesFor("Touch Attar")[0] ?? img("attar-touch"),
+    gallery: [...newGalleryImagesFor("Touch Attar"), img("attar-touch")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],

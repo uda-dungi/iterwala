@@ -65,7 +65,7 @@ const BEST_SELLER_MOBILE_EXTRA_SLUGS = ["oud-wood", "legend"];
 // Curated for the "Luxury Gift Boxes" section — lead with the pack-of-4 signature
 // quad, alongside a pack-of-2 attar duo (per request), instead of whichever two gift
 // sets happen to be first in the catalog array.
-const LUXURY_GIFT_SLUGS = ["signature-quad-gift-set", "attar-duo-gift-set"];
+const LUXURY_GIFT_SLUGS = ["pack-of-4-gift-set", "attar-duo-gift-set"];
 
 // Amazon's Choice feature — Touch at its 50ml size (per request).
 const AMAZON_PICK_SLUG = "touch";

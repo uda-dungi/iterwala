@@ -71,7 +71,7 @@ export function CartDrawer() {
                 )}
                 {offerDiscount > 0 && (
                   <div className="flex justify-between text-sm text-primary">
-                    <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Friendship Sale</span>
+                    <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Raksha Bandhan Sale</span>
                     <span>− {formatINR(offerDiscount)}</span>
                   </div>
                 )}

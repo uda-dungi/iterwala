@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
 import banner3 from "@/assets/brand/banner-4-collectors.png";
-import promoCollectors from "@/assets/brand/promo-collectors-trilogy.png";
+import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
+import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
 import mobileBannerMain from "@/assets/brand/mobile-banner-main.jpg";
-import mobileBannerCollectors from "@/assets/brand/mobile banner 08 .png";
+import mobileBannerCollectors from "@/assets/brand/mobile-banner-collectors.jpg";
+import mobileBannerPack4 from "@/assets/brand/mobile-banner-pack4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
@@ -36,11 +38,19 @@ type Slide = {
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
 const slides: Slide[] = [
-  // Collector's Edition Buy 2 Get 1 offer banner — placed first so the live offer shows
-  // on load. (Eyebrow reworded off "Friendship Day" branding — sale campaign moved on.)
+  // Raksha Bandhan Sale promo banners — placed first so the live offers show on load.
+  // (Aug 2026 redesign: new banners with the current ₹999 Pack of 4 price baked in.)
+  {
+    image: promoPack4,
+    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
+    title: "The Pack of 4",
+    highlight: "Buy 1 Get 1 Free",
+    copy: "Four signature 20ml eau de parfums in a keepsake gift box — add two and pay just ₹999 for both. The perfect Raksha Bandhan gift.",
+    cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" },
+  },
   {
     image: promoCollectors,
-    eyebrow: "Limited Time Offer",
+    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
     title: "Collector's Edition",
     highlight: "Buy 2 Get 1 Free",
     copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
@@ -78,8 +88,9 @@ const slides: Slide[] = [
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
 const mobileSlides: MobileSlide[] = [
-  // Proper portrait mobile banner for the Collector's Edition offer — full-bleed
-  // (object-cover), replacing the letterboxed landscape promoCollectors on mobile.
+  // Raksha Bandhan Sale mobile banners (Aug 2026 redesign — ₹999 Pack of 4 price baked
+  // into the artwork). Portrait, full-bleed (object-cover).
+  { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
   { image: mobileBannerCollectors, alt: "The Collector's Edition Trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "cover", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "cover", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
