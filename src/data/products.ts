@@ -62,7 +62,7 @@ const GALLERY_ORDER: Record<string, string[]> = {
   "Poetry/50 ml": ["ChatGPT Image Jul 6, 2026, 08_15_56 PM.png", "Jul 4, 2026, 04_29_04 PM.png", "3-1-768x768.png", "Gemini_Generated_Image_n7wn2en7wn2en7wn.png"],
   "Rebel/100 ml": ["rebel-hero-crop.png", "Gemini_Generated_Image_pwy2vnpwy2vnpwy2.png", "Untitled design.jpg", "6-768x768.png", "4.png"],
   "Rebel/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_12 PM.png", "ChatGPT Image Jul 4, 2026, 04_37_27 PM.png", "7-768x768.png", "Untitled design (3).png"],
-  "Rose Petel/100 ml": ["89.png", "90.png", "88.png", "87.png", "86.png"],
+  "Rose Petel/100 ml": ["88.png", "90.png", "89.png", "87.png", "86.png"],
   "Rose Petel/20 ml": ["99.png", "98.png", "100.png", "97.png", "96.png"],
   "Rose Petel/50 ml": ["94.png", "91.png", "92.png", "93.png", "95.png"],
   "Sukoon/100 ml": ["54.png", "55.png", "53.png", "56.png", "52.png"],
