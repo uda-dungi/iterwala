@@ -1,6 +1,7 @@
 import { verifyPayuResponseHash } from "../_lib/payu.js";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { sendOrderConfirmationEmail } from "../_lib/email.js";
+import { sendCapiEvent, extractRequestSignals } from "../_lib/metaCapi.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -70,13 +71,13 @@ export default async function handler(req: any, res: any) {
             updated_at: new Date().toISOString(),
           })
           .eq("txnid", txnid)
-          .select("email, name, items, total")
+          .select("email, phone, name, items, total")
           .maybeSingle();
 
         // Awaited (not fire-and-forget): serverless functions can be frozen/killed the
         // moment the response is sent, so a detached promise here might never actually
-        // send. sendOrderConfirmationEmail() swallows its own errors and no-ops if
-        // Resend isn't configured, so this never throws or blocks the redirect for long.
+        // send. sendOrderConfirmationEmail() and sendCapiEvent() both swallow their own
+        // errors and no-op if unconfigured, so neither throws or blocks the redirect.
         if (paid && updated?.email) {
           await sendOrderConfirmationEmail({
             email: updated.email,
@@ -84,6 +85,26 @@ export default async function handler(req: any, res: any) {
             txnid,
             items: Array.isArray(updated.items) ? updated.items : [],
             total: Number(updated.total) || 0,
+          });
+
+          // Meta Conversions API — the server-verified Purchase, sent with the same
+          // txnid as the browser Pixel's eventID (src/lib/pixel.ts trackPurchase) so
+          // Meta de-dupes the two into one conversion. This is the copy that still
+          // lands when the shopper's browser blocks the direct call to Facebook.
+          const items = Array.isArray(updated.items) ? updated.items : [];
+          await sendCapiEvent({
+            eventName: "Purchase",
+            eventId: txnid,
+            eventSourceUrl: `${origin}/order/success?txnid=${encodeURIComponent(txnid)}`,
+            user: { email: updated.email, phone: updated.phone ?? undefined, ...extractRequestSignals(req) },
+            customData: {
+              content_ids: items.map((i: any) => i.id),
+              contents: items.map((i: any) => ({ id: i.id, quantity: i.qty, item_price: i.price })),
+              content_type: "product",
+              num_items: items.reduce((s: number, i: any) => s + (Number(i.qty) || 0), 0),
+              value: Number(updated.total) || 0,
+              currency: "INR",
+            },
           });
         }
       }

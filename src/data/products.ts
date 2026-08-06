@@ -135,7 +135,7 @@ const newProductGalleryModules = import.meta.glob(
 // Guldasta. Looks like a mislabeled/misplaced folder from the shoot batch. Flag to Jatin
 // for the correct Guldasta photos; a-guldasta keeps its original single photo for now.
 const NEW_GALLERY_ORDER: Record<string, string[]> = {
-  "Celebrity Attar": ["168.jpg", "172.jpg", "169.jpg", "170.jpg", "171.jpg"],
+  "Celebrity Attar": ["168.jpg", "172.jpg", "169.jpg", "170.jpg"],
   "Chocoblast Attar": ["178.jpg", "179.jpg", "180.jpg", "181.jpg", "182.jpg"],
   "Impression/100 ml": ["16.png", "15..png", "14.png"],
   "Impression/50 ml": ["150.jpg", "152.jpg", "151.jpg", "148.jpg", "149.jpg"],
