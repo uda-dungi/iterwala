@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShopProvider } from "@/store/shop";
 import { AuthProvider } from "@/store/auth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PixelPageView } from "@/components/analytics/PixelPageView";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import Index from "./pages/Index";
@@ -39,6 +40,8 @@ const App = () => (
         toastOptions={{ className: "!bg-card !text-ivory !border-border" }}
       />
       <BrowserRouter>
+        {/* Meta PageView on every client-side route change (SPA) */}
+        <PixelPageView />
         <AuthProvider>
           <ShopProvider>
             <ErrorBoundary>

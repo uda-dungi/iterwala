@@ -5,6 +5,7 @@ import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, L
 import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor, contentFor } from "@/data/products";
 import { seedReviewsFor } from "@/data/reviews";
 import { offerForProduct } from "@/lib/offers";
+import { trackViewContent } from "@/lib/pixel";
 import { CollectorStory } from "@/components/product/CollectorStory";
 import { collectorStories } from "@/data/collectorStories";
 import { useShop, formatINR } from "@/store/shop";
@@ -45,6 +46,14 @@ export default function ProductDetail() {
       // /product/:slug navigations, so without this every product kept showing
       // whichever product's reviews were seeded first.
       setReviews(seedReviewsFor(product));
+      // Meta ViewContent — keyed on product id so it re-fires when the shopper
+      // moves between products without the page remounting.
+      trackViewContent({
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        price: priceFor(product, listingVolume(product)).price,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);

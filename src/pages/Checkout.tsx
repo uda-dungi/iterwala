@@ -1,8 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
+import { trackInitiateCheckout } from "@/lib/pixel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,19 @@ export default function Checkout() {
   const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
   const shipping = 0; // Free shipping on all orders.
   const total = discountedSubtotal + shipping + (gift ? GIFT_FEE : 0);
+
+  // Meta InitiateCheckout — fires once when the shopper reaches checkout with a
+  // non-empty bag (Meta's definition: entering the checkout flow, not completing it).
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || cart.length === 0) return;
+    checkoutTracked.current = true;
+    trackInitiateCheckout({
+      items: cart.map(({ product, qty, volume }) => ({ id: product.id, qty, price: priceFor(product, volume).price })),
+      value: total,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cart.length]);
 
   const setField = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));

@@ -55,6 +55,9 @@ export const site = {
   heroVideoUrl: (env.VITE_HERO_VIDEO_URL as string) || "",
   /** PayU merchant key (public half — the salt stays server-side only). When set, checkout is live. */
   payuMerchantKey: (env.VITE_PAYU_MERCHANT_KEY as string) || "",
+  /** Meta (Facebook) Pixel ID — Events Manager → Data Sources → your pixel. Blank =
+   *  tracking fully off (no script loaded, no events). See src/lib/pixel.ts. */
+  metaPixelId: (env.VITE_META_PIXEL_ID as string) || "",
 
   // ── Commerce rules ──
   freeShippingThreshold: 499,

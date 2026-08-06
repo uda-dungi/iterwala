@@ -4,8 +4,9 @@ import { CheckCircle2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatINR } from "@/store/shop";
 import { site } from "@/config/site";
+import { trackPurchase } from "@/lib/pixel";
 
-type LastOrder = { txnid: string; items: { name: string; price: number; qty: number }[]; total: number; email: string };
+type LastOrder = { txnid: string; items: { id: string; name: string; price: number; qty: number }[]; total: number; email: string };
 
 export default function OrderSuccess() {
   const [params] = useSearchParams();
@@ -20,6 +21,14 @@ export default function OrderSuccess() {
       if (!txnid || parsed.txnid === txnid) {
         setOrder(parsed);
         sessionStorage.removeItem("itr_last_order");
+        // Meta Purchase — the conversion Meta optimises ad delivery on. Uses the
+        // real amount charged, and trackPurchase() de-dupes on txnid so a refresh
+        // or back-navigation can't report the same sale twice.
+        trackPurchase({
+          txnid: parsed.txnid,
+          items: (parsed.items || []).map(i => ({ id: i.id, qty: i.qty, price: i.price })),
+          value: parsed.total,
+        });
       }
     } catch { /* ignore */ }
   }, [txnid]);

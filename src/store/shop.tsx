@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { Product, priceFor, listingVolume } from "@/data/products";
 import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
+import { trackAddToCart } from "@/lib/pixel";
 
 type CartItem = { product: Product; qty: number; volume: string };
 /** A cart line is identified by product + size, so 50ml and 100ml of the same fragrance
@@ -52,6 +53,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       return [...prev, { product: p, qty, volume: vol }];
     });
     setCartOpen(true);
+    // Tracked here rather than at each button, so every add-to-cart entry point
+    // (shop card, product page, sticky mobile CTA) reports without duplication.
+    trackAddToCart({ id: p.id, name: p.name, category: p.category, price: priceFor(p, vol).price, qty });
   };
   const removeFromCart = (id: string, volume: string) =>
     setCart(prev => prev.filter(i => lineKey(i.product.id, i.volume) !== lineKey(id, volume)));
