@@ -9,9 +9,9 @@ import banner2 from "@/assets/brand/banner-2.jpg";
 import banner3 from "@/assets/brand/banner-4-collectors.png";
 import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
-import mobileBannerMain from "@/assets/brand/mobile-banner-main.jpg";
+import mobileBannerMain from "@/assets/brand/raksha-bandhan-trilogy-mobile.png";
 import mobileBannerCollectors from "@/assets/brand/mobile-banner-collectors.jpg";
-import mobileBannerPack4 from "@/assets/brand/mobile-banner-pack4.jpg";
+import mobileBannerPack4 from "@/assets/brand/raksha-bandhan-pack-of-4-mobile.png";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
