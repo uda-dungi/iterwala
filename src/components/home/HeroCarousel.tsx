@@ -10,8 +10,8 @@ import banner3 from "@/assets/brand/banner-4-collectors.jpg";
 import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
 import mobileBannerMain from "@/assets/brand/raksha-bandhan-trilogy-mobile.jpg";
-import mobileBannerCollectors from "@/assets/brand/mobile-banner-collectors.jpg";
-import mobileBannerPack4 from "@/assets/brand/raksha-bandhan-pack-of-4-mobile.jpg";
+import mobileBannerCollectors from "@/assets/brand/mobile-offer-collectors.jpg";
+import mobileBannerPack4 from "@/assets/brand/mobile-offer-pack-of-4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
@@ -88,13 +88,17 @@ const slides: Slide[] = [
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
 const mobileSlides: MobileSlide[] = [
-  // Raksha Bandhan Sale mobile banners (Aug 2026 redesign — ₹999 Pack of 4 price baked
-  // into the artwork). Portrait, full-bleed (object-cover).
+  // Raksha Bandhan Sale banners — shot at 9:16, exactly the carousel's aspect below, so
+  // object-cover shows them edge to edge with nothing cropped. The offer headline and
+  // price sit near the top of the artwork, which is precisely what a shorter frame used
+  // to cut off.
   { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
-  { image: mobileBannerCollectors, alt: "The Collector's Edition Trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
-  { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "cover", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
-  { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "cover", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
-  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
+  { image: mobileBannerCollectors, alt: "Raksha Bandhan Sale — Collector's Edition Trilogy, Buy 2 Get 1 Free", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
+  // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
+  // side and cut their baked-in text, so these letterbox instead.
+  { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
+  { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
+  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "contain", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
 ];
 
 export function HeroCarousel() {
@@ -152,11 +156,14 @@ export function HeroCarousel() {
         into the artwork, so every slide is just the photo with a per-slide CTA
         pinned near the bottom, no text overlay. Desktop keeps its separate 3-up
         carousel below (hidden on this breakpoint). */}
-    <section className="sm:hidden relative overflow-hidden min-h-[600px] noise-overlay">
+    {/* aspect-[9/16] matches the promo artwork exactly, so the offer headline and price
+        at the top of each banner are never cropped — a fixed 600px height was shorter
+        than 9:16 on most phones and sliced them off. */}
+    <section className="sm:hidden relative overflow-hidden aspect-[9/16] noise-overlay">
       <div className="overflow-hidden h-full" ref={mEmblaRef}>
         <div className="flex h-full">
           {mobileSlides.map((s, i) => (
-            <div key={s.image} className="relative flex-[0_0_100%] min-h-[600px] flex items-end justify-center pb-14 px-6" aria-hidden={mSelected !== i}>
+            <div key={s.image} className="relative flex-[0_0_100%] h-full flex items-end justify-center pb-14 px-6" aria-hidden={mSelected !== i}>
               <img
                 src={s.image}
                 alt={s.alt}
