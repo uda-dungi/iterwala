@@ -78,6 +78,14 @@ export default async function handler(req: any, res: any) {
         // moment the response is sent, so a detached promise here might never actually
         // send. sendOrderConfirmationEmail() and sendCapiEvent() both swallow their own
         // errors and no-op if unconfigured, so neither throws or blocks the redirect.
+        // Assign the sequential GST invoice number now that the payment is confirmed —
+        // never for failed orders, since GST numbering must not have gaps for sales that
+        // never happened. The RPC is idempotent, so a repeated PayU callback is harmless.
+        if (paid) {
+          const { error: invoiceError } = await admin.rpc("assign_invoice_number", { p_txnid: txnid });
+          if (invoiceError) console.error("payu/callback: invoice number assignment failed", invoiceError.message);
+        }
+
         if (paid && updated?.email) {
           await sendOrderConfirmationEmail({
             email: updated.email,

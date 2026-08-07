@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Database, Mail, Package, ShieldCheck } from "lucide-react";
+import { Loader2, Database, Mail, Package, ShieldCheck, FileDown } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
 import { site } from "@/config/site";
+import { toast } from "sonner";
 
 type OrderRow = {
   id: string;
@@ -23,6 +24,8 @@ type OrderRow = {
   status: string;
   payu_txn_id: string | null;
   payu_mode: string | null;
+  invoice_no: string | null;
+  invoice_date: string | null;
 };
 
 export default function AdminOrders() {
@@ -67,6 +70,39 @@ export default function AdminOrders() {
     setLoading(true);
     fetchOrders().finally(() => setLoading(false));
   }, [user, fetchOrders]);
+
+  // The invoice endpoint is admin-authenticated, so a plain <a href> won't work — it
+  // can't carry the bearer token. Fetch it, then hand the browser a blob to save.
+  const [downloading, setDownloading] = useState<string | null>(null);
+  const downloadInvoice = async (order: OrderRow) => {
+    const token = session?.access_token;
+    if (!token) { toast.error("Session expired. Please sign in again."); return; }
+    setDownloading(order.txnid);
+    try {
+      const res = await fetch(`/api/admin/invoice?txnid=${encodeURIComponent(order.txnid)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        // Errors come back as JSON even though the success path is a PDF.
+        const msg = await res.json().catch(() => ({}));
+        toast.error(msg.error || `Could not generate invoice (${res.status}).`);
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${(order.invoice_no || order.txnid).replace(/[^A-Za-z0-9._-]/g, "-")}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Network error while downloading the invoice.");
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -114,6 +150,25 @@ export default function AdminOrders() {
                 <div>
                   <p className="text-sm text-muted-foreground">Order ID</p>
                   <p className="font-serif text-lg text-ivory">{order.txnid}</p>
+                  {order.invoice_no && (
+                    <p className="text-xs text-primary mt-1">Invoice: {order.invoice_no}</p>
+                  )}
+                  {/* A tax invoice only exists for a completed sale, so the button is
+                      hidden entirely on pending/failed orders rather than erroring. */}
+                  {order.status === "paid" && (
+                    <Button
+                      variant="outline-gold"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => downloadInvoice(order)}
+                      disabled={downloading === order.txnid}
+                    >
+                      {downloading === order.txnid
+                        ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        : <FileDown className="w-4 h-4 mr-2" />}
+                      {downloading === order.txnid ? "Preparing…" : "Download Invoice"}
+                    </Button>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <Stat icon={Database} label="Amount" value={formatINR(order.total)} />

@@ -51,7 +51,7 @@ export default async function handler(req: any, res: any) {
 
   const { data, error } = await admin
     .from("orders")
-    .select(`id, txnid, created_at, updated_at, user_id, email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id, payu_mode`)
+    .select(`id, txnid, created_at, updated_at, user_id, email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id, payu_mode, invoice_no, invoice_date`)
     .order("created_at", { ascending: false });
 
   if (error) {

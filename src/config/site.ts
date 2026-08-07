@@ -34,7 +34,9 @@ export const site = {
 
   // ── Business / legal (shown in footer, policies, trust sections) ──
   // Defaults below match the registered business (itrawala.in) — override via env if it ever changes.
-  gst: (env.VITE_GST as string) || "A08ALPPM3755J",
+  // 15-character GSTIN (state 08 = Rajasthan). Printed on the GST tax invoice, so it
+  // must stay exactly correct — api/admin/invoice.ts warns if it ever fails validation.
+  gst: (env.VITE_GST as string) || "08ALPPM3755J1ZI",
   address:
     (env.VITE_BUSINESS_ADDRESS as string) ||
     "Near Agarwal Jain Mandir, 08, Main Market, Sadar Bazar, Deoli, Tonk, Rajasthan, 304804",
