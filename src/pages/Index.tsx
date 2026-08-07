@@ -12,7 +12,7 @@ import { OrganizationSchema } from "@/components/seo/Schema";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { LazyReelVideo } from "@/components/home/LazyReelVideo";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
-import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, listingVolume, type Product } from "@/data/products";
+import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, listingVolume, NEW_LAUNCH_SLUGS, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
@@ -72,21 +72,15 @@ const LUXURY_GIFT_SLUGS = ["pack-of-4-gift-set", "attar-duo-gift-set"];
 const AMAZON_PICK_SLUG = "touch";
 const AMAZON_PICK_VOLUME = "50ml";
 
-// Curated for the homepage "New Arrivals" strip (per request) — swap slugs here any
-// time the featured launches change, instead of relying on the newArrival flag (which
-// stays on the products themselves for the Shop page's "Sort: Newest" option).
-// Now a mix of attars and perfumes, so the section copy is no longer attar-specific.
-const NEW_ARRIVAL_SLUGS = [
-  "rooh-chandan", "jannat-firdaus", "amber", "shahi-gulab",
-  "aura", "poetry", "wanted", "rebel",
-];
+// The curated line-up now lives in src/data/products.ts as NEW_LAUNCH_SLUGS, shared with
+// the shop's "New Launch" category filter so the two can never drift apart.
 
 export default function Index() {
   const bestSellers = BEST_SELLER_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const bestSellersMobileExtra = BEST_SELLER_MOBILE_EXTRA_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const bestSellersMobile = [...bestSellers, ...bestSellersMobileExtra];
   const attars = products.filter(p => p.category === "Attar");
-  const newArrivals = NEW_ARRIVAL_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
+  const newArrivals = NEW_LAUNCH_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const giftSets = LUXURY_GIFT_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const amazonPick = getProduct(AMAZON_PICK_SLUG) ?? amazonChoiceProducts[0] ?? products[0];
   const amazonPickPrice = priceFor(amazonPick, AMAZON_PICK_VOLUME).price;
@@ -182,17 +176,24 @@ export default function Index() {
         </div>
       </Section>
 
-      {/* NEW ARRIVALS — attars and perfumes (see NEW_ARRIVAL_SLUGS) */}
+      {/* NEW ARRIVALS — a teaser of the first 4 from NEW_LAUNCH_SLUGS (data/products.ts).
+          The full line-up lives behind the shop's "New Launch" category filter, which
+          reads the same list, so the two never drift apart. */}
       <Section eyebrow="The Maison" title="New Arrivals" subtitle="Fresh from our Kannauj perfumers — the latest attars and perfumes to join the collection.">
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newArrivals.slice(0, 8).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          {newArrivals.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
         <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
-          {newArrivals.slice(0, 8).map((p, i) => (
+          {newArrivals.slice(0, 4).map((p, i) => (
             <div key={p.id} className="min-w-[46%] snap-start">
               <ProductCard product={p} index={i} />
             </div>
           ))}
+        </div>
+        <div className="text-center mt-8">
+          <Button asChild variant="outline-gold" size="lg">
+            <Link to="/shop?category=New Launch">View All New Launches</Link>
+          </Button>
         </div>
       </Section>
 

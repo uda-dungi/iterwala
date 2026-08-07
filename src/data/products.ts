@@ -330,6 +330,21 @@ export const collections = [
   },
 ] as const;
 
+/**
+ * The curated "New Launches" line-up — shown on the homepage New Arrivals strip AND
+ * behind the shop's "New Launch" category filter, so both always agree.
+ *
+ * Deliberately a hand-picked list rather than the `newArrival` flag: that flag is set on
+ * 58 of 79 products, so filtering by it returns ~73% of the catalogue and tells a shopper
+ * nothing. The flag still drives the shop's "Sort: Newest" ordering.
+ *
+ * Edit this list whenever the featured launches change.
+ */
+export const NEW_LAUNCH_SLUGS = [
+  "rooh-chandan", "jannat-firdaus", "amber", "shahi-gulab",
+  "aura", "poetry", "wanted", "rebel",
+] as const;
+
 const PERFUME_VOL = ["50ml", "100ml"];
 // Eight perfumes also sell a 20ml travel size (per "New Price sheet .xlsx"). They already
 // carried a 20ml entry in priceByVolume, but 20ml was missing from their volume array, so
@@ -1237,9 +1252,11 @@ export const products: Product[] = [
   {
     id: "a-celebrity", slug: "celebrity-attar", name: "Celebrity Attar", tagline: "Discover this fragrance",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    // New studio photography (Aug 2026) leads. The old pre-photoshoot fallback shot
+    // used to be appended as a 6th gallery image — dropped per Jatin, since the 5 new
+    // studio photos fully replace it and it read as a redundant, lower-quality repeat.
     image: newGalleryImagesFor("Celebrity Attar")[0] ?? img("attar-celebrity"),
-    gallery: [...newGalleryImagesFor("Celebrity Attar"), img("attar-celebrity")],
+    gallery: newGalleryImagesFor("Celebrity Attar").length ? newGalleryImagesFor("Celebrity Attar") : [img("attar-celebrity")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1467,9 +1484,11 @@ export const products: Product[] = [
   {
     id: "a-touch", slug: "touch-attar", name: "Touch Attar", tagline: "Discover this fragrance",
     price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    // New studio photography (Aug 2026) leads; original photo kept as a fallback shot.
+    // New studio photography (Aug 2026) leads. The old pre-photoshoot fallback shot
+    // used to be appended as a 6th gallery image — dropped per Jatin, since the 5 new
+    // studio photos fully replace it and it read as a redundant, lower-quality repeat.
     image: newGalleryImagesFor("Touch Attar")[0] ?? img("attar-touch"),
-    gallery: [...newGalleryImagesFor("Touch Attar"), img("attar-touch")],
+    gallery: newGalleryImagesFor("Touch Attar").length ? newGalleryImagesFor("Touch Attar") : [img("attar-touch")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],

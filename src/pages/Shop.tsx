@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Filter, X } from "lucide-react";
-import { products, priceFor, listingVolume } from "@/data/products";
+import { products, priceFor, listingVolume, NEW_LAUNCH_SLUGS } from "@/data/products";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,11 +96,12 @@ export default function Shop() {
 
     // "New Launch" is a virtual category: no product carries it as its `category`
     // (they're all Perfume/Attar/Gift Set/Collector's Edition), so matching on the
-    // category string returned an empty grid. It's backed by the `newArrival` flag
-    // instead — the same flag the navbar's "New Launches" link sorts by.
+    // category string returned an empty grid. It maps to the same curated line-up the
+    // homepage New Arrivals strip shows — NOT the `newArrival` flag, which is set on 58
+    // of 79 products and would hand back most of the catalogue.
     const matchesCategory = (p: typeof products[number]) => {
       if (!selectedCategory) return true;
-      if (selectedCategory === "New Launch") return Boolean(p.newArrival);
+      if (selectedCategory === "New Launch") return (NEW_LAUNCH_SLUGS as readonly string[]).includes(p.slug);
       return p.category === selectedCategory;
     };
 
