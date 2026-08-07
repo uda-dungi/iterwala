@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -8,25 +9,32 @@ import { AuthProvider } from "@/store/auth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PixelPageView } from "@/components/analytics/PixelPageView";
 import { PublicLayout } from "@/components/layout/PublicLayout";
-import { AdminLayout } from "@/components/layout/AdminLayout";
+
+// The core shopping funnel stays in the main bundle — these are the pages a shopper
+// hits first and most, so a loading flash here would cost more than the bytes save.
 import Index from "./pages/Index";
 import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
-import OrderSuccess from "./pages/OrderSuccess";
-import OrderFailed from "./pages/OrderFailed";
-import Wishlist from "./pages/Wishlist";
-import Orders from "./pages/Orders";
-import Auth from "./pages/Auth";
-import AdminOrders from "./pages/AdminOrders";
-import AdminLogin from "./pages/AdminLogin";
-import Quiz from "./pages/Quiz";
-import Wholesale from "./pages/Wholesale";
-import Policy from "./pages/Policy";
-import NotFound from "./pages/NotFound";
+
+// Everything else is code-split: secondary pages and the whole admin area download
+// only when someone actually navigates there, instead of being parsed by every
+// shopper on first paint.
+const AdminLayout = lazy(() => import("@/components/layout/AdminLayout").then(m => ({ default: m.AdminLayout })));
+const About = lazy(() => import("./pages/About"));
+const Contact = lazy(() => import("./pages/Contact"));
+const OrderSuccess = lazy(() => import("./pages/OrderSuccess"));
+const OrderFailed = lazy(() => import("./pages/OrderFailed"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
+const Orders = lazy(() => import("./pages/Orders"));
+const Auth = lazy(() => import("./pages/Auth"));
+const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const Quiz = lazy(() => import("./pages/Quiz"));
+const Wholesale = lazy(() => import("./pages/Wholesale"));
+const Policy = lazy(() => import("./pages/Policy"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -45,6 +53,10 @@ const App = () => (
         <AuthProvider>
           <ShopProvider>
             <ErrorBoundary>
+              {/* Fallback for the code-split routes above. Deliberately minimal — the
+                  chunks are small and usually arrive in a frame or two, so a spinner
+                  would flash more than it would reassure. */}
+              <Suspense fallback={<div className="min-h-screen bg-background" />}>
               <Routes>
                 {/* Admin area — no storefront navbar, footer, cart, or marketing overlays */}
                 <Route path="/admin" element={<AdminLayout />}>
@@ -86,6 +98,7 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Route>
               </Routes>
+              </Suspense>
             </ErrorBoundary>
           </ShopProvider>
         </AuthProvider>

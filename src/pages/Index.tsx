@@ -10,6 +10,7 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
 import { OrganizationSchema } from "@/components/seo/Schema";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
+import { LazyReelVideo } from "@/components/home/LazyReelVideo";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
 import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, listingVolume, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
@@ -492,15 +493,7 @@ function ReelsSlider({ items }: { items: string[] }) {
                     aria-label={`Open reel ${i + 1} preview with sound`}
                   >
                     {isVideo ? (
-                      <video
-                        src={src}
-                        muted
-                        loop
-                        playsInline
-                        autoPlay
-                        preload="metadata"
-                        className="w-full h-full object-cover"
-                      />
+                      <LazyReelVideo src={src} className="w-full h-full object-cover" />
                     ) : (
                       <img src={src} alt="Itrawala Instagram reel" loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />

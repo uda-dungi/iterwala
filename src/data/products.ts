@@ -46,47 +46,47 @@ const galleryModules = import.meta.glob(
 // with the top title band and the right-side notes column cut off (files suffixed
 // "-hero-crop.png", generated Jul 31 2026, sit alongside the originals in the same folder).
 // "Rose Petel/100 ml" still has no plain dark-bg product shot available (its non-model
-// options are all white-background or a light/cream infographic) — 89.png (a lifestyle
+// options are all white-background or a light/cream infographic) — 89.jpg (a lifestyle
 // photo, dark background, model holding the bottle) remains the least-bad choice; a plain
 // studio shot on a dark background is still needed for a true fix. Guldasta and Khawab
 // (single flat img() photos, no per-size Product Gallery folder) were checked too — both
 // already show the bottle on a dark background, so no change was needed there.
 const GALLERY_ORDER: Record<string, string[]> = {
-  "Million/100 ml": ["Untitled design (4).png", "Gemini_Generated_Image_fepd8rfepd8rfepd.png", "story (6).png", "Untitled design (5).png"],
-  "Million/20 ml": ["ChatGPT Image Jul 6, 2026, 10_06_04 PM.png", "1.png", "ChatGPT Image Jul 6, 2026, 09_54_30 PM.png", "ChatGPT Image Jul 6, 2026, 09_30_50 PM.png", "ChatGPT Image Jul 6, 2026, 09_39_11 PM.png"],
-  "Million/50 ml": ["ChatGPT Image Jul 6, 2026, 08_19_14 PM.png", "ChatGPT Image Jul 6, 2026, 08_52_47 PM.png", "ChatGPT Image Jul 6, 2026, 08_45_04 PM.png", "ChatGPT Image Jul 6, 2026, 08_47_29 PM.png"],
-  "Out wood/100 ml": ["118.png", "116.png", "120.png", "117.png", "119.png"],
-  "Out wood/20 ml": ["126.png", "128.png", "127.png", "130.png", "129.png"],
-  "Out wood/50 ml": ["125.png", "124.png", "123.png", "122.png", "121.png"],
-  "Poetry/100 ml": ["poetry-hero-crop.png", "Gemini_Generated_Image_94b0n094b0n094b0.png", "Gemini_Generated_Image_gjlh2xgjlh2xgjlh.png", "3.png", "5-768x768.png"],
-  "Poetry/50 ml": ["ChatGPT Image Jul 6, 2026, 08_15_56 PM.png", "Jul 4, 2026, 04_29_04 PM.png", "3-1-768x768.png", "Gemini_Generated_Image_n7wn2en7wn2en7wn.png"],
-  "Rebel/100 ml": ["rebel-hero-crop.png", "Gemini_Generated_Image_pwy2vnpwy2vnpwy2.png", "Untitled design.jpg", "6-768x768.png", "4.png"],
-  "Rebel/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_12 PM.png", "ChatGPT Image Jul 4, 2026, 04_37_27 PM.png", "7-768x768.png", "Untitled design (3).png"],
-  "Rose Petel/100 ml": ["88.png", "90.png", "89.png", "87.png", "86.png"],
-  "Rose Petel/20 ml": ["99.png", "98.png", "100.png", "97.png", "96.png"],
-  "Rose Petel/50 ml": ["94.png", "91.png", "92.png", "93.png", "95.png"],
-  "Sukoon/100 ml": ["54.png", "55.png", "53.png", "56.png", "52.png"],
-  "Sukoon/20 ml": ["48.png", "50.png", "46.png", "49.png", "47.png", "51.png"],
-  "Sukoon/50 ml": ["60.png", "ChatGPT Image Jul 30, 2026, 11_13_42 AM.png", "59.png", "58.png", "57.png"],
-  "Valentine/100 ml": ["106.png", "109.png", "108.png", "107.png", "110.png"],
-  "Valentine/20 ml": ["101.png", "104.png", "105.png", "102.png", "103.png"],
-  "Valentine/50 ml": ["ChatGPT Image Jul 30, 2026, 11_03_13 AM.png", "ChatGPT Image Jul 30, 2026, 11_05_20 AM.png", "114.png", "115.png", "112.png"],
-  "Wanted/100 ml": ["wanted-hero-crop.png", "Gemini_Generated_Image_dyod9zdyod9zdyod.png", "Untitled design (1).jpg", "Gemini_Generated_Image_i2wwgqi2wwgqi2ww.png", "5.png"],
-  "Wanted/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_29 PM.png", "ChatGPT Image Jul 4, 2026, 04_43_42 PM.png", "ChatGPT Image Jul 4, 2026, 04_49_05 PM.png", "10-768x768.png"],
-  "White MUSK/100 ml": ["8.png", "10.png", "7.png", "9.png", "6.png"],
-  "White MUSK/20 ml": ["2.png", "3.png", "1.png", "4.png", "5.png"],
-  "White MUSK/50 ml": ["12.png", "14.png", "13.png", "15.png", "11.png"],
-  "aura/100 ml": ["aura-hero-crop.png", "Gemini_Generated_Image_uxfqzguxfqzguxfq.png", "Gemini_Generated_Image_gjlh2xgjlh2xgjlh.png", "Gemini_Generated_Image_3a71ql3a71ql3a71.png", "2.png"],
-  "aura/50 ml": ["ChatGPT Image Jul 6, 2026, 08_08_09 PM.png", "ChatGPT Image Jul 4, 2026, 05_52_44 PM.png", "2-1-768x768.png", "ChatGPT Image Jul 4, 2026, 06_00_13 PM.png"],
-  "inayat/100 ML": ["132.png", "131.png", "135.png", "134.png", "133.png"],
-  "inayat/25 ML": ["145.png", "141.png", "142.png", "143.png", "144.png"],
-  "inayat/50 ML": ["138.png", "137.png", "139.png", "136.png", "140.png"],
-  "legend/100 ML": ["39.png", "40.png", "38.png", "37.png", "36.png"],
-  "legend/20 ML": ["45.png", "44.png", "43.png", "42.png", "41.png"],
-  "legend/50 ML": ["Apparel Eau-de-Parfum 50 ml (7).jpg", "32.png", "35.png", "34.png", "31.png"],
-  "temptation/100 ml": ["25.png", "23.png", "24.png", "21.png", "22.png"],
-  "temptation/20 ml": ["28.png", "29.png", "27.png", "26.png", "30.png"],
-  "temptation/50 ml": ["18.png", "19.png", "20.png", "16.png", "17.png"],
+  "Million/100 ml": ["Untitled design (4).jpg", "Gemini_Generated_Image_fepd8rfepd8rfepd.jpg", "story (6).jpg", "Untitled design (5).jpg"],
+  "Million/20 ml": ["ChatGPT Image Jul 6, 2026, 10_06_04 PM.jpg", "1.jpg", "ChatGPT Image Jul 6, 2026, 09_54_30 PM.jpg", "ChatGPT Image Jul 6, 2026, 09_30_50 PM.jpg", "ChatGPT Image Jul 6, 2026, 09_39_11 PM.jpg"],
+  "Million/50 ml": ["ChatGPT Image Jul 6, 2026, 08_19_14 PM.jpg", "ChatGPT Image Jul 6, 2026, 08_52_47 PM.jpg", "ChatGPT Image Jul 6, 2026, 08_45_04 PM.jpg", "ChatGPT Image Jul 6, 2026, 08_47_29 PM.jpg"],
+  "Out wood/100 ml": ["118.jpg", "116.jpg", "120.jpg", "117.jpg", "119.jpg"],
+  "Out wood/20 ml": ["126.jpg", "128.jpg", "127.jpg", "130.jpg", "129.jpg"],
+  "Out wood/50 ml": ["125.jpg", "124.jpg", "123.jpg", "122.jpg", "121.jpg"],
+  "Poetry/100 ml": ["poetry-hero-crop.jpg", "Gemini_Generated_Image_94b0n094b0n094b0.jpg", "Gemini_Generated_Image_gjlh2xgjlh2xgjlh.jpg", "3.jpg", "5-768x768.jpg"],
+  "Poetry/50 ml": ["ChatGPT Image Jul 6, 2026, 08_15_56 PM.jpg", "Jul 4, 2026, 04_29_04 PM.jpg", "3-1-768x768.jpg", "Gemini_Generated_Image_n7wn2en7wn2en7wn.jpg"],
+  "Rebel/100 ml": ["rebel-hero-crop.jpg", "Gemini_Generated_Image_pwy2vnpwy2vnpwy2.jpg", "Untitled design.jpg", "6-768x768.jpg", "4.jpg"],
+  "Rebel/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_12 PM.jpg", "ChatGPT Image Jul 4, 2026, 04_37_27 PM.jpg", "7-768x768.jpg", "Untitled design (3).jpg"],
+  "Rose Petel/100 ml": ["88.jpg", "90.jpg", "89.jpg", "87.jpg", "86.jpg"],
+  "Rose Petel/20 ml": ["99.jpg", "98.jpg", "100.jpg", "97.jpg", "96.jpg"],
+  "Rose Petel/50 ml": ["94.jpg", "91.jpg", "92.jpg", "93.jpg", "95.jpg"],
+  "Sukoon/100 ml": ["54.jpg", "55.jpg", "53.jpg", "56.jpg", "52.jpg"],
+  "Sukoon/20 ml": ["48.jpg", "50.jpg", "46.jpg", "49.jpg", "47.jpg", "51.jpg"],
+  "Sukoon/50 ml": ["60.jpg", "ChatGPT Image Jul 30, 2026, 11_13_42 AM.jpg", "59.jpg", "58.jpg", "57.jpg"],
+  "Valentine/100 ml": ["106.jpg", "109.jpg", "108.jpg", "107.jpg", "110.jpg"],
+  "Valentine/20 ml": ["101.jpg", "104.jpg", "105.jpg", "102.jpg", "103.jpg"],
+  "Valentine/50 ml": ["ChatGPT Image Jul 30, 2026, 11_03_13 AM.jpg", "ChatGPT Image Jul 30, 2026, 11_05_20 AM.jpg", "114.jpg", "115.jpg", "112.jpg"],
+  "Wanted/100 ml": ["wanted-hero-crop.jpg", "Gemini_Generated_Image_dyod9zdyod9zdyod.jpg", "Untitled design (1).jpg", "Gemini_Generated_Image_i2wwgqi2wwgqi2ww.jpg", "5.jpg"],
+  "Wanted/50 ml": ["ChatGPT Image Jul 6, 2026, 08_04_29 PM.jpg", "ChatGPT Image Jul 4, 2026, 04_43_42 PM.jpg", "ChatGPT Image Jul 4, 2026, 04_49_05 PM.jpg", "10-768x768.jpg"],
+  "White MUSK/100 ml": ["8.jpg", "10.jpg", "7.jpg", "9.jpg", "6.jpg"],
+  "White MUSK/20 ml": ["2.jpg", "3.jpg", "1.jpg", "4.jpg", "5.jpg"],
+  "White MUSK/50 ml": ["12.jpg", "14.jpg", "13.jpg", "15.jpg", "11.jpg"],
+  "aura/100 ml": ["aura-hero-crop.jpg", "Gemini_Generated_Image_uxfqzguxfqzguxfq.jpg", "Gemini_Generated_Image_gjlh2xgjlh2xgjlh.jpg", "Gemini_Generated_Image_3a71ql3a71ql3a71.jpg", "2.jpg"],
+  "aura/50 ml": ["ChatGPT Image Jul 6, 2026, 08_08_09 PM.jpg", "ChatGPT Image Jul 4, 2026, 05_52_44 PM.jpg", "2-1-768x768.jpg", "ChatGPT Image Jul 4, 2026, 06_00_13 PM.jpg"],
+  "inayat/100 ML": ["132.jpg", "131.jpg", "135.jpg", "134.jpg", "133.jpg"],
+  "inayat/25 ML": ["145.jpg", "141.jpg", "142.jpg", "143.jpg", "144.jpg"],
+  "inayat/50 ML": ["138.jpg", "137.jpg", "139.jpg", "136.jpg", "140.jpg"],
+  "legend/100 ML": ["39.jpg", "40.jpg", "38.jpg", "37.jpg", "36.jpg"],
+  "legend/20 ML": ["45.jpg", "44.jpg", "43.jpg", "42.jpg", "41.jpg"],
+  "legend/50 ML": ["Apparel Eau-de-Parfum 50 ml (7).jpg", "32.jpg", "35.jpg", "34.jpg", "31.jpg"],
+  "temptation/100 ml": ["25.jpg", "23.jpg", "24.jpg", "21.jpg", "22.jpg"],
+  "temptation/20 ml": ["28.jpg", "29.jpg", "27.jpg", "26.jpg", "30.jpg"],
+  "temptation/50 ml": ["18.jpg", "19.jpg", "20.jpg", "16.jpg", "17.jpg"],
 };
 
 /** All photos under Product Gallery/<productFolder>/<sizeFolder>/, ordered dark-background
@@ -137,7 +137,7 @@ const newProductGalleryModules = import.meta.glob(
 const NEW_GALLERY_ORDER: Record<string, string[]> = {
   "Celebrity Attar": ["168.jpg", "172.jpg", "169.jpg", "170.jpg"],
   "Chocoblast Attar": ["178.jpg", "179.jpg", "180.jpg", "181.jpg", "182.jpg"],
-  "Impression/100 ml": ["16.png", "15..png", "14.png"],
+  "Impression/100 ml": ["16.jpg", "15..jpg", "14.jpg"],
   "Impression/50 ml": ["150.jpg", "152.jpg", "151.jpg", "148.jpg", "149.jpg"],
   "Million Attar": ["173.jpg", "174.jpg", "175.jpg", "177.jpg", "176.jpg"],
   "Ocean Water": ["complete 5 images set.jpg", "193.jpg", "197.jpg", "194.jpg", "195.jpg", "196.jpg"],
@@ -185,7 +185,7 @@ const packModules = import.meta.glob(
   { eager: true, import: "default" }
 ) as Record<string, string>;
 
-// A generic box-back mockup ("ChatGPT Image Jul 23, 2026, 02_02_50 AM.png", reused
+// A generic box-back mockup ("ChatGPT Image Jul 23, 2026, 02_02_50 AM.jpg", reused
 // verbatim — including its "Copy of Copy of Copy of" duplicate — across several variant
 // folders) prints "8 N X 8 ml" fill info on what is otherwise a 4-pack folder, and a
 // MRP/price that matches neither this site's pack-of-4 nor pack-of-8 pricing. It's a
@@ -196,38 +196,38 @@ const PACK_EXCLUDE = /02_02_50 AM\.png$/;
 // GALLERY_ORDER above.
 const PACK_GALLERY_ORDER: Record<string, string[]> = {
   "pack of 4/variant 1": [
-    "ChatGPT Image Jul 24, 2026, 05_45_24 PM.png",
-    "ChatGPT Image Jul 24, 2026, 06_44_42 PM.png",
-    "ChatGPT Image Jul 24, 2026, 06_32_17 PM.png",
+    "ChatGPT Image Jul 24, 2026, 05_45_24 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 06_44_42 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 06_32_17 PM.jpg",
     "Apparel Eau-de-Parfum 50 ml (5).jpg",
   ],
   "pack of 4/variant 2": [
-    "ChatGPT Image Jul 24, 2026, 05_16_31 PM.png",
-    "ChatGPT Image Jul 23, 2026, 02_50_53 AM.png",
-    "ChatGPT Image Jul 24, 2026, 05_14_49 PM.png",
-    "ChatGPT Image Jul 23, 2026, 02_44_37 AM.png",
+    "ChatGPT Image Jul 24, 2026, 05_16_31 PM.jpg",
+    "ChatGPT Image Jul 23, 2026, 02_50_53 AM.jpg",
+    "ChatGPT Image Jul 24, 2026, 05_14_49 PM.jpg",
+    "ChatGPT Image Jul 23, 2026, 02_44_37 AM.jpg",
   ],
   "pack of 4/variant 3": [
-    "ChatGPT Image Jul 24, 2026, 07_07_32 PM.png",
-    "ChatGPT Image Jul 24, 2026, 07_22_31 PM.png",
-    "ChatGPT Image Jul 24, 2026, 07_36_18 PM.png",
-    "ChatGPT Image Jul 24, 2026, 07_42_05 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_07_32 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 07_22_31 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 07_36_18 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 07_42_05 PM.jpg",
   ],
   // Same filenames as variant 3 (same export batch/session) but different photos — a
   // reshoot of the identical Honeymoon lineup, now used in place of variant 3's photos.
   // 07_22_31 PM (open box, bottles standing, all 4 labels readable) leads per Jatin's
   // reference pick — a stronger hero shot than the flat-lay 07_07_32 PM.
   "pack of 4/variant 5": [
-    "ChatGPT Image Jul 24, 2026, 07_22_31 PM.png",
-    "ChatGPT Image Jul 24, 2026, 07_07_32 PM.png",
-    "ChatGPT Image Jul 24, 2026, 07_36_18 PM.png",
-    "ChatGPT Image Jul 24, 2026, 07_42_05 PM.png",
+    "ChatGPT Image Jul 24, 2026, 07_22_31 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 07_07_32 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 07_36_18 PM.jpg",
+    "ChatGPT Image Jul 24, 2026, 07_42_05 PM.jpg",
   ],
   "Pack of 8/variant 1": [
-    "ChatGPT Image Jul 24, 2026, 07_50_08 PM.png",
-    "ChatGPT Image Jul 23, 2026, 02_26_03 AM.png",
-    "ChatGPT Image Jul 23, 2026, 02_22_27 AM.png",
-    "ChatGPT Image Jul 23, 2026, 02_40_02 AM.png",
+    "ChatGPT Image Jul 24, 2026, 07_50_08 PM.jpg",
+    "ChatGPT Image Jul 23, 2026, 02_26_03 AM.jpg",
+    "ChatGPT Image Jul 23, 2026, 02_22_27 AM.jpg",
+    "ChatGPT Image Jul 23, 2026, 02_40_02 AM.jpg",
   ],
 };
 

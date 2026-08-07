@@ -6,12 +6,12 @@ import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
-import banner3 from "@/assets/brand/banner-4-collectors.png";
+import banner3 from "@/assets/brand/banner-4-collectors.jpg";
 import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
-import mobileBannerMain from "@/assets/brand/raksha-bandhan-trilogy-mobile.png";
+import mobileBannerMain from "@/assets/brand/raksha-bandhan-trilogy-mobile.jpg";
 import mobileBannerCollectors from "@/assets/brand/mobile-banner-collectors.jpg";
-import mobileBannerPack4 from "@/assets/brand/raksha-bandhan-pack-of-4-mobile.png";
+import mobileBannerPack4 from "@/assets/brand/raksha-bandhan-pack-of-4-mobile.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
 
