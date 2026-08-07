@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Database, Mail, Package, ShieldCheck, FileDown } from "lucide-react";
+import { Loader2, Database, Mail, Package, ShieldCheck, FileDown, Truck } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
@@ -73,32 +73,36 @@ export default function AdminOrders() {
 
   // The invoice endpoint is admin-authenticated, so a plain <a href> won't work — it
   // can't carry the bearer token. Fetch it, then hand the browser a blob to save.
+  // Tracks "<txnid>:<kind>" so only the button actually clicked shows a spinner.
   const [downloading, setDownloading] = useState<string | null>(null);
-  const downloadInvoice = async (order: OrderRow) => {
+
+  const downloadDoc = async (order: OrderRow, kind: "invoice" | "label") => {
     const token = session?.access_token;
     if (!token) { toast.error("Session expired. Please sign in again."); return; }
-    setDownloading(order.txnid);
+    const label = kind === "invoice" ? "invoice" : "shipping label";
+    setDownloading(`${order.txnid}:${kind}`);
     try {
-      const res = await fetch(`/api/admin/invoice?txnid=${encodeURIComponent(order.txnid)}`, {
+      const res = await fetch(`/api/admin/${kind}?txnid=${encodeURIComponent(order.txnid)}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
         // Errors come back as JSON even though the success path is a PDF.
         const msg = await res.json().catch(() => ({}));
-        toast.error(msg.error || `Could not generate invoice (${res.status}).`);
+        toast.error(msg.error || `Could not generate ${label} (${res.status}).`);
         return;
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${(order.invoice_no || order.txnid).replace(/[^A-Za-z0-9._-]/g, "-")}.pdf`;
+      const base = kind === "invoice" ? (order.invoice_no || order.txnid) : `label-${order.txnid}`;
+      a.download = `${base.replace(/[^A-Za-z0-9._-]/g, "-")}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
     } catch {
-      toast.error("Network error while downloading the invoice.");
+      toast.error(`Network error while downloading the ${label}.`);
     } finally {
       setDownloading(null);
     }
@@ -156,18 +160,30 @@ export default function AdminOrders() {
                   {/* A tax invoice only exists for a completed sale, so the button is
                       hidden entirely on pending/failed orders rather than erroring. */}
                   {order.status === "paid" && (
-                    <Button
-                      variant="outline-gold"
-                      size="sm"
-                      className="mt-3"
-                      onClick={() => downloadInvoice(order)}
-                      disabled={downloading === order.txnid}
-                    >
-                      {downloading === order.txnid
-                        ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        : <FileDown className="w-4 h-4 mr-2" />}
-                      {downloading === order.txnid ? "Preparing…" : "Download Invoice"}
-                    </Button>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <Button
+                        variant="outline-gold"
+                        size="sm"
+                        onClick={() => downloadDoc(order, "invoice")}
+                        disabled={downloading === `${order.txnid}:invoice`}
+                      >
+                        {downloading === `${order.txnid}:invoice`
+                          ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          : <FileDown className="w-4 h-4 mr-2" />}
+                        {downloading === `${order.txnid}:invoice` ? "Preparing…" : "Invoice"}
+                      </Button>
+                      <Button
+                        variant="outline-gold"
+                        size="sm"
+                        onClick={() => downloadDoc(order, "label")}
+                        disabled={downloading === `${order.txnid}:label`}
+                      >
+                        {downloading === `${order.txnid}:label`
+                          ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          : <Truck className="w-4 h-4 mr-2" />}
+                        {downloading === `${order.txnid}:label` ? "Preparing…" : "Shipping Label"}
+                      </Button>
+                    </div>
                   )}
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
