@@ -9,11 +9,10 @@ import banner2 from "@/assets/brand/banner-2.jpg";
 import banner3 from "@/assets/brand/banner-4-collectors.jpg";
 import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
-import mobileBannerMain from "@/assets/brand/raksha-bandhan-trilogy-mobile.jpg";
-import mobileBannerCollectors from "@/assets/brand/mobile-offer-collectors.jpg";
+import mobileBannerMain from "@/assets/brand/mobile-offer-collectors.jpg";
 import mobileBannerPack4 from "@/assets/brand/mobile-offer-pack-of-4.jpg";
-import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity.jpg";
-import mobileBannerAttar from "@/assets/brand/mobile-banner-attar.jpg";
+import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity-full.jpg";
+import mobileBannerAttar from "@/assets/brand/mobile-banner-attar-full.jpg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -88,17 +87,19 @@ const slides: Slide[] = [
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
 const mobileSlides: MobileSlide[] = [
-  // Raksha Bandhan Sale banners — shot at 9:16, exactly the carousel's aspect below, so
-  // object-cover shows them edge to edge with nothing cropped. The offer headline and
+  // Raksha Bandhan Sale banner — shot at 9:16, exactly the carousel's aspect below, so
+  // object-cover shows it edge to edge with nothing cropped. The offer headline and
   // price sit near the top of the artwork, which is precisely what a shorter frame used
   // to cut off.
+  // Note: the matching Collector's Edition offer banner (mobile-offer-collectors.jpg,
+  // "Buy 2 Get 1 Free") was removed from this mobile list per request — it still shows
+  // on desktop (see the `slides` array above). The image file itself wasn't deleted.
   { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
-  { image: mobileBannerCollectors, alt: "Raksha Bandhan Sale — Collector's Edition Trilogy, Buy 2 Get 1 Free", fit: "cover", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
-  // side and cut their baked-in text, so these letterbox instead.
+  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "contain", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },// side and cut their baked-in text, so these letterbox instead.
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
-  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "contain", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },
+  
 ];
 
 export function HeroCarousel() {

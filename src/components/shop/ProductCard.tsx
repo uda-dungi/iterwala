@@ -99,9 +99,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
               from sm+ up, where the hover button over the image takes over. */}
           <button
             onClick={(e) => { e.preventDefault(); addToCart(product, 1, defaultVolume); toast.success(`${product.name} added to cart`); }}
-            className="sm:hidden w-full mt-2.5 bg-gradient-gold text-primary-foreground py-2.5 rounded-sm text-[11px] tracking-luxe uppercase font-semibold flex items-center justify-center gap-1.5 active:opacity-90 transition-opacity"
+            className="sm:hidden w-full mt-2.5 bg-gradient-gold text-primary-foreground py-2.5 rounded-sm text-[11px] tracking-wide uppercase font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap active:opacity-90 transition-opacity"
           >
-            <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
+            <ShoppingBag className="w-3.5 h-3.5 shrink-0" /> Add to Cart
           </button>
         </div>
       </Link>
