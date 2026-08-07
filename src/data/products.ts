@@ -264,7 +264,9 @@ export type Product = {
   /** Per-size pricing (e.g. {"50ml": {price: 449}, "100ml": {price: 749}}). When a size is
    *  missing here, priceFor() falls back to the flat price/compareAt above. */
   priceByVolume?: Record<string, { price: number; compareAt?: number }>;
-  category: "Perfume" | "Attar" | "Gift Set" | "New Launch" | "Collector's Edition";
+  /** No product uses "New Launch" — that shop filter is virtual and keys off the
+   *  `newArrival` flag below (see matchesCategory in src/pages/Shop.tsx). */
+  category: "Perfume" | "Attar" | "Gift Set" | "Collector's Edition";
   gender: "Men" | "Women" | "Unisex";
   image: string;
   gallery: string[];

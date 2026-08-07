@@ -94,11 +94,21 @@ export default function Shop() {
       return productGender === selectedGender || productGender === "Unisex";
     };
 
+    // "New Launch" is a virtual category: no product carries it as its `category`
+    // (they're all Perfume/Attar/Gift Set/Collector's Edition), so matching on the
+    // category string returned an empty grid. It's backed by the `newArrival` flag
+    // instead — the same flag the navbar's "New Launches" link sorts by.
+    const matchesCategory = (p: typeof products[number]) => {
+      if (!selectedCategory) return true;
+      if (selectedCategory === "New Launch") return Boolean(p.newArrival);
+      return p.category === selectedCategory;
+    };
+
     let r = products.filter(p => {
       const priceForDefault = priceFor(p, listingVolume(p)).price;
       return (
         matchesGender(p.gender) &&
-        (!selectedCategory || p.category === selectedCategory) &&
+        matchesCategory(p) &&
         (!selectedMood || p.moods.some(m => m.toLowerCase() === selectedMood.toLowerCase())) &&
         priceForDefault <= price[0] &&
         (selectedNotes.length === 0 || selectedNotes.some(n => allNotes(p).some(pn => pn.includes(n.toLowerCase())))) &&
