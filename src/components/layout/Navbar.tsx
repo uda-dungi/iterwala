@@ -30,8 +30,6 @@ const links = [
 const categoryMenu = [
   { to: "/shop?category=Perfume", label: "Perfumes" },
   { to: "/shop?category=Attar", label: "Attars" },
-  { to: "/shop?category=Air Freshener", label: "Air Fresheners" },
-  { to: "/shop?category=Diffuser", label: "Diffusers" },
   { to: "/shop?category=Gift Set", label: "Gift Sets" },
   { to: "/shop?category=Collector's Edition", label: "Collector's Edition" },
 ];

@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const genders = ["Men", "Women", "Unisex"];
-const categories = ["Perfume", "Attar", "Gift Set", "Air Freshener", "Diffuser", "New Launch", "Collector's Edition"];
+const categories = ["Perfume", "Attar", "Gift Set", "New Launch", "Collector's Edition"];
 const noteList = ["Oud", "Rose", "Saffron", "Amber", "Sandalwood", "Musk", "Vanilla", "Jasmine"];
 const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "Festive"];
 

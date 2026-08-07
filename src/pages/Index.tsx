@@ -73,9 +73,13 @@ const AMAZON_PICK_SLUG = "touch";
 const AMAZON_PICK_VOLUME = "50ml";
 
 // Curated for the homepage "New Arrivals" strip (per request) — swap slugs here any
-// time the featured attars change, instead of relying on the newArrival flag (which
+// time the featured launches change, instead of relying on the newArrival flag (which
 // stays on the products themselves for the Shop page's "Sort: Newest" option).
-const NEW_ARRIVAL_SLUGS = ["rooh-chandan", "jannat-firdaus", "amber", "shahi-gulab"];
+// Now a mix of attars and perfumes, so the section copy is no longer attar-specific.
+const NEW_ARRIVAL_SLUGS = [
+  "rooh-chandan", "jannat-firdaus", "amber", "shahi-gulab",
+  "aura", "poetry", "wanted", "rebel",
+];
 
 export default function Index() {
   const bestSellers = BEST_SELLER_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
@@ -178,13 +182,13 @@ export default function Index() {
         </div>
       </Section>
 
-      {/* NEW ARRIVALS — attars only */}
-      <Section eyebrow="The Maison" title="New Arrivals" subtitle="Fresh from our Kannauj perfumers — the latest attars to join the collection.">
+      {/* NEW ARRIVALS — attars and perfumes (see NEW_ARRIVAL_SLUGS) */}
+      <Section eyebrow="The Maison" title="New Arrivals" subtitle="Fresh from our Kannauj perfumers — the latest attars and perfumes to join the collection.">
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newArrivals.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          {newArrivals.slice(0, 8).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
         </div>
         <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
-          {newArrivals.slice(0, 4).map((p, i) => (
+          {newArrivals.slice(0, 8).map((p, i) => (
             <div key={p.id} className="min-w-[46%] snap-start">
               <ProductCard product={p} index={i} />
             </div>

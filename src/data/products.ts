@@ -264,7 +264,7 @@ export type Product = {
   /** Per-size pricing (e.g. {"50ml": {price: 449}, "100ml": {price: 749}}). When a size is
    *  missing here, priceFor() falls back to the flat price/compareAt above. */
   priceByVolume?: Record<string, { price: number; compareAt?: number }>;
-  category: "Perfume" | "Attar" | "Gift Set" | "Air Freshener" | "Diffuser" | "New Launch" | "Collector's Edition";
+  category: "Perfume" | "Attar" | "Gift Set" | "New Launch" | "Collector's Edition";
   gender: "Men" | "Women" | "Unisex";
   image: string;
   gallery: string[];
@@ -360,7 +360,7 @@ export const products: Product[] = [
     occasions: ["Evening", "Date Night", "Celebrations"], moods: ["Confident", "Magnetic"],
     ingredients: "Premium fragrance oils, French-grade alcohol base.",
     description: "Celebrity is made to be noticed — a luminous, spicy-sweet signature that leaves a trail of compliments wherever you go.",
-    rating: 4.8, reviews: 312, badge: "Bestseller", bestSeller: true, trending: true, amazonChoice: true,
+    rating: 4.8, reviews: 312, badge: "Bestseller", bestSeller: true, trending: true,
   },
   {
     id: "p-impression", slug: "impression", name: "Impression", tagline: "Leave a lasting one",
@@ -426,7 +426,7 @@ export const products: Product[] = [
     occasions: ["Evening", "Formal", "Winter"], moods: ["Bold", "Mysterious"],
     ingredients: "Premium oud accord, fragrance oils, French-grade alcohol base.",
     description: "Smoky aged oud meets warm leather and sandalwood — Oud Wood is dark, refined, and unmistakably masculine.",
-    rating: 4.9, reviews: 156, badge: "Editor's Pick", bestSeller: true, amazonChoice: true,
+    rating: 4.9, reviews: 156, badge: "Editor's Pick", bestSeller: true,
   },
   {
     id: "p-sukoon", slug: "sukoon", name: "Sukoon", tagline: "The scent of calm",
@@ -588,7 +588,7 @@ export const products: Product[] = [
     occasions: ["Formal", "Special Occasions", "Winter"], moods: ["Regal", "Mysterious"],
     ingredients: "100% alcohol-free premium attar oil.",
     description: "Deep, smoky aged oud in its purest oil form. One drop of Royal Oud lasts all day and announces pure luxury.",
-    rating: 4.9, reviews: 241, badge: "Bestseller", bestSeller: true, amazonChoice: true,
+    rating: 4.9, reviews: 241, badge: "Bestseller", bestSeller: true,
   },
   {
     id: "a-shahi-gulab", slug: "shahi-gulab", name: "Shahi Gulab", tagline: "Royal rose, bottled",
@@ -623,7 +623,7 @@ export const products: Product[] = [
     occasions: ["Meditation", "Daily Wear", "Festive"], moods: ["Calm", "Grounded"],
     ingredients: "100% alcohol-free premium sandalwood attar oil.",
     description: "Pure, creamy sandalwood distilled the traditional way. Rooh Chandan is meditation in a bottle — sacred and eternal.",
-    rating: 4.9, reviews: 198, amazonChoice: true,
+    rating: 4.9, reviews: 198,
   },
   {
     id: "a-jannat-firdaus", slug: "jannat-firdaus", name: "Jannat Firdaus", tagline: "A taste of paradise",
