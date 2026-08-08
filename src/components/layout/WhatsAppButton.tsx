@@ -15,11 +15,7 @@ export function WhatsAppButton() {
       transition={{ delay: 1, type: "spring", stiffness: 200, damping: 18 }}
       whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.95 }}
-      // Lifts above the cart reservation banner when it's showing — that banner publishes
-      // its height as --reservation-bar-h (see CartReservationBanner); with no banner the
-      // fallback of 0px leaves this exactly where it has always sat.
-      style={{ bottom: "calc(1.25rem + var(--reservation-bar-h, 0px))" }}
-      className="fixed right-5 z-[90] w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-luxury transition-[bottom] duration-300"
+      className="fixed bottom-5 right-5 z-[90] w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-luxury"
     >
       <MessageCircle className="w-7 h-7" fill="currentColor" strokeWidth={0} />
       <span className="absolute inset-0 rounded-full bg-[#25D366] animate-ping opacity-30" />

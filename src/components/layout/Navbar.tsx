@@ -5,6 +5,7 @@ import { ChevronDown, Heart, LogOut, Menu, MessageCircle, Search, ShoppingBag, U
 import { useShop } from "@/store/shop";
 import { useAuth, displayName } from "@/store/auth";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
+import { CartReservationBanner } from "@/components/shop/CartReservationBanner";
 import { whatsappLink, site } from "@/config/site";
 import {
   DropdownMenu,
@@ -82,6 +83,11 @@ export function Navbar() {
             : "bg-background/40 backdrop-blur-md"
         )}
       >
+        {/* Cart reservation countdown rides inside the sticky header so it stays on screen
+            at every scroll position (it used to sit at the bottom, where the mobile CTA bar
+            and the WhatsApp bubble buried it). Renders nothing unless the cart qualifies. */}
+        <CartReservationBanner />
+
         <div className="container flex items-center justify-between h-16 sm:h-20 md:h-28 gap-4">
           <div className="flex items-center gap-2 shrink-0">
             <button onClick={() => setOpen(true)} className="lg:hidden p-2 -ml-2 text-ivory" aria-label="Menu">
