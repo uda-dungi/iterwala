@@ -196,6 +196,15 @@ export default function ProductDetail() {
             <span className="text-xs sm:text-sm text-muted-foreground">{product.rating} · {product.reviews} reviews</span>
           </div>
 
+          {/* Social-proof claim for the Collector's Edition trilogy — sits between the
+              rating and the price so it reads as a continuation of the review line. */}
+          {product.category === "Collector's Edition" && (
+            <div className="inline-flex items-center gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-1.5">
+              <Heart className="w-3.5 h-3.5 text-primary fill-primary shrink-0" />
+              <span className="text-[11px] sm:text-xs tracking-luxe uppercase text-primary font-semibold">Most Loved Collection</span>
+            </div>
+          )}
+
           <div className="flex items-end gap-3 flex-wrap">
             <span className="font-display text-xl sm:text-4xl text-gold">{formatINR(unitPrice)}</span>
             {unitCompareAt && <span className="text-sm sm:text-lg text-muted-foreground line-through">{formatINR(unitCompareAt)}</span>}

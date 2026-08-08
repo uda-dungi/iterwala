@@ -16,7 +16,11 @@ import { sendCapiEvent, extractRequestSignals } from "../_lib/metaCapi.js";
  * visible to the shopper or block the page.
  */
 
-const ALLOWED_EVENTS = new Set(["PageView", "AddToCart", "InitiateCheckout"]);
+const ALLOWED_EVENTS = new Set(["PageView", "ViewContent", "AddToCart", "InitiateCheckout"]);
+
+/** Only accept a string when it actually carries a value — keeps empty strings out of
+ *  user_data, where they'd count as a "present but unmatched" signal. */
+const str = (v: unknown): string | undefined => (typeof v === "string" && v.trim() ? v.trim() : undefined);
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -45,10 +49,22 @@ export default async function handler(req: any, res: any) {
       // the response is sent, so a detached promise here might never actually send —
       // same reasoning as the email send in api/payu/callback.ts.
       await sendCapiEvent({
-        eventName: eventName as "PageView" | "AddToCart" | "InitiateCheckout",
-        eventId: typeof body.eventId === "string" ? body.eventId : undefined,
-        eventSourceUrl: typeof body.eventSourceUrl === "string" ? body.eventSourceUrl : undefined,
-        user: signals,
+        eventName: eventName as "PageView" | "ViewContent" | "AddToCart" | "InitiateCheckout",
+        eventId: str(body.eventId),
+        eventSourceUrl: str(body.eventSourceUrl),
+        user: {
+          // IP and user agent can only come from the connection itself.
+          ip: signals.ip,
+          userAgent: signals.userAgent,
+          // The browser sends the cookie values it actually saw; the request's own Cookie
+          // header is the fallback. The client copy matters because sendBeacon fires during
+          // unload and because we write _fbc/_fbp ourselves when Meta's script is blocked.
+          fbp: str(body.fbp) || signals.fbp,
+          fbc: str(body.fbc) || signals.fbc,
+          externalId: str(body.externalId),
+          email: str(body.email),
+          phone: str(body.phone),
+        },
         customData: body.customData && typeof body.customData === "object" ? body.customData : undefined,
       });
     }

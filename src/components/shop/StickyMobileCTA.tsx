@@ -10,7 +10,9 @@ export function StickyMobileCTA({ product, price, onAdd, onBuy }: {
   onBuy: () => void;
 }) {
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-xl border-t border-border p-3 flex items-center gap-3">
+    // data-sticky-cta lets the cart reservation banner measure this bar and sit directly
+    // above it instead of underneath (see CartReservationBanner).
+    <div data-sticky-cta className="lg:hidden fixed bottom-0 left-0 right-0 z-[60] bg-card/95 backdrop-blur-xl border-t border-border p-3 flex items-center gap-3">
       <div className="shrink-0">
         <p className="text-[10px] text-muted-foreground leading-none">{product.name}</p>
         <p className="font-serif text-xl text-gold leading-tight">{formatINR(price ?? product.price)}</p>

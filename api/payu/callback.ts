@@ -1,7 +1,7 @@
 import { verifyPayuResponseHash } from "../_lib/payu.js";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { sendOrderConfirmationEmail } from "../_lib/email.js";
-import { sendCapiEvent, extractRequestSignals } from "../_lib/metaCapi.js";
+import { sendCapiEvent } from "../_lib/metaCapi.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -104,7 +104,19 @@ export default async function handler(req: any, res: any) {
             eventName: "Purchase",
             eventId: txnid,
             eventSourceUrl: `${origin}/order/success?txnid=${encodeURIComponent(txnid)}`,
-            user: { email: updated.email, phone: updated.phone ?? undefined, ...extractRequestSignals(req) },
+            // Signals come from the order row, captured at checkout from the shopper's own
+            // browser (api/checkout/initiate.ts). Reading them off `req` here would report
+            // PayU's server IP/user-agent and no cookies — a wrong match is worse for Event
+            // Match Quality than a missing one.
+            user: {
+              email: updated.email,
+              phone: updated.phone ?? undefined,
+              ip: updated.client_ip ?? undefined,
+              userAgent: updated.client_ua ?? undefined,
+              fbp: updated.fbp ?? undefined,
+              fbc: updated.fbc ?? undefined,
+              externalId: updated.external_id ?? undefined,
+            },
             customData: {
               content_ids: items.map((i: any) => i.id),
               contents: items.map((i: any) => ({ id: i.id, quantity: i.qty, item_price: i.price })),

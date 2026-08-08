@@ -48,9 +48,9 @@ const galleryModules = import.meta.glob(
 // "Rose Petel/100 ml" still has no plain dark-bg product shot available (its non-model
 // options are all white-background or a light/cream infographic) — 89.jpg (a lifestyle
 // photo, dark background, model holding the bottle) remains the least-bad choice; a plain
-// studio shot on a dark background is still needed for a true fix. Guldasta and Khawab
-// (single flat img() photos, no per-size Product Gallery folder) were checked too — both
-// already show the bottle on a dark background, so no change was needed there.
+// studio shot on a dark background is still needed for a true fix. Khwaab (a single flat
+// img() photo, no per-size Product Gallery folder) was checked too — it already shows the
+// bottle on a dark background, so no change was needed there.
 const GALLERY_ORDER: Record<string, string[]> = {
   "Million/100 ml": ["Untitled design (4).jpg", "Gemini_Generated_Image_fepd8rfepd8rfepd.jpg", "story (6).jpg", "Untitled design (5).jpg"],
   "Million/20 ml": ["ChatGPT Image Jul 6, 2026, 10_06_04 PM.jpg", "1.jpg", "ChatGPT Image Jul 6, 2026, 09_54_30 PM.jpg", "ChatGPT Image Jul 6, 2026, 09_30_50 PM.jpg", "ChatGPT Image Jul 6, 2026, 09_39_11 PM.jpg"],
@@ -130,10 +130,11 @@ const newProductGalleryModules = import.meta.glob(
 // background — per the same "lead with the product itself" rule noted in GALLERY_ORDER,
 // the clean shot leads instead and the card sits later in the gallery).
 //
-// NOTE: "Guldasta" was NOT wired in — all 5 photos in that folder actually show bottles
-// labeled "Shahi Chandan" and "Red Rose" (neither exists in the current catalog), not
-// Guldasta. Looks like a mislabeled/misplaced folder from the shoot batch. Flag to Jatin
-// for the correct Guldasta photos; a-guldasta keeps its original single photo for now.
+// NOTE on "Guldasta": the 5 photos in that folder show a 4-bottle gift box whose bottles
+// are labeled "Shahi Chandan" and "Red Rose" — neither is a catalogue product, and
+// a-guldasta itself is sold as a single 10ml attar. Confirmed twice with Jatin that these
+// are the intended Guldasta photos, so they're wired in; revisit if the listing is meant
+// to become a gift set (the name does mean "bouquet").
 const NEW_GALLERY_ORDER: Record<string, string[]> = {
   "Celebrity Attar": ["168.jpg", "172.jpg", "169.jpg", "170.jpg"],
   "Chocoblast Attar": ["178.jpg", "179.jpg", "180.jpg", "181.jpg", "182.jpg"],
@@ -252,6 +253,50 @@ const packGalleryFor = (folder: string): string[] => {
       return fa.localeCompare(fb);
     })
     .map((k) => packModules[k]);
+};
+
+// Third batch of studio photography (Aug 2026) lives in
+// src/assets/product-gallery-2/<Product folder>[/<Size folder>]/ — same layout style as
+// "new Product Gallery" above (flat per product, or with a size subfolder for products
+// sold in multiple volumes). Loaded the same way, via glob. (Originally dropped on disk
+// as "product gallery 2" with the raw, uncompressed exports — resized to 1080px and
+// mozjpeg-recompressed into this folder, ~56% smaller, before being wired in below.)
+// NOTE: the "Guldasta" folder in this batch was empty — still no real Guldasta photos to
+// wire in. The Guldasta folder in the *older* "new Product Gallery" batch isn't it either:
+// those 5 photos are actually labeled "Shahi Chandan" and "Red Rose" bottles (see the note
+// above NEW_GALLERY_ORDER), not Guldasta.
+const productGallery2Modules = import.meta.glob(
+  "../assets/product-gallery-2/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+  { eager: true, import: "default" }
+) as Record<string, string>;
+
+// "Honey moon/100 ml" leads with "complete 5 images setMM.jpg" — a dark-background
+// lifestyle shot — ahead of the plain white-background studio bottle shots, matching the
+// site's dark-theme-leads convention used elsewhere (see GALLERY_ORDER above).
+const PRODUCT_GALLERY_2_ORDER: Record<string, string[]> = {
+  "Honey moon/100 ml": ["complete 5 images setMM.jpg", "212.jpg", "213.jpg", "214.jpg", "215.jpg"],
+};
+
+/** Photos under "product-gallery-2/<folder>/", ordered per PRODUCT_GALLERY_2_ORDER.
+ *  Returns [] (never throws) when the folder is missing/renamed/empty. */
+const productGallery2ImagesFor = (folder: string): string[] => {
+  const prefix = `../assets/product-gallery-2/${folder}/`;
+  const order = PRODUCT_GALLERY_2_ORDER[folder];
+  const rank = (filename: string) => {
+    const idx = order?.indexOf(filename) ?? -1;
+    return idx === -1 ? Infinity : idx;
+  };
+  return Object.keys(productGallery2Modules)
+    .filter((k) => k.startsWith(prefix))
+    .sort((a, b) => {
+      const fa = a.slice(prefix.length);
+      const fb = b.slice(prefix.length);
+      const ra = rank(fa);
+      const rb = rank(fb);
+      if (ra !== rb) return ra - rb;
+      return fa.localeCompare(fb);
+    })
+    .map((k) => productGallery2Modules[k]);
 };
 
 export type Product = {
@@ -623,7 +668,8 @@ export const products: Product[] = [
   {
     id: "a-mogra-gold", slug: "mogra-gold", name: "Mogra Gold", tagline: "Jasmine's golden hour",
     price: 649, category: "Attar", gender: "Women", volume: ATTAR_VOL,
-    image: img("attar-mogra-gold"), gallery: [img("attar-mogra-gold")],
+    image: productGallery2ImagesFor("Mogra Gold")[0] ?? img("attar-mogra-gold"),
+    gallery: productGallery2ImagesFor("Mogra Gold").length ? productGallery2ImagesFor("Mogra Gold") : [img("attar-mogra-gold")],
     notes: { top: ["Mogra Buds"], heart: ["Jasmine Sambac", "Tuberose"], base: ["White Musk", "Sandalwood"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Daily Wear", "Festive", "Pooja"], moods: ["Joyful", "Pure"],
@@ -634,7 +680,8 @@ export const products: Product[] = [
   {
     id: "a-rooh-chandan", slug: "rooh-chandan", name: "Rooh Chandan", tagline: "Sacred sandalwood",
     price: 749, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-rooh-chandan"), gallery: [img("attar-rooh-chandan")],
+    image: productGallery2ImagesFor("Rooh Chandan")[0] ?? img("attar-rooh-chandan"),
+    gallery: productGallery2ImagesFor("Rooh Chandan").length ? productGallery2ImagesFor("Rooh Chandan") : [img("attar-rooh-chandan")],
     notes: { top: ["Cardamom"], heart: ["Sandalwood", "Rose"], base: ["Cream", "Amber", "Vanilla"] },
     longevity: "12+ hours", projection: "Intimate",
     occasions: ["Meditation", "Daily Wear", "Festive"], moods: ["Calm", "Grounded"],
@@ -645,7 +692,10 @@ export const products: Product[] = [
   {
     id: "a-jannat-firdaus", slug: "jannat-firdaus", name: "Jannat Firdaus", tagline: "A taste of paradise",
     price: 649, compareAt: 1099, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-jannat-firdaus"), gallery: [img("attar-jannat-firdaus")],
+    // Folder is "janat firdos" on disk (as dropped by the shoot batch) — kept as-is rather
+    // than renamed, so the glob path below matches exactly.
+    image: productGallery2ImagesFor("janat firdos")[0] ?? img("attar-jannat-firdaus"),
+    gallery: productGallery2ImagesFor("janat firdos").length ? productGallery2ImagesFor("janat firdos") : [img("attar-jannat-firdaus")],
     notes: { top: ["Honey", "Fruit"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Vanilla"] },
     longevity: "12 hours", projection: "Moderate",
     occasions: ["Festive", "Special Occasions", "Gifting"], moods: ["Opulent", "Warm"],
@@ -939,7 +989,15 @@ export const products: Product[] = [
     price: 649, compareAt: 849, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 649, compareAt: 849 }, "50ml": { price: 499, compareAt: 749 } },
     featuredVolume: "100ml",
-    image: img("honeymoon"), gallery: [img("honeymoon")],
+    // The shoot batch also included a 20ml lineup (product-gallery-2/Honey moon/20 ml),
+    // but Honeymoon isn't sold in 20ml on this site (no price for it) — those photos are
+    // left unused rather than wired into a size that isn't purchasable.
+    image: productGallery2ImagesFor("Honey moon/100 ml")[0] ?? img("honeymoon"),
+    gallery: productGallery2ImagesFor("Honey moon/100 ml").length ? productGallery2ImagesFor("Honey moon/100 ml") : [img("honeymoon")],
+    galleryByVolume: {
+      "50ml": productGallery2ImagesFor("Honey moon/50 ml").length ? productGallery2ImagesFor("Honey moon/50 ml") : [img("honeymoon")],
+      "100ml": productGallery2ImagesFor("Honey moon/100 ml").length ? productGallery2ImagesFor("Honey moon/100 ml") : [img("honeymoon")],
+    },
     notes: { top: ["Peach", "Bergamot"], heart: ["Jasmine", "Orchid"], base: ["Vanilla", "Musk", "Amber"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Date Night", "Festive", "Celebrations"], moods: ["Romantic", "Sweet"],
@@ -1162,7 +1220,8 @@ export const products: Product[] = [
   {
     id: "a-guldasta", slug: "guldasta", name: "Guldasta", tagline: "A bouquet in a bottle",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("guldasta"), gallery: [img("guldasta")],
+    image: newGalleryImagesFor("Guldasta")[0] ?? img("guldasta"),
+    gallery: newGalleryImagesFor("Guldasta").length ? newGalleryImagesFor("Guldasta") : [img("guldasta")],
     notes: { top: ["Rose", "Jasmine"], heart: ["Mixed Florals"], base: ["Sandalwood", "Musk"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Daily Wear", "Festive", "Pooja"], moods: ["Joyful", "Pure"],

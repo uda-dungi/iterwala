@@ -69,6 +69,18 @@ alter table public.orders add column if not exists invoice_date timestamptz;
 
 create sequence if not exists public.invoice_seq start 1;
 
+-- ── Meta Conversions API match signals ───────────────────────────────────────
+-- PayU's payment callback is a server-to-server POST from PayU, so the request that
+-- confirms a sale carries PayU's IP/user-agent and none of the shopper's cookies.
+-- Sending those to Meta attaches the wrong person to the Purchase event and tanks Event
+-- Match Quality. These columns capture the real browser's signals at checkout (where the
+-- shopper's own browser is the caller) so the callback can report them accurately.
+alter table public.orders add column if not exists fbp        text;
+alter table public.orders add column if not exists fbc        text;
+alter table public.orders add column if not exists client_ip  text;
+alter table public.orders add column if not exists client_ua  text;
+alter table public.orders add column if not exists external_id text;
+
 -- Assigns (once) and returns the invoice number for a paid order. Idempotent: PayU can
 -- post its callback more than once, and this must not burn a second number or hand out
 -- two different invoice numbers for the same sale.

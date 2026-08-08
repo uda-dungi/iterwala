@@ -35,9 +35,125 @@ const CURRENCY = "INR";
 
 export const isPixelConfigured = () => isSet(site.metaPixelId);
 
+/* ─────────────── Match-quality signals (fbc / fbp / external_id / identity) ───────────────
+ *
+ * Event Match Quality is Meta's score for how well it can tie a server event to a real
+ * person. It only counts the identifiers actually present on the event, so the job here
+ * is making sure fbc/fbp/external_id/em/ph are populated *before* an event is sent.
+ *
+ * Two things used to leave PageView with almost nothing to match on:
+ *
+ *  1. fbevents.js is loaded async, and it's what writes the _fbp/_fbc cookies. The first
+ *     PageView was relayed to CAPI synchronously right after injecting that script, so on
+ *     a first visit the cookies did not exist yet and the server read nothing. PageView is
+ *     mostly first-visits, which is why it scored far below the other events.
+ *  2. _fbc only ever exists if fbevents.js ran. Ad blockers and iOS tracking prevention
+ *     block it — exactly the traffic CAPI is supposed to recover — so the click ID, the
+ *     single strongest attribution signal, was lost on those visits.
+ *
+ * Both are fixed by writing the cookies ourselves, in Meta's documented first-party
+ * format, before anything fires. Meta's own script honours a pre-existing _fbp/_fbc, so
+ * this cooperates with the Pixel rather than fighting it.
+ */
+
+const FBC_COOKIE = "_fbc";
+const FBP_COOKIE = "_fbp";
+const EXTERNAL_ID_KEY = "itr_ext_id";
+const IDENTITY_KEY = "itr_identity";
+/** Meta attributes clicks for 90 days — match the cookie lifetime to that window. */
+const COOKIE_DAYS = 90;
+
+function readCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  for (const part of document.cookie.split(";")) {
+    const idx = part.indexOf("=");
+    if (idx === -1) continue;
+    if (part.slice(0, idx).trim() === name) return decodeURIComponent(part.slice(idx + 1).trim());
+  }
+  return undefined;
+}
+
+function writeCookie(name: string, value: string) {
+  if (typeof document === "undefined") return;
+  const maxAge = COOKIE_DAYS * 24 * 60 * 60;
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+}
+
+/** Writes _fbc/_fbp in Meta's documented format when they're missing, so every event —
+ *  including the very first PageView, and visits where fbevents.js is blocked — carries
+ *  them. Formats: _fbc = `fb.1.<ms>.<fbclid>`, _fbp = `fb.1.<ms>.<random>`. */
+function ensureFbCookies() {
+  if (typeof window === "undefined") return;
+  try {
+    const fbclid = new URLSearchParams(window.location.search).get("fbclid");
+    if (fbclid) {
+      // A fresh click must win over a stale one, so only keep the existing cookie when
+      // it already carries this same fbclid (otherwise re-visits keep the old attribution).
+      const current = readCookie(FBC_COOKIE);
+      if (!current || !current.endsWith(`.${fbclid}`)) writeCookie(FBC_COOKIE, `fb.1.${Date.now()}.${fbclid}`);
+    }
+    if (!readCookie(FBP_COOKIE)) {
+      writeCookie(FBP_COOKIE, `fb.1.${Date.now()}.${Math.floor(Math.random() * 1e10)}`);
+    }
+  } catch {
+    /* cookies disabled — events still send, just with fewer match signals */
+  }
+}
+
+/** Stable per-browser id. Meta counts external_id as a match parameter, and it also ties
+ *  a visitor's events together across sessions even when they never log in. */
+function getExternalId(): string | undefined {
+  try {
+    let id = localStorage.getItem(EXTERNAL_ID_KEY);
+    if (!id) {
+      id = genEventId();
+      localStorage.setItem(EXTERNAL_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return undefined;
+  }
+}
+
+/** The match signals this browser can supply, for callers that POST to our own API and
+ *  need to persist them (checkout stores these on the order so the Purchase event, which
+ *  is sent from PayU's server-to-server callback, can still report the real shopper). */
+export function getPixelSignals(): { fbp?: string; fbc?: string; externalId?: string } {
+  if (typeof window === "undefined") return {};
+  ensureFbCookies();
+  return { fbp: readCookie(FBP_COOKIE), fbc: readCookie(FBC_COOKIE), externalId: getExternalId() };
+}
+
+type Identity = { email?: string; phone?: string };
+
+/** Remembers who this visitor is so later events (PageView, AddToCart, …) can carry
+ *  hashed em/ph — by far the heaviest-weighted match signals. Called from checkout when
+ *  the form is submitted and on sign-in. The values are hashed server-side before they
+ *  ever reach Meta (api/_lib/metaCapi.ts); nothing identifying is sent to Meta in clear. */
+export function setPixelIdentity(identity: Identity) {
+  try {
+    const merged = { ...getIdentity(), ...identity };
+    localStorage.setItem(IDENTITY_KEY, JSON.stringify(merged));
+  } catch {
+    /* storage blocked — events simply go without em/ph */
+  }
+}
+
+function getIdentity(): Identity {
+  try {
+    return JSON.parse(localStorage.getItem(IDENTITY_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+
 /** Loads the Meta base script once and fires the initial PageView. */
 export function initPixel() {
   if (typeof window === "undefined" || !isPixelConfigured() || window.fbq) return;
+
+  // Before anything fires — the first PageView below depends on these existing.
+  ensureFbCookies();
 
   /* eslint-disable */
   // Meta's official base snippet, transcribed. It defines the fbq() queue immediately
@@ -83,7 +199,23 @@ const genEventId = () =>
 function sendServerEvent(eventName: string, eventId: string, customData?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
-    const body = JSON.stringify({ eventName, eventId, eventSourceUrl: window.location.href, customData });
+    // A late-arriving fbclid (or a cookie cleared mid-session) should still be picked up,
+    // so re-check rather than relying on what existed at init.
+    ensureFbCookies();
+    const identity = getIdentity();
+    const body = JSON.stringify({
+      eventName,
+      eventId,
+      eventSourceUrl: window.location.href,
+      customData,
+      // Sent explicitly rather than left to the request's Cookie header: sendBeacon fires
+      // during unload, and these are the values this page actually saw.
+      fbc: readCookie(FBC_COOKIE),
+      fbp: readCookie(FBP_COOKIE),
+      externalId: getExternalId(),
+      email: identity.email,
+      phone: identity.phone,
+    });
     if (navigator.sendBeacon) {
       navigator.sendBeacon("/api/track/event", new Blob([body], { type: "application/json" }));
     } else {
@@ -107,14 +239,18 @@ function trackAndRelay(event: string, params: Record<string, unknown> | undefine
 export const trackPageView = () => trackAndRelay("PageView", undefined, genEventId());
 
 export const trackViewContent = (p: { id: string; name: string; category: string; price: number }) =>
-  track("ViewContent", {
-    content_ids: [p.id],
-    content_name: p.name,
-    content_category: p.category,
-    content_type: "product",
-    value: p.price,
-    currency: CURRENCY,
-  });
+  trackAndRelay(
+    "ViewContent",
+    {
+      content_ids: [p.id],
+      content_name: p.name,
+      content_category: p.category,
+      content_type: "product",
+      value: p.price,
+      currency: CURRENCY,
+    },
+    genEventId()
+  );
 
 export const trackAddToCart = (p: { id: string; name: string; category: string; price: number; qty: number }) =>
   trackAndRelay(

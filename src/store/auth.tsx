@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+import { setPixelIdentity } from "@/lib/pixel";
 
 type Result = { error?: string };
 
@@ -21,6 +22,15 @@ const Ctx = createContext<AuthCtx | null>(null);
 const NOT_CONFIGURED =
   "Authentication isn't connected yet. Add your Supabase keys to the .env file (see README).";
 
+/** A signed-in visitor's email is the strongest Meta match signal we have, and it's known
+ *  from the very first page load — so hand it to the pixel layer, which hashes it
+ *  server-side before any of it reaches Meta. */
+function rememberForPixel(user: User | null) {
+  const email = user?.email;
+  const phone = user?.phone || (user?.user_metadata?.phone as string | undefined);
+  if (email || phone) setPixelIdentity({ email, phone });
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
@@ -35,11 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      rememberForPixel(data.session?.user ?? null);
       setLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       setSession(sess);
       setUser(sess?.user ?? null);
+      rememberForPixel(sess?.user ?? null);
     });
     return () => sub.subscription.unsubscribe();
   }, []);

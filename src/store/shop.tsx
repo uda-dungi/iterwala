@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { Product, priceFor, listingVolume } from "@/data/products";
 import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
+import { clearReservation } from "@/lib/cartReservation";
 import { trackAddToCart } from "@/lib/pixel";
 
 type CartItem = { product: Product; qty: number; volume: string };
@@ -63,7 +64,12 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     setCart(prev => qty <= 0
       ? prev.filter(i => lineKey(i.product.id, i.volume) !== lineKey(id, volume))
       : prev.map(i => lineKey(i.product.id, i.volume) === lineKey(id, volume) ? { ...i, qty } : i));
-  const clearCart = () => setCart([]);
+  // Also drops the reservation countdown — an emptied cart (checkout completed, or the
+  // shopper cleared it) has nothing left to reserve.
+  const clearCart = () => {
+    clearReservation();
+    setCart([]);
+  };
   const toggleWishlist = (id: string) =>
     setWishlist(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 

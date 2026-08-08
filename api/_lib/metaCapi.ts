@@ -77,6 +77,9 @@ export type CapiUserData = {
   userAgent?: string;
   fbp?: string;
   fbc?: string;
+  /** Stable per-browser id (see getExternalId in src/lib/pixel.ts). Counts toward Meta's
+   *  Event Match Quality and links a visitor's events together across sessions. */
+  externalId?: string;
 };
 
 export type CapiEvent = {
@@ -106,6 +109,9 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
   if (event.user.userAgent) user_data.client_user_agent = event.user.userAgent;
   if (event.user.fbp) user_data.fbp = event.user.fbp;
   if (event.user.fbc) user_data.fbc = event.user.fbc;
+  // Meta hashes external_id itself if sent raw, but hashing here keeps it consistent with
+  // em/ph and means no raw identifier ever leaves our server.
+  if (event.user.externalId) user_data.external_id = [sha256(event.user.externalId)];
 
   const payload: Record<string, unknown> = {
     data: [

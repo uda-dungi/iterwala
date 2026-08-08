@@ -2,6 +2,7 @@ import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_AC
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { priceForServer, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/prices.js";
 import { computeOffers } from "../_lib/offers.js";
+import { extractRequestSignals } from "../_lib/metaCapi.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -125,6 +126,11 @@ export default async function handler(req: any, res: any) {
       if (admin) {
         const fullName = `${customer.firstName} ${customer.lastName || ""}`.trim();
         userId = await ensureCustomerAccount(admin, email, fullName);
+        // Meta match signals, captured here because this is the last point where the
+        // shopper's own browser is the caller — PayU's callback is server-to-server and
+        // carries PayU's IP/user-agent and none of these cookies. Stored so the Purchase
+        // event reports the real buyer instead of the payment gateway.
+        const signals = extractRequestSignals(req);
         const { error: insertError } = await admin.from("orders").insert({
           txnid,
           user_id: userId,
@@ -138,6 +144,11 @@ export default async function handler(req: any, res: any) {
           gift_wrap: gift,
           total,
           status: "pending",
+          fbp: body.fbp || signals.fbp || null,
+          fbc: body.fbc || signals.fbc || null,
+          client_ip: signals.ip || null,
+          client_ua: signals.userAgent || null,
+          external_id: body.externalId || null,
         });
         if (insertError) console.error("checkout/initiate: order insert failed", insertError.message);
       }

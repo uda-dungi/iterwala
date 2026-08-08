@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { CartDrawer } from "@/components/shop/CartDrawer";
+import { CartReservationBanner } from "@/components/shop/CartReservationBanner";
 import { EmailPopup } from "@/components/marketing/EmailPopup";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
@@ -19,6 +20,7 @@ export function PublicLayout() {
       <CartDrawer />
       <WhatsAppButton />
       <EmailPopup />
+      <CartReservationBanner />
     </>
   );
 }

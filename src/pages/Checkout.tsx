@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles } from "lucide-react";
+import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles, Smartphone, CreditCard, Building2, Wallet } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
-import { trackInitiateCheckout } from "@/lib/pixel";
+import { trackInitiateCheckout, setPixelIdentity, getPixelSignals } from "@/lib/pixel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,6 +58,11 @@ export default function Checkout() {
     if (submitting) return;
     setSubmitting(true);
 
+    // Remember who this is, so every later Meta event (including the PageViews on the
+    // way back from PayU) carries hashed email/phone — the heaviest match signals there
+    // are. Hashing happens server-side; nothing identifying reaches Meta in clear.
+    setPixelIdentity({ email: form.email, phone: form.phone });
+
     try {
       const payload = {
         customer: { firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone },
@@ -66,6 +71,10 @@ export default function Checkout() {
         // the real total from its own price table rather than trusting this `price`.
         items: cart.map(({ product, qty, volume }) => ({ id: product.id, volume, name: `${product.name} (${volume})`, price: priceFor(product, volume).price, qty })),
         amounts: { subtotal, shipping, gift, total },
+        // Stored with the order so the Purchase event — sent later from PayU's
+        // server-to-server callback, which sees none of this browser — still reports the
+        // real shopper to Meta.
+        ...getPixelSignals(),
       };
 
       const res = await fetch("/api/checkout/initiate", {
@@ -184,17 +193,37 @@ export default function Checkout() {
             </div>
           </Section>
 
+          {/* Prepaid-only is the single biggest surprise at this step (we don't offer COD),
+              so the accepted methods are spelled out as visible chips rather than one line
+              of fine print a shopper skims past on the way to the pay button. */}
           <Section title="03 · Payment">
-            <div className="luxury-card p-5 flex items-center gap-4 border-primary/40">
-              <Lock className="w-5 h-5 text-primary shrink-0" />
-              <div>
-                <p className="font-serif text-lg text-ivory">Secure Prepaid Payment via PayU</p>
-                <p className="text-xs text-muted-foreground">Cards, UPI, Netbanking & wallets — choose your method on the next screen.</p>
+            <div className="luxury-card p-5 space-y-4 border-primary/40">
+              <div className="flex items-center gap-4">
+                <Lock className="w-5 h-5 text-primary shrink-0" />
+                <div>
+                  <p className="font-serif text-lg text-ivory">Prepaid Payment Only · Secured by PayU</p>
+                  <p className="text-xs text-muted-foreground">Cash on Delivery is not available. Pick your method on the next screen.</p>
+                </div>
               </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { Icon: Smartphone, t: "UPI", s: "GPay · PhonePe · Paytm" },
+                  { Icon: CreditCard, t: "Cards", s: "Debit & Credit" },
+                  { Icon: Building2, t: "Netbanking", s: "All major banks" },
+                  { Icon: Wallet, t: "Wallets", s: "Paytm & more" },
+                ].map(({ Icon, t, s }) => (
+                  <div key={t} className="border border-border rounded-sm p-3 text-center">
+                    <Icon className="w-5 h-5 text-primary mx-auto mb-1.5" strokeWidth={1.4} />
+                    <p className="text-xs text-ivory font-medium">{t}</p>
+                    <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{s}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-px" />
+                100% secure — payment is handled entirely by PayU and your order ships the moment it's confirmed.
+              </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              We're a prepaid-only store — Cash on Delivery isn't offered so every order ships the moment payment is confirmed.
-            </p>
           </Section>
         </div>
 
@@ -243,6 +272,9 @@ export default function Checkout() {
             {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Lock className="w-4 h-4 mr-2" />}
             {submitting ? "Redirecting to PayU…" : `Pay ${formatINR(total)} via PayU`}
           </Button>
+          <p className="text-[11px] text-muted-foreground text-center -mt-1">
+            Prepaid only · UPI, Cards, Netbanking & Wallets accepted
+          </p>
           <div className="grid grid-cols-3 gap-2 pt-4 border-t border-border text-center">
             <Mini Icon={ShieldCheck} t="Secure" />
             <Mini Icon={Truck} t="Tracked" />
