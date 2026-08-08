@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState, ReactNode } fr
 import { Product, priceFor, listingVolume } from "@/data/products";
 import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
 import { clearReservation } from "@/lib/cartReservation";
+import { computeCoupon, CouponResult } from "@/lib/coupons";
 import { trackAddToCart } from "@/lib/pixel";
 
 type CartItem = { product: Product; qty: number; volume: string };
@@ -25,6 +26,13 @@ type Ctx = {
   /** Copy nudging the shopper to complete/extend an offer, or null. */
   offerNudge: string | null;
   itemCount: number;
+  /** Promo code the shopper entered (kept here so it survives cart → checkout). */
+  coupon: string;
+  setCoupon: (code: string) => void;
+  /** Optimistic discount for display. The server re-validates before charging — it alone
+   *  can check the first-order-only rule, which needs a database lookup. */
+  couponDiscount: number;
+  couponResult: CouponResult;
 };
 
 const ShopCtx = createContext<Ctx | null>(null);
@@ -42,7 +50,11 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     try { return JSON.parse(localStorage.getItem("itr_wish") || "[]"); } catch { return []; }
   });
   const [cartOpen, setCartOpen] = useState(false);
+  const [coupon, setCoupon] = useState<string>(() => {
+    try { return localStorage.getItem("itr_coupon") || ""; } catch { return ""; }
+  });
 
+  useEffect(() => { localStorage.setItem("itr_coupon", coupon); }, [coupon]);
   useEffect(() => { localStorage.setItem("itr_cart", JSON.stringify(cart)); }, [cart]);
   useEffect(() => { localStorage.setItem("itr_wish", JSON.stringify(wishlist)); }, [wishlist]);
 
@@ -68,6 +80,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   // shopper cleared it) has nothing left to reserve.
   const clearCart = () => {
     clearReservation();
+    setCoupon("");
     setCart([]);
   };
   const toggleWishlist = (id: string) =>
@@ -83,8 +96,19 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     return { ...computeOffers(lines), nudge: offerNudge(lines) };
   }, [cart]);
 
+  // Promo code lives here rather than in Cart's local state so it survives the trip to
+  // checkout — it used to be a useState inside the cart page, so the discount the shopper
+  // was shown silently vanished on the next screen and they were charged full price.
+  const discountedSubtotal = Math.max(0, subtotal - offerState.discount);
+  const couponResult = useMemo(
+    () => computeCoupon(coupon, discountedSubtotal, offerState.discount),
+    [coupon, discountedSubtotal, offerState.discount]
+  );
+  // Optimistic: the server still has the last word (first-order-only can't be checked here).
+  const couponDiscount = couponResult.valid ? couponResult.discount : 0;
+
   return (
-    <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, offerDiscount: offerState.discount, offers: offerState.offers, offerNudge: offerState.nudge, itemCount }}>
+    <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, offerDiscount: offerState.discount, offers: offerState.offers, offerNudge: offerState.nudge, itemCount, coupon, setCoupon, couponDiscount, couponResult }}>
       {children}
     </ShopCtx.Provider>
   );

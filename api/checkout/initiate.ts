@@ -3,6 +3,7 @@ import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } fr
 import { priceForServer, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/prices.js";
 import { computeOffers } from "../_lib/offers.js";
 import { extractRequestSignals } from "../_lib/metaCapi.js";
+import { computeCoupon, hasPreviousPaidOrder } from "../_lib/coupons.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -79,7 +80,20 @@ export default async function handler(req: any, res: any) {
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const shipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const gift = Boolean(amounts?.gift);
-    const total = discountedSubtotal + shipping + (gift ? GIFT_WRAP_FEE : 0);
+
+    // Promo code — recomputed and re-authorised here, never taken from the request. This
+    // is the only place that can enforce "first order only": it needs a database lookup,
+    // so the browser's figure is always just a display hint.
+    const emailForCoupon = String(customer.email).trim().toLowerCase();
+    let couponDiscount = 0;
+    const couponCheck = computeCoupon(body?.coupon, discountedSubtotal, discount);
+    if (couponCheck.valid) {
+      const admin = isSupabaseAdminConfigured() ? getSupabaseAdmin() : null;
+      const usedAlready = await hasPreviousPaidOrder(admin, emailForCoupon);
+      if (!usedAlready) couponDiscount = couponCheck.discount;
+    }
+
+    const total = Math.max(0, discountedSubtotal - couponDiscount) + shipping + (gift ? GIFT_WRAP_FEE : 0);
 
     if (!total || total <= 0) {
       res.status(400).json({ error: "Invalid order total." });

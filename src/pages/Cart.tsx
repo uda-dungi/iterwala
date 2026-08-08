@@ -7,19 +7,32 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { site } from "@/config/site";
+import { computeCoupon, normalizeCode, WELCOME_PERCENT } from "@/lib/coupons";
 
 export default function Cart() {
-  const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge } = useShop();
-  const [coupon, setCoupon] = useState("");
-  const [couponDiscount, setCouponDiscount] = useState(0);
+  const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge, coupon, setCoupon, couponDiscount, couponResult } = useShop();
+  const [entry, setEntry] = useState(coupon);
   const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
   const shipping = 0; // Free shipping on all orders.
   const total = Math.max(0, discountedSubtotal - couponDiscount + shipping);
 
+  // The code is held in the shop store (not local state) so it reaches checkout; the
+  // discount shown here is optimistic, and /api/checkout/initiate re-validates the
+  // first-order-only rule before anything is charged.
   const apply = () => {
-    if (coupon.toUpperCase() === "WELCOME10") { setCouponDiscount(Math.round(discountedSubtotal * 0.1)); toast.success("Coupon applied: 10% off"); }
-    else { setCouponDiscount(0); toast.error("Invalid code"); }
+    const result = computeCoupon(entry, discountedSubtotal, offerDiscount);
+    if (result.valid) {
+      // Store the canonical form, not whatever casing was typed — it's shown back to the
+      // shopper on the cart and checkout summaries.
+      setCoupon(normalizeCode(entry));
+      toast.success(`Coupon applied: ${WELCOME_PERCENT}% off`);
+    } else {
+      setCoupon("");
+      toast.error(result.reason || "Invalid code");
+    }
   };
+
+  const removeCoupon = () => { setCoupon(""); setEntry(""); };
 
   if (cart.length === 0) {
     return (
@@ -82,7 +95,7 @@ export default function Cart() {
               </div>
             ))}
             <Row label="Shipping" v={shipping === 0 ? "Free" : formatINR(shipping)} />
-            {couponDiscount > 0 && <Row label="Coupon (WELCOME10)" v={`− ${formatINR(couponDiscount)}`} className="text-primary" />}
+            {couponDiscount > 0 && <Row label={`Coupon (${coupon})`} v={`− ${formatINR(couponDiscount)}`} className="text-primary" />}
           </div>
           {offerNudge && (
             <div className="rounded-sm border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary flex items-center gap-2">
@@ -97,10 +110,25 @@ export default function Cart() {
 
           <div className="space-y-2">
             <p className="text-xs tracking-luxe uppercase text-primary">Promo Code</p>
-            <div className="flex gap-2">
-              <Input value={coupon} onChange={e => setCoupon(e.target.value)} placeholder="Try WELCOME10" />
-              <Button variant="outline-gold" onClick={apply}>Apply</Button>
-            </div>
+            {couponDiscount > 0 ? (
+              <div className="flex items-center justify-between gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
+                <span className="text-xs text-primary">{coupon} applied — {WELCOME_PERCENT}% off</span>
+                <button onClick={removeCoupon} className="text-xs text-muted-foreground hover:text-ivory underline">Remove</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input value={entry} onChange={e => setEntry(e.target.value)} placeholder="Try WELCOME10" />
+                <Button variant="outline-gold" onClick={apply}>Apply</Button>
+              </div>
+            )}
+            {/* First-order-only is enforced server-side, so say so rather than letting the
+                shopper discover it at the payment step. */}
+            {couponDiscount > 0 && (
+              <p className="text-[11px] text-muted-foreground">Valid on your first order — confirmed at checkout.</p>
+            )}
+            {offerDiscount > 0 && couponDiscount === 0 && (
+              <p className="text-[11px] text-muted-foreground">Promo codes can't be combined with the Raksha Bandhan Sale.</p>
+            )}
           </div>
 
           <Button asChild variant="luxury" size="xl" className="w-full">

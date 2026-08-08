@@ -25,7 +25,7 @@ const emptyForm: FormState = {
 };
 
 export default function Checkout() {
-  const { cart, subtotal, offerDiscount, offers, clearCart } = useShop();
+  const { cart, subtotal, offerDiscount, offers, clearCart, coupon, setCoupon, couponDiscount } = useShop();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [gift, setGift] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +35,12 @@ export default function Checkout() {
   // post-discount subtotal, and the discount comes off the total.
   const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
   const shipping = 0; // Free shipping on all orders.
-  const total = discountedSubtotal + shipping + (gift ? GIFT_FEE : 0);
+  // couponAllowed reflects the server's verdict once the email is known — WELCOME10 is
+  // first-order-only, which only the server can check. Until then we show the optimistic
+  // figure from the store, and never let the shopper reach PayU on a stale number.
+  const [couponBlocked, setCouponBlocked] = useState<string | null>(null);
+  const appliedCoupon = couponBlocked ? 0 : couponDiscount;
+  const total = Math.max(0, discountedSubtotal - appliedCoupon) + shipping + (gift ? GIFT_FEE : 0);
 
   // Meta InitiateCheckout — fires once when the shopper reaches checkout with a
   // non-empty bag (Meta's definition: entering the checkout flow, not completing it).
@@ -52,6 +57,32 @@ export default function Checkout() {
 
   const setField = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));
+
+  // Confirm the promo code as soon as we have an email to check it against, so a
+  // first-order-only rejection surfaces here rather than as a surprise on the pay button.
+  useEffect(() => {
+    if (!coupon || !/^\S+@\S+\.\S+$/.test(form.email)) { setCouponBlocked(null); return; }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/coupon/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: coupon,
+            email: form.email,
+            items: cart.map(({ product, qty, volume }) => ({ id: product.id, volume, qty })),
+          }),
+        });
+        const data = await res.json();
+        if (!cancelled) setCouponBlocked(data?.valid ? null : (data?.reason || "This code isn't valid for this order."));
+      } catch {
+        // Network hiccup — leave the optimistic figure; initiate.ts still has the final say.
+        if (!cancelled) setCouponBlocked(null);
+      }
+    }, 500);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [coupon, form.email, cart]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +102,9 @@ export default function Checkout() {
         // the real total from its own price table rather than trusting this `price`.
         items: cart.map(({ product, qty, volume }) => ({ id: product.id, volume, name: `${product.name} (${volume})`, price: priceFor(product, volume).price, qty })),
         amounts: { subtotal, shipping, gift, total },
+        // Sent for the server to re-validate; it recomputes the discount itself and never
+        // trusts the figure shown here.
+        coupon,
         // Stored with the order so the Purchase event — sent later from PayU's
         // server-to-server callback, which sees none of this browser — still reports the
         // real shopper to Meta.
@@ -259,6 +293,12 @@ export default function Checkout() {
                 <span>− {formatINR(o.amount)}</span>
               </div>
             ))}
+            {appliedCoupon > 0 && (
+              <div className="flex justify-between text-primary">
+                <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Coupon ({coupon})</span>
+                <span>− {formatINR(appliedCoupon)}</span>
+              </div>
+            )}
             <Row label="Shipping" v={shipping === 0 ? "Free" : formatINR(shipping)} />
             {gift && <Row label="Gift wrapping" v={formatINR(GIFT_FEE)} />}
             <div className="flex justify-between font-serif text-xl text-ivory pt-2 border-t border-border">
@@ -266,6 +306,9 @@ export default function Checkout() {
             </div>
             {offerDiscount > 0 && (
               <p className="text-[11px] text-primary text-right">You save {formatINR(offerDiscount)} with the Raksha Bandhan Sale 🎉</p>
+            )}
+            {couponBlocked && (
+              <p className="text-[11px] text-destructive">{couponBlocked}</p>
             )}
           </div>
           <Button type="submit" variant="luxury" size="xl" className="w-full" disabled={submitting}>

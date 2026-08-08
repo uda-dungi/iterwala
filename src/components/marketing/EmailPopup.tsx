@@ -40,7 +40,9 @@ export function EmailPopup() {
     if (supabase) {
       await supabase.from("subscribers").insert({ email, source: "exit_popup" }).then(() => {});
     }
-    toast.success("Welcome to the Inner Circle — your 10% code is WELCOME10.");
+    // Says "first order" because that's what the code actually does (api/_lib/coupons.ts) —
+    // promising a bare 10% led to shoppers expecting it on repeat orders too.
+    toast.success("Welcome to the Inner Circle — use WELCOME10 for 10% off your first order.");
     setOpen(false);
   };
 
