@@ -1327,8 +1327,8 @@ export const products: Product[] = [
   },
   {
     id: "p-chemistry", slug: "chemistry", name: "Chemistry", tagline: "Discover this fragrance",
-    price: 1299, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
-    priceByVolume: { "100ml": { price: 1299, compareAt: 1299 }, "20ml": { price: 249, compareAt: 699 }, "50ml": { price: 499, compareAt: 899 } },
+    price: 799, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 799, compareAt: 1299 }, "20ml": { price: 249, compareAt: 699 }, "50ml": { price: 499, compareAt: 899 } },
     featuredVolume: "100ml",
     // New studio + lifestyle shoot (July 2026) verified per bottle size — replaces the old
     // single generic photo. Dark/moody lifestyle shots lead each list (site theme is dark)
@@ -1363,14 +1363,14 @@ export const products: Product[] = [
     rating: 4.6, reviews: 0, newArrival: true,
   },
   {
-    id: "a-khawab", slug: "khawab", name: "Khawab", tagline: "Discover this fragrance",
+    id: "a-khawab", slug: "khawab", name: "Khwaab", tagline: "Discover this fragrance",
     price: 1354, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
     image: img("khawab"), gallery: [img("khawab")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
     ingredients: "100% alcohol-free premium attar oil.",
-    description: "Khawab — a premium Itra Wala fragrance, now available on our store.",
+    description: "Khwaab — a premium Itra Wala fragrance, now available on our store.",
     rating: 4.6, reviews: 0, newArrival: true,
   },
   {

@@ -82,7 +82,7 @@ export const PRICE_TABLE: Record<string, PriceEntry> = {
   "p-feel-good": { "price": 1499, "compareAt": 1499, "priceByVolume": {"100ml":{"price":1499,"compareAt":1499},"50ml":{"price":489,"compareAt":1499}} },
   "a-impression": { "price": 499, "compareAt": 1299, "priceByVolume": null },
   "a-choco-blast": { "price": 599, "compareAt": 999, "priceByVolume": null },
-  "p-chemistry": { "price": 1299, "compareAt": 1299, "priceByVolume": {"100ml":{"price":1299,"compareAt":1299},"20ml":{"price":249,"compareAt":699},"50ml":{"price":499,"compareAt":899}} },
+  "p-chemistry": { "price": 799, "compareAt": 1299, "priceByVolume": {"100ml":{"price":799,"compareAt":1299},"20ml":{"price":249,"compareAt":699},"50ml":{"price":499,"compareAt":899}} },
   "a-shanaya": { "price": 569, "compareAt": 1699, "priceByVolume": null },
   "a-khawab": { "price": 1354, "compareAt": 1499, "priceByVolume": null },
   "a-million": { "price": 949, "compareAt": 1499, "priceByVolume": null },
