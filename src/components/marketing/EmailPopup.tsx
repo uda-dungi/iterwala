@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
+import { onDealPopupSettled } from "@/lib/popupGate";
 
 const SEEN_KEY = "itr_email_popup_seen";
 
@@ -16,24 +17,36 @@ export function EmailPopup() {
   useEffect(() => {
     if (localStorage.getItem(SEEN_KEY)) return;
 
-    const trigger = () => {
+    let cleanup = () => {};
+
+    // Wait for the deal popup to be out of the way before arming anything, so the two
+    // overlays can never stack. Fires immediately on days the deal popup doesn't show.
+    const unsubscribe = onDealPopupSettled(() => {
       if (localStorage.getItem(SEEN_KEY)) return;
-      setOpen(true);
-      localStorage.setItem(SEEN_KEY, "1");
+
+      const trigger = () => {
+        if (localStorage.getItem(SEEN_KEY)) return;
+        setOpen(true);
+        localStorage.setItem(SEEN_KEY, "1");
+        cleanup();
+      };
+      const onMouseOut = (e: MouseEvent) => { if (e.clientY <= 0) trigger(); };
+      const onScroll = () => { if (window.scrollY > 1600) trigger(); };
+      const timer = setTimeout(trigger, 25000);
+
+      document.addEventListener("mouseout", onMouseOut);
+      window.addEventListener("scroll", onScroll, { passive: true });
+      cleanup = () => {
+        clearTimeout(timer);
+        document.removeEventListener("mouseout", onMouseOut);
+        window.removeEventListener("scroll", onScroll);
+      };
+    });
+
+    return () => {
+      unsubscribe();
       cleanup();
     };
-    const onMouseOut = (e: MouseEvent) => { if (e.clientY <= 0) trigger(); };
-    const onScroll = () => { if (window.scrollY > 1600) trigger(); };
-    const timer = setTimeout(trigger, 25000);
-
-    document.addEventListener("mouseout", onMouseOut);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    function cleanup() {
-      clearTimeout(timer);
-      document.removeEventListener("mouseout", onMouseOut);
-      window.removeEventListener("scroll", onScroll);
-    }
-    return cleanup;
   }, []);
 
   const submit = async (e: React.FormEvent) => {
@@ -62,7 +75,9 @@ export function EmailPopup() {
             </button>
             <Gift className="w-10 h-10 text-primary mx-auto mb-4" strokeWidth={1.2} />
             <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Wait — before you go</p>
-            <h2 className="font-display text-4xl text-ivory mt-3">Get 10% Off</h2>
+            {/* Driven off the coupon constant, not a hardcoded number — this said 10%
+                for a while after the code moved to 15% and quietly under-promised. */}
+            <h2 className="font-display text-4xl text-ivory mt-3">Get {WELCOME_PERCENT}% Off</h2>
             <p className="text-muted-foreground text-sm mt-3">
               Join the Inner Circle for early access & a welcome discount on your first order.
             </p>
@@ -72,7 +87,7 @@ export function EmailPopup() {
                 placeholder="Your email"
                 className="w-full bg-background/50 border border-border px-5 py-3 rounded-sm text-sm focus:outline-none focus:border-primary text-center"
               />
-              <Button type="submit" variant="luxury" size="lg" className="w-full">Claim My 10% Off</Button>
+              <Button type="submit" variant="luxury" size="lg" className="w-full">Claim My {WELCOME_PERCENT}% Off</Button>
             </form>
             <button onClick={() => setOpen(false)} className="text-xs text-muted-foreground mt-4 hover:text-ivory">
               No thanks, I'll pay full price
