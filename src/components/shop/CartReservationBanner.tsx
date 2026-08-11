@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Timer, X } from "lucide-react";
 import { useShop } from "@/store/shop";
-import { clearReservation, formatRemaining, startReservation } from "@/lib/cartReservation";
+import { clearReservation, formatRemaining, readDeadline, startReservation } from "@/lib/cartReservation";
 
 /**
  * "Your cart is reserved" countdown, shown whenever the cart has anything in it — it
@@ -25,30 +25,45 @@ export function CartReservationBanner() {
   // page itself. Reserving "your cart" rather than "the offer" applies to every product.
   const qualifies = cart.length > 0;
 
-  const [deadline, setDeadline] = useState<number | null>(null);
+  const [deadline, setDeadline] = useState<number | null>(() => readDeadline());
   const [now, setNow] = useState(() => Date.now());
-  const [dismissed, setDismissed] = useState(false);
+  // Keyed to the deadline that was dismissed rather than a bare boolean. This component
+  // lives in PublicLayout and so never unmounts, so a plain flag would suppress the banner
+  // for the whole session with only a refresh able to bring it back.
+  const [dismissedFor, setDismissedFor] = useState<number | null>(null);
 
-  // Start / stop the reservation as qualifying items come and go.
+  // Start / stop the stored reservation as the cart fills and empties.
   useEffect(() => {
     if (qualifies) {
       setDeadline(startReservation());
     } else {
       clearReservation();
       setDeadline(null);
-      setDismissed(false); // a new qualifying add should show the banner again
+      setDismissedFor(null); // a new add should show the banner again
     }
   }, [qualifies]);
 
-  // Tick once a second, but only while something is actually counting down.
+  // Tick while the cart holds anything — keyed on `qualifies`, not on `deadline`, so the
+  // loop can't wedge in a state that only a refresh recovers from. Each tick re-reads the
+  // stored record instead of trusting the cached copy, so the banner heals itself if the
+  // reservation is rewritten anywhere else (another tab, or the clearCart() that runs
+  // during the PayU handover in Checkout). Previously this component cached localStorage
+  // in React state with no resync path, and since `qualifies` stays true the whole time a
+  // cart is full, the start/stop effect above never re-ran — which is why navigating away
+  // and back left the banner blank until a manual page refresh.
   useEffect(() => {
-    if (!deadline) return;
-    const id = setInterval(() => setNow(Date.now()), 1000);
+    if (!qualifies) return;
+    const sync = () => {
+      setNow(Date.now());
+      setDeadline(readDeadline() ?? startReservation());
+    };
+    sync();
+    const id = setInterval(sync, 1000);
     return () => clearInterval(id);
-  }, [deadline]);
+  }, [qualifies]);
 
   const remaining = deadline ? deadline - now : 0;
-  const show = qualifies && !dismissed && remaining > 0;
+  const show = qualifies && deadline !== null && dismissedFor !== deadline && remaining > 0;
   // Last 5 minutes — swap to a red treatment so the urgency actually escalates.
   const urgent = remaining > 0 && remaining <= 5 * 60 * 1000;
 
@@ -88,7 +103,7 @@ export function CartReservationBanner() {
               Checkout
             </Link>
             <button
-              onClick={() => setDismissed(true)}
+              onClick={() => setDismissedFor(deadline)}
               aria-label="Dismiss reservation timer"
               className="shrink-0 w-7 h-7 flex items-center justify-center rounded-full hover:bg-background/20"
             >
