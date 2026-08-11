@@ -101,21 +101,49 @@ function backupSignal(key: string, value: string) {
   }
 }
 
-/** Cookie first, then the localStorage mirror. A value recovered from the mirror is
- *  rewritten as a cookie so Meta's own script picks it up again on this page. */
-function readSignal(cookieName: string, backupKey: string): string | undefined {
+/* Last-resort in-memory copies, held for the life of the page.
+ *
+ * Cookies and localStorage are BOTH unavailable in Safari private mode and in several
+ * in-app browsers — which is a large slice of ad traffic. When that happened every match
+ * key dropped out at once (no fbp, no fbc, no external_id, and no em/ph before checkout),
+ * so the server event reached Meta carrying nothing but client_ip_address and
+ * client_user_agent. Meta does not count those two as identifying: its "Send missing user
+ * data parameters" diagnostic needs at least one of fbp/fbc/external_id/em/ph, and without
+ * one the event can't be used for attribution or optimisation at all.
+ *
+ * Keeping the values in memory doesn't survive a reload, but it keeps every event in a
+ * session tied together and always carries one real key. */
+const memory: { fbp?: string; fbc?: string; externalId?: string } = {};
+
+type SignalKey = "fbp" | "fbc";
+
+/** Writes a signal to every store that will take it. Memory first — it cannot fail. */
+function persistSignal(cookieName: string, backupKey: string, key: SignalKey, value: string) {
+  memory[key] = value;
+  writeCookie(cookieName, value);
+  backupSignal(backupKey, value);
+}
+
+/** Cookie first, then the localStorage mirror, then memory. A value recovered from a
+ *  lower tier is written back up so Meta's own script picks it up again on this page. */
+function readSignal(cookieName: string, backupKey: string, key: SignalKey): string | undefined {
   const fromCookie = readCookie(cookieName);
   if (fromCookie) {
+    memory[key] = fromCookie;
     backupSignal(backupKey, fromCookie);
     return fromCookie;
   }
   try {
     const stored = localStorage.getItem(backupKey) || undefined;
-    if (stored) writeCookie(cookieName, stored);
-    return stored;
+    if (stored) {
+      memory[key] = stored;
+      writeCookie(cookieName, stored);
+      return stored;
+    }
   } catch {
-    return undefined;
+    /* storage blocked — fall through to memory */
   }
+  return memory[key];
 }
 
 /** Writes _fbc/_fbp in Meta's documented format when they're missing, so every event —
@@ -128,17 +156,13 @@ function ensureFbCookies() {
     if (fbclid) {
       // A fresh click must win over a stale one, so only keep the existing value when
       // it already carries this same fbclid (otherwise re-visits keep the old attribution).
-      const current = readSignal(FBC_COOKIE, FBC_BACKUP_KEY);
+      const current = readSignal(FBC_COOKIE, FBC_BACKUP_KEY, "fbc");
       if (!current || !current.endsWith(`.${fbclid}`)) {
-        const value = `fb.1.${Date.now()}.${fbclid}`;
-        writeCookie(FBC_COOKIE, value);
-        backupSignal(FBC_BACKUP_KEY, value);
+        persistSignal(FBC_COOKIE, FBC_BACKUP_KEY, "fbc", `fb.1.${Date.now()}.${fbclid}`);
       }
     }
-    if (!readSignal(FBP_COOKIE, FBP_BACKUP_KEY)) {
-      const value = `fb.1.${Date.now()}.${Math.floor(Math.random() * 1e10)}`;
-      writeCookie(FBP_COOKIE, value);
-      backupSignal(FBP_BACKUP_KEY, value);
+    if (!readSignal(FBP_COOKIE, FBP_BACKUP_KEY, "fbp")) {
+      persistSignal(FBP_COOKIE, FBP_BACKUP_KEY, "fbp", `fb.1.${Date.now()}.${Math.floor(Math.random() * 1e10)}`);
     }
   } catch {
     /* cookies disabled — events still send, just with fewer match signals */
@@ -154,9 +178,15 @@ function getExternalId(): string | undefined {
       id = genEventId();
       localStorage.setItem(EXTERNAL_ID_KEY, id);
     }
+    memory.externalId = id;
     return id;
   } catch {
-    return undefined;
+    // Storage blocked. Returning undefined here used to be the last straw: with fbp/fbc
+    // also unavailable in these browsers, the event went to Meta with no match key at all.
+    // A per-page id is worth far more than nothing — it still ties this session's events
+    // together, which is what external_id is for.
+    if (!memory.externalId) memory.externalId = genEventId();
+    return memory.externalId;
   }
 }
 
@@ -167,8 +197,8 @@ export function getPixelSignals(): { fbp?: string; fbc?: string; externalId?: st
   if (typeof window === "undefined") return {};
   ensureFbCookies();
   return {
-    fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY),
-    fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY),
+    fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY, "fbp"),
+    fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY, "fbc"),
     externalId: getExternalId(),
   };
 }
@@ -278,8 +308,8 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
       customData,
       // Sent explicitly rather than left to the request's Cookie header: sendBeacon fires
       // during unload, and these are the values this page actually saw.
-      fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY),
-      fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY),
+      fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY, "fbc"),
+      fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY, "fbp"),
       externalId: getExternalId(),
       email: identity.email,
       phone: identity.phone,
