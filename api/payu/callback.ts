@@ -71,7 +71,13 @@ export default async function handler(req: any, res: any) {
             updated_at: new Date().toISOString(),
           })
           .eq("txnid", txnid)
-          .select("email, phone, name, items, total")
+          // The Meta match signals MUST be in this list. They were missing, so every
+          // `updated.fbp` / `.fbc` / `.client_ip` / `.client_ua` / `.external_id` read
+          // below silently came back undefined and the Purchase — the one event that
+          // actually drives attribution — reached Meta with nothing but a hashed email
+          // and phone. The columns exist (supabase-tables.sql) and checkout/initiate.ts
+          // populates them; only the projection was short.
+          .select("email, phone, name, items, total, fbp, fbc, client_ip, client_ua, external_id")
           .maybeSingle();
 
         // Awaited (not fire-and-forget): serverless functions can be frozen/killed the

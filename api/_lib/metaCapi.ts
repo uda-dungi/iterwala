@@ -54,7 +54,14 @@ export function extractRequestSignals(req: any): {
   fbp?: string;
   fbc?: string;
 } {
-  const forwarded = (req.headers?.["x-forwarded-for"] as string) || "";
+  // x-forwarded-for is what Vercel normally sets, but fall through the other proxy
+  // headers too — an event that reaches Meta with no client_ip_address at all is treated
+  // as unmatchable, so a fallback is always worth more than a blank.
+  const forwarded =
+    (req.headers?.["x-forwarded-for"] as string) ||
+    (req.headers?.["x-vercel-forwarded-for"] as string) ||
+    (req.headers?.["x-real-ip"] as string) ||
+    "";
   const ip = forwarded.split(",")[0]?.trim() || req.socket?.remoteAddress || undefined;
   const userAgent = (req.headers?.["user-agent"] as string) || undefined;
 

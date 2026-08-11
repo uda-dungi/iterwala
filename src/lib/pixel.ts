@@ -85,6 +85,39 @@ function writeCookie(name: string, value: string) {
   document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
 }
 
+/* Cookies are the format Meta's own script reads, but they are the least durable place to
+ * keep these: Safari's ITP caps script-written cookies at 7 days and some browsers block
+ * them outright — exactly the privacy-restricted traffic CAPI exists to recover. So both
+ * values are mirrored into localStorage and read back from there when the cookie is gone,
+ * which stops fbc/fbp quietly dropping out of the server event's user_data. */
+const FBC_BACKUP_KEY = "itr_fbc";
+const FBP_BACKUP_KEY = "itr_fbp";
+
+function backupSignal(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* storage blocked — the cookie is still the primary copy */
+  }
+}
+
+/** Cookie first, then the localStorage mirror. A value recovered from the mirror is
+ *  rewritten as a cookie so Meta's own script picks it up again on this page. */
+function readSignal(cookieName: string, backupKey: string): string | undefined {
+  const fromCookie = readCookie(cookieName);
+  if (fromCookie) {
+    backupSignal(backupKey, fromCookie);
+    return fromCookie;
+  }
+  try {
+    const stored = localStorage.getItem(backupKey) || undefined;
+    if (stored) writeCookie(cookieName, stored);
+    return stored;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Writes _fbc/_fbp in Meta's documented format when they're missing, so every event —
  *  including the very first PageView, and visits where fbevents.js is blocked — carries
  *  them. Formats: _fbc = `fb.1.<ms>.<fbclid>`, _fbp = `fb.1.<ms>.<random>`. */
@@ -93,13 +126,19 @@ function ensureFbCookies() {
   try {
     const fbclid = new URLSearchParams(window.location.search).get("fbclid");
     if (fbclid) {
-      // A fresh click must win over a stale one, so only keep the existing cookie when
+      // A fresh click must win over a stale one, so only keep the existing value when
       // it already carries this same fbclid (otherwise re-visits keep the old attribution).
-      const current = readCookie(FBC_COOKIE);
-      if (!current || !current.endsWith(`.${fbclid}`)) writeCookie(FBC_COOKIE, `fb.1.${Date.now()}.${fbclid}`);
+      const current = readSignal(FBC_COOKIE, FBC_BACKUP_KEY);
+      if (!current || !current.endsWith(`.${fbclid}`)) {
+        const value = `fb.1.${Date.now()}.${fbclid}`;
+        writeCookie(FBC_COOKIE, value);
+        backupSignal(FBC_BACKUP_KEY, value);
+      }
     }
-    if (!readCookie(FBP_COOKIE)) {
-      writeCookie(FBP_COOKIE, `fb.1.${Date.now()}.${Math.floor(Math.random() * 1e10)}`);
+    if (!readSignal(FBP_COOKIE, FBP_BACKUP_KEY)) {
+      const value = `fb.1.${Date.now()}.${Math.floor(Math.random() * 1e10)}`;
+      writeCookie(FBP_COOKIE, value);
+      backupSignal(FBP_BACKUP_KEY, value);
     }
   } catch {
     /* cookies disabled — events still send, just with fewer match signals */
@@ -127,7 +166,11 @@ function getExternalId(): string | undefined {
 export function getPixelSignals(): { fbp?: string; fbc?: string; externalId?: string } {
   if (typeof window === "undefined") return {};
   ensureFbCookies();
-  return { fbp: readCookie(FBP_COOKIE), fbc: readCookie(FBC_COOKIE), externalId: getExternalId() };
+  return {
+    fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY),
+    fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY),
+    externalId: getExternalId(),
+  };
 }
 
 type Identity = { email?: string; phone?: string };
@@ -235,8 +278,8 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
       customData,
       // Sent explicitly rather than left to the request's Cookie header: sendBeacon fires
       // during unload, and these are the values this page actually saw.
-      fbc: readCookie(FBC_COOKIE),
-      fbp: readCookie(FBP_COOKIE),
+      fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY),
+      fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY),
       externalId: getExternalId(),
       email: identity.email,
       phone: identity.phone,
