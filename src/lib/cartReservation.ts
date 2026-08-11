@@ -1,9 +1,11 @@
 /**
- * Cart reservation countdown — a 30-minute urgency timer shown while the cart holds a
- * product that's part of the Raksha Bandhan Sale (Pack of 4 Buy-1-Get-1, or the
- * Collector's Edition Buy-2-Get-1). Deliberately scoped to those two offers only, via
- * offerForProduct() in src/lib/offers.ts — the same function that decides whether to show
- * an offer badge, so the timer can never appear on a product with no offer to lose.
+ * Cart reservation countdown — a 30-minute urgency timer that runs whenever the cart has
+ * anything in it, starting the moment the first item is added.
+ *
+ * It was originally scoped to the two Raksha Bandhan Sale products via offerForProduct(),
+ * but that meant a shopper buying anything else never saw a timer — so it's now driven by
+ * cart contents alone (see CartReservationBanner). The copy reserves "your cart" rather
+ * than "the offer", which is true for every product.
  *
  * The deadline is stored as an absolute timestamp rather than a remaining duration, so
  * closing the tab and coming back resumes exactly where it left off (a duration would
@@ -12,14 +14,9 @@
  * shopper stuck or charged differently.
  */
 
-import { offerForProduct } from "@/lib/offers";
-
 export const RESERVATION_MINUTES = 30;
 const RESERVATION_MS = RESERVATION_MINUTES * 60 * 1000;
 const STORAGE_KEY = "itr_cart_reservation";
-
-/** True when this product carries one of the two sale offers the timer is meant for. */
-export const isReservableProduct = (productId: string): boolean => Boolean(offerForProduct(productId));
 
 /** The stored deadline, or null when there isn't one / it's unreadable. Deadlines already
  *  in the past are still returned — see startReservation() for why that matters. */

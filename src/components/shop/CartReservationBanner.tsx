@@ -3,17 +3,11 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Timer, X } from "lucide-react";
 import { useShop } from "@/store/shop";
-import {
-  clearReservation,
-  formatRemaining,
-  isReservableProduct,
-  readDeadline,
-  startReservation,
-} from "@/lib/cartReservation";
+import { clearReservation, formatRemaining, startReservation } from "@/lib/cartReservation";
 
 /**
- * "Your cart is reserved" countdown, shown only while the cart holds a Pack of 4 or a
- * Collector's Edition bottle (the two Raksha Bandhan Sale offers).
+ * "Your cart is reserved" countdown, shown whenever the cart has anything in it — it
+ * appears as soon as the first item is added and clears when the cart empties.
  *
  * Rendered inside the sticky header (see Navbar) rather than pinned to the bottom of the
  * viewport: at the bottom it sat in dark-on-dark under the mobile Add-to-Cart bar and the
@@ -26,7 +20,10 @@ import {
  */
 export function CartReservationBanner() {
   const { cart } = useShop();
-  const qualifies = cart.some((i) => isReservableProduct(i.product.id));
+  // Any non-empty cart starts the clock. It used to be scoped to the two Raksha Bandhan
+  // offers, which meant most shoppers never saw a timer at all — including on the cart
+  // page itself. Reserving "your cart" rather than "the offer" applies to every product.
+  const qualifies = cart.length > 0;
 
   const [deadline, setDeadline] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
@@ -82,7 +79,7 @@ export function CartReservationBanner() {
               <span className="inline-block rounded-sm bg-background px-2 py-0.5 font-serif text-sm sm:text-base font-bold text-ivory tabular-nums tracking-wide align-middle">
                 {formatRemaining(remaining)}
               </span>{" "}
-              — complete your purchase before the offer expires!
+              — complete your purchase before your cart is released!
             </p>
             <Link
               to="/checkout"

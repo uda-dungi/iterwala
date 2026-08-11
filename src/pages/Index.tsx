@@ -247,7 +247,7 @@ export default function Index() {
               <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-muted-foreground mt-1">Perfumes Sold</p>
             </div>
             <div>
-              <p className="font-display text-2xl sm:text-4xl text-gold">10 Years</p>
+              <p className="font-display text-2xl sm:text-4xl text-gold">25 Years</p>
               <p className="text-[10px] sm:text-xs tracking-luxe uppercase text-muted-foreground mt-1">Perfect Years</p>
             </div>
           </div>

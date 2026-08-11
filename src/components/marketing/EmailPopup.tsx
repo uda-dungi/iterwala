@@ -4,6 +4,7 @@ import { X, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 
 const SEEN_KEY = "itr_email_popup_seen";
 
@@ -41,8 +42,8 @@ export function EmailPopup() {
       await supabase.from("subscribers").insert({ email, source: "exit_popup" }).then(() => {});
     }
     // Says "first order" because that's what the code actually does (api/_lib/coupons.ts) —
-    // promising a bare 10% led to shoppers expecting it on repeat orders too.
-    toast.success("Welcome to the Inner Circle — use WELCOME10 for 10% off your first order.");
+    // promising a bare percentage led to shoppers expecting it on repeat orders too.
+    toast.success(`Welcome to the Inner Circle — use ${WELCOME_CODE} for ${WELCOME_PERCENT}% off your first order.`);
     setOpen(false);
   };
 

@@ -73,7 +73,7 @@ export default async function handler(req: any, res: any) {
         res.status(200).json({
           valid: false,
           discount: 0,
-          reason: "WELCOME10 is for first orders only, and this email has ordered before.",
+          reason: "This code is for first orders only, and this email has ordered before.",
         });
         return;
       }

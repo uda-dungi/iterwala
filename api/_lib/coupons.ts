@@ -9,14 +9,21 @@
  * database lookup, so the browser can never decide it. The client shows an optimistic
  * figure and /api/coupon/validate + /api/checkout/initiate have the final say.
  *
- * WELCOME10 rules (confirmed with Jatin, Aug 2026):
- *   - 10% off
- *   - does NOT stack with the Raksha Bandhan Sale offers
+ * WELCOME15 rules (Aug 2026):
+ *   - 15% off
+ *   - DOES stack with the Raksha Bandhan Sale offers, and applies to every product
+ *     including the Pack of 4 and the Collector's Edition. The percentage is taken off
+ *     the subtotal that already has the offer discount applied, so the two compound
+ *     rather than double-count (2 × Pack of 4 = ₹999 after BOGO, ₹849 after this).
  *   - first order only, tracked per email address
  */
 
-export const WELCOME_CODE = "WELCOME10";
-export const WELCOME_PERCENT = 10;
+export const WELCOME_CODE = "WELCOME15";
+export const WELCOME_PERCENT = 15;
+
+/** Codes handed out before the bump to 15%. Still accepted, at the current percentage,
+ *  so nobody holding an older popup/email code gets turned away. */
+const LEGACY_CODES = ["WELCOME10"];
 
 export type CouponResult = { valid: boolean; discount: number; reason?: string };
 
@@ -31,13 +38,8 @@ export const normalizeCode = (code: unknown): string =>
 export function computeCoupon(code: unknown, discountedSubtotal: number, offerDiscount: number): CouponResult {
   const c = normalizeCode(code);
   if (!c) return { valid: false, discount: 0 };
-  if (c !== WELCOME_CODE) return { valid: false, discount: 0, reason: "That code isn't valid." };
-  if (offerDiscount > 0) {
-    return {
-      valid: false,
-      discount: 0,
-      reason: "WELCOME10 can't be combined with the Raksha Bandhan Sale — your cart already has a bigger saving.",
-    };
+  if (c !== WELCOME_CODE && !LEGACY_CODES.includes(c)) {
+    return { valid: false, discount: 0, reason: "That code isn't valid." };
   }
   const discount = Math.round((discountedSubtotal * WELCOME_PERCENT) / 100);
   if (discount <= 0) return { valid: false, discount: 0, reason: "That code isn't valid for this cart." };
@@ -45,7 +47,7 @@ export function computeCoupon(code: unknown, discountedSubtotal: number, offerDi
 }
 
 /**
- * Has this email already completed an order? WELCOME10 is first-order-only, and orders
+ * Has this email already completed an order? WELCOME15 is first-order-only, and orders
  * are keyed by email, so one paid order permanently uses the code up for that address.
  *
  * Only 'paid' counts — an abandoned 'pending' row (checkout started, payment never
@@ -53,7 +55,7 @@ export function computeCoupon(code: unknown, discountedSubtotal: number, offerDi
  *
  * Fails OPEN (returns false) when Supabase isn't configured or the query errors: a
  * tracking lookup that's down should not block a real sale. The discount is capped at
- * 10% either way, so the downside of the rare false-allow is small.
+ * 15% either way, so the downside of the rare false-allow is small.
  */
 export async function hasPreviousPaidOrder(admin: any, email: string): Promise<boolean> {
   if (!admin || !email) return false;

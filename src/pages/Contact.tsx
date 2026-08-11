@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
-import { site, instagramLink } from "@/config/site";
+import { site, instagramLink, whatsappLink } from "@/config/site";
 
 export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
@@ -68,23 +68,32 @@ export default function Contact() {
           initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}
           className="space-y-6"
         >
+          {/* Every card is a real link — these used to render as plain <div>s, so "Tap to
+              chat" did nothing and even the Instagram entry's href was silently ignored.
+              WhatsApp/Instagram/Maps open in a new tab; mailto: and tel: must NOT, since
+              a _blank on those leaves a dead about:blank tab behind on mobile. */}
           {[
-            { Icon: Mail, t: "Email", v: site.email, s: "Within 24 hours" },
-            { Icon: Phone, t: "Call", v: site.phone, s: site.hours },
-            { Icon: MessageCircle, t: "WhatsApp", v: site.phone, s: "Tap to chat" },
-            { Icon: MapPin, t: "Store", v: site.address, s: "By appointment" },
-            { Icon: Instagram, t: "Instagram", v: `@${site.instagramHandle}`, s: "Behind the scenes daily", href: instagramLink },
+            { Icon: Mail, t: "Email", v: site.email, s: "Within 24 hours", href: `mailto:${site.email}`, external: false },
+            { Icon: Phone, t: "Call", v: site.phone, s: site.hours, href: `tel:${site.phone.replace(/\s+/g, "")}`, external: false },
+            { Icon: MessageCircle, t: "WhatsApp", v: site.phone, s: "Tap to chat", href: whatsappLink("Hi Itrawala! I'd like to know more about your fragrances."), external: true },
+            { Icon: MapPin, t: "Store", v: site.address, s: "By appointment", href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(site.address)}`, external: true },
+            { Icon: Instagram, t: "Instagram", v: `@${site.instagramHandle}`, s: "Behind the scenes daily", href: instagramLink, external: true },
           ].map(c => (
-            <div key={c.t} className="luxury-card p-6 flex items-start gap-5">
+            <a
+              key={c.t}
+              href={c.href}
+              {...(c.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+              className="luxury-card p-6 flex items-start gap-5 transition-colors hover:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
               <div className="w-12 h-12 rounded-sm bg-gradient-gold flex items-center justify-center shrink-0">
                 <c.Icon className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
                 <p className="text-[10px] tracking-luxe uppercase text-primary">{c.t}</p>
-                <p className="font-serif text-xl text-ivory mt-1">{c.v}</p>
+                <p className="font-serif text-xl text-ivory mt-1 break-words">{c.v}</p>
                 <p className="text-xs text-muted-foreground mt-1">{c.s}</p>
               </div>
-            </div>
+            </a>
           ))}
         </motion.div>
       </section>

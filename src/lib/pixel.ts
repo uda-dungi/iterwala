@@ -20,6 +20,11 @@
  * conversion; the CAPI copy is what survives ad blockers and Safari/iOS tracking
  * prevention, which only ever block the direct call to connect.facebook.net. Purchase
  * is intentionally NOT relayed from here — see trackPurchase() below.
+ *
+ * ⚠️ Every browser fire MUST carry an eventID or Meta counts it separately from the CAPI
+ * copy. That means never calling fbq('track', …) without one, and keeping autoConfig off
+ * in initPixel() so Meta's own auto-detected (untagged) events stay disabled — see the
+ * comment there for the coverage numbers that forced it.
  */
 
 import { site, isSet } from "@/config/site";
@@ -176,7 +181,27 @@ export function initPixel() {
   })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
   /* eslint-enable */
 
-  window.fbq?.("init", site.metaPixelId);
+  // Meta's automatic event detection fires its OWN ViewContent/PageView off page
+  // heuristics, and those copies carry no eventID at all — so Meta cannot match them to
+  // the CAPI copy and ends up counting both. That is exactly what dropped ViewContent's
+  // event-ID coverage to ~26% (55 browser events, only 66% of them tagged) while
+  // AddToCart and InitiateCheckout — which Meta never auto-detects, so they only ever
+  // fire from the calls below — sat at 100% tagged and ~94% coverage.
+  // Must be set BEFORE init, or the auto-detected events are already armed.
+  window.fbq?.("set", "autoConfig", false, site.metaPixelId);
+
+  // autoConfig:false also turns off Meta's *automatic* advanced matching, so pass the
+  // identifiers explicitly instead — fbevents.js SHA-256 hashes these in the browser
+  // before they leave it, so nothing identifying goes to Meta in clear. This keeps Event
+  // Match Quality where it was without reintroducing untagged events.
+  const identity = getIdentity();
+  const externalId = getExternalId();
+  window.fbq?.("init", site.metaPixelId, {
+    ...(identity.email ? { em: identity.email } : {}),
+    ...(identity.phone ? { ph: identity.phone } : {}),
+    ...(externalId ? { external_id: externalId } : {}),
+  });
+
   const eventID = genEventId();
   window.fbq?.("track", "PageView", {}, { eventID });
   sendServerEvent("PageView", eventID);

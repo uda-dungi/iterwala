@@ -145,7 +145,7 @@ const NEW_GALLERY_ORDER: Record<string, string[]> = {
   "Royal Oud Attar": ["156.jpg", "157.jpg", "154.jpg", "155.jpg", "153.jpg"],
   "Shahi Gulab Attar": ["159.jpg", "160.jpg", "161.jpg", "158.jpg", "162.jpg"],
   "Smoke Attar": ["189.jpg", "188.jpg", "191.jpg", "192.jpg", "190.jpg"],
-  "Touch Attar": ["183.jpg", "187.jpg", "184.jpg", "185.jpg", "186.jpg"],
+  "Touch Attar": ["183.jpg", "187.jpg", "184.jpg", "185.jpg"],
 };
 
 /** Photos under "new Product Gallery/<folder>/" (folder = "Celebrity Attar" for a flat

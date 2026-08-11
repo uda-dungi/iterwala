@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { site } from "@/config/site";
-import { computeCoupon, normalizeCode, WELCOME_PERCENT } from "@/lib/coupons";
+import { computeCoupon, normalizeCode, WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 
 export default function Cart() {
   const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge, coupon, setCoupon, couponDiscount, couponResult } = useShop();
@@ -117,7 +117,7 @@ export default function Cart() {
               </div>
             ) : (
               <div className="flex gap-2">
-                <Input value={entry} onChange={e => setEntry(e.target.value)} placeholder="Try WELCOME10" />
+                <Input value={entry} onChange={e => setEntry(e.target.value)} placeholder={`Try ${WELCOME_CODE}`} />
                 <Button variant="outline-gold" onClick={apply}>Apply</Button>
               </div>
             )}

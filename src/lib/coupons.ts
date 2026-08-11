@@ -4,28 +4,30 @@
 // the same discount the server will actually charge (same reason src/lib/offers.ts mirrors
 // api/_lib/offers.ts). If you edit the rules here, edit BOTH files.
 //
-// What is NOT mirrored: eligibility. WELCOME10 is first-order-only, tracked per email,
+// What is NOT mirrored: eligibility. WELCOME15 is first-order-only, tracked per email,
 // which needs a database lookup — so the browser can only ever show an optimistic figure.
 // /api/coupon/validate confirms it once an email is known, and /api/checkout/initiate
 // re-checks authoritatively before anything is charged.
 
-export const WELCOME_CODE = "WELCOME10";
-export const WELCOME_PERCENT = 10;
+export const WELCOME_CODE = "WELCOME15";
+export const WELCOME_PERCENT = 15;
+
+/** Codes handed out before the Aug 2026 bump to 15%. Still accepted, at the current
+ *  percentage, so nobody holding an older popup/email code gets turned away. */
+const LEGACY_CODES = ["WELCOME10"];
 
 export type CouponResult = { valid: boolean; discount: number; reason?: string };
 
 export const normalizeCode = (code: string): string => code.trim().toUpperCase();
 
+/** `offerDiscount` is no longer a blocker — the welcome code stacks on top of the Raksha
+ *  Bandhan offers (see api/_lib/coupons.ts for the rule). It stays in the signature
+ *  because callers pass it and the server mirror needs the same shape. */
 export function computeCoupon(code: string, discountedSubtotal: number, offerDiscount: number): CouponResult {
   const c = normalizeCode(code);
   if (!c) return { valid: false, discount: 0 };
-  if (c !== WELCOME_CODE) return { valid: false, discount: 0, reason: "That code isn't valid." };
-  if (offerDiscount > 0) {
-    return {
-      valid: false,
-      discount: 0,
-      reason: "WELCOME10 can't be combined with the Raksha Bandhan Sale — your cart already has a bigger saving.",
-    };
+  if (c !== WELCOME_CODE && !LEGACY_CODES.includes(c)) {
+    return { valid: false, discount: 0, reason: "That code isn't valid." };
   }
   const discount = Math.round((discountedSubtotal * WELCOME_PERCENT) / 100);
   if (discount <= 0) return { valid: false, discount: 0, reason: "That code isn't valid for this cart." };

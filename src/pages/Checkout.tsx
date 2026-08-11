@@ -35,7 +35,7 @@ export default function Checkout() {
   // post-discount subtotal, and the discount comes off the total.
   const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
   const shipping = 0; // Free shipping on all orders.
-  // couponAllowed reflects the server's verdict once the email is known — WELCOME10 is
+  // couponAllowed reflects the server's verdict once the email is known — the welcome code is
   // first-order-only, which only the server can check. Until then we show the optimistic
   // figure from the store, and never let the shopper reach PayU on a stale number.
   const [couponBlocked, setCouponBlocked] = useState<string | null>(null);
