@@ -4,6 +4,7 @@ import { Minus, Plus, ShoppingBag, Trash2, X, Sparkles } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
+import { CartReservationNotice } from "@/components/shop/CartReservationBanner";
 
 export function CartDrawer() {
   const { cart, cartOpen, setCartOpen, removeFromCart, updateQty, subtotal, offerDiscount, offerNudge } = useShop();
@@ -64,6 +65,10 @@ export function CartDrawer() {
 
             {cart.length > 0 && (
               <footer className="border-t border-border p-6 space-y-4 bg-deep-brown/30">
+                {/* The drawer overlays the sticky header, so the header's copy of the
+                    countdown is hidden at exactly the moment it matters most — right
+                    after a qualifying add-to-cart opens this panel. */}
+                <CartReservationNotice />
                 {offerNudge && (
                   <div className="rounded-sm border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary flex items-center gap-2">
                     <Sparkles className="w-3.5 h-3.5 shrink-0" /> {offerNudge}

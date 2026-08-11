@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { site } from "@/config/site";
 import { computeCoupon, normalizeCode, WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
+import { CartReservationNotice } from "@/components/shop/CartReservationBanner";
 
 export default function Cart() {
   const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge, coupon, setCoupon, couponDiscount, couponResult } = useShop();
@@ -97,6 +98,7 @@ export default function Cart() {
             <Row label="Shipping" v={shipping === 0 ? "Free" : formatINR(shipping)} />
             {couponDiscount > 0 && <Row label={`Coupon (${coupon})`} v={`− ${formatINR(couponDiscount)}`} className="text-primary" />}
           </div>
+          <CartReservationNotice />
           {offerNudge && (
             <div className="rounded-sm border border-primary/40 bg-primary/10 px-3 py-2 text-xs text-primary flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 shrink-0" /> {offerNudge}
