@@ -118,18 +118,24 @@ export default function Cart() {
                 <button onClick={removeCoupon} className="text-xs text-muted-foreground hover:text-ivory underline">Remove</button>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <Input value={entry} onChange={e => setEntry(e.target.value)} placeholder={`Try ${WELCOME_CODE}`} />
-                <Button variant="outline-gold" onClick={apply}>Apply</Button>
-              </div>
+              <>
+                {/* First-time shoppers won't know WELCOME15 exists otherwise — the input's
+                    placeholder alone is too easy to miss. */}
+                <p className="text-[11px] text-muted-foreground">
+                  New here? Use <span className="text-primary font-medium">{WELCOME_CODE}</span> for {WELCOME_PERCENT}% off your first order.
+                </p>
+                <div className="flex gap-2">
+                  <Input value={entry} onChange={e => setEntry(e.target.value)} placeholder={`Try ${WELCOME_CODE}`} />
+                  <Button variant="outline-gold" onClick={apply}>Apply</Button>
+                </div>
+              </>
             )}
             {/* First-order-only is enforced server-side, so say so rather than letting the
-                shopper discover it at the payment step. */}
+                shopper discover it at the payment step. WELCOME15 stacks on top of the
+                Raksha Bandhan Sale (see api/_lib/coupons.ts) — there's no "can't combine"
+                restriction to mention here. */}
             {couponDiscount > 0 && (
               <p className="text-[11px] text-muted-foreground">Valid on your first order — confirmed at checkout.</p>
-            )}
-            {offerDiscount > 0 && couponDiscount === 0 && (
-              <p className="text-[11px] text-muted-foreground">Promo codes can't be combined with the Raksha Bandhan Sale.</p>
             )}
           </div>
 

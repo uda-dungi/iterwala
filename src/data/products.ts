@@ -299,6 +299,59 @@ const productGallery2ImagesFor = (folder: string): string[] => {
     .map((k) => productGallery2Modules[k]);
 };
 
+// Fourth batch of studio photography, imported Aug 2026 from a Google Drive export
+// ("drive-download-20260812T060659Z-1-001.zip") covering ~25 products that previously had
+// only a single generic photo. Same layout as product-gallery-2 (flat per product, or with
+// a size subfolder), resized to 1080px and mozjpeg-recompressed (~56% smaller) before being
+// wired in below. The zip also contained many folders that were exact re-uploads of photos
+// already wired via Product Gallery / new Product Gallery / product-gallery-2 (aura, million,
+// poetry, rebel, celebrity, chemistry, legend, impression, inayat, honeymoon, etc.) — those
+// were left out entirely rather than duplicated. Two folders ("guldasta", "celebrity ATTAR"
+// dupes aside) turned out to be the same mislabeled "Shahi Chandan"/"Red Rose" gift-box shots
+// already flagged as wrong for Guldasta — skipped again for the same reason. "flora" and
+// "oud forest" were real branded bottle photos for products that didn't exist in the catalog
+// yet — added as new draft listings (Flora, Oud Forest) with placeholder pricing.
+const productGallery3Modules = import.meta.glob(
+  "../assets/product-gallery-3/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+  { eager: true, import: "default" }
+) as Record<string, string>;
+
+// "Maati/324.jpg" is mislabeled in the source export — it's actually a "Ruh-Heena" fragrance
+// pyramid infographic, not a Maati photo at all — excluded rather than shown on the wrong
+// product page.
+const PRODUCT_GALLERY_3_EXCLUDE = new Set(["Maati/324.jpg"]);
+
+// Lead-image order per folder (plain product-itself shot first, matching the site's
+// dark-theme-leads convention — see GALLERY_ORDER above). Only curated where the default
+// alphabetical order led with a text-heavy marketing card instead of the bottle itself.
+const PRODUCT_GALLERY_3_ORDER: Record<string, string[]> = {
+  Maati: ["321.jpg", "322.jpg", "320.jpg", "319.jpg", "323.jpg"],
+};
+
+/** Photos under "product-gallery-3/<folder>/" (folder = e.g. "Amber" or "Dubai Fame/50 ml"),
+ *  ordered per PRODUCT_GALLERY_3_ORDER (falling back to alphabetical for any folder not
+ *  listed there — see GALLERY_ORDER above for the same convention). Returns [] (never
+ *  throws) when the folder is missing/renamed/empty. */
+const productGallery3ImagesFor = (folder: string): string[] => {
+  const prefix = `../assets/product-gallery-3/${folder}/`;
+  const order = PRODUCT_GALLERY_3_ORDER[folder];
+  const rank = (filename: string) => {
+    const idx = order?.indexOf(filename) ?? -1;
+    return idx === -1 ? Infinity : idx;
+  };
+  return Object.keys(productGallery3Modules)
+    .filter((k) => k.startsWith(prefix) && !PRODUCT_GALLERY_3_EXCLUDE.has(`${folder}/${k.slice(prefix.length)}`))
+    .sort((a, b) => {
+      const fa = a.slice(prefix.length);
+      const fb = b.slice(prefix.length);
+      const ra = rank(fa);
+      const rb = rank(fb);
+      if (ra !== rb) return ra - rb;
+      return fa.localeCompare(fb);
+    })
+    .map((k) => productGallery3Modules[k]);
+};
+
 export type Product = {
   id: string;
   slug: string;
@@ -543,6 +596,14 @@ export const products: Product[] = [
     // New studio photography (Aug 2026, 100ml bottle) leads; original photo kept after.
     image: newGalleryImagesFor("Ocean Water")[0] ?? img("ocean-water"),
     gallery: [...newGalleryImagesFor("Ocean Water"), img("ocean-water")],
+    // Dedicated 50ml photography (Aug 2026) — previously the 100ml gallery above was shown
+    // for every size, including 50ml. A "20 ml" folder also exists there, but Ocean Water
+    // only sells 50ml/100ml today, so it isn't wired to a size — flag to Jatin if a 20ml
+    // size should be added for sale.
+    galleryByVolume: {
+      "50ml": productGallery3ImagesFor("Ocean Water/50 ml").length ? productGallery3ImagesFor("Ocean Water/50 ml") : [...newGalleryImagesFor("Ocean Water"), img("ocean-water")],
+      "100ml": [...newGalleryImagesFor("Ocean Water"), img("ocean-water")],
+    },
     notes: { top: ["Marine Accord", "Citrus"], heart: ["Sage", "Lavender"], base: ["Driftwood", "Musk"] },
     longevity: "6-8 hours", projection: "Moderate",
     occasions: ["Office", "Casual", "Summer"], moods: ["Fresh", "Energetic"],
@@ -694,8 +755,13 @@ export const products: Product[] = [
     price: 649, compareAt: 1099, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
     // Folder is "janat firdos" on disk (as dropped by the shoot batch) — kept as-is rather
     // than renamed, so the glob path below matches exactly.
-    image: productGallery2ImagesFor("janat firdos")[0] ?? img("attar-jannat-firdaus"),
-    gallery: productGallery2ImagesFor("janat firdos").length ? productGallery2ImagesFor("janat firdos") : [img("attar-jannat-firdaus")],
+    // "Jannat Firdaus Lifestyle" (Aug 2026) is a newer courtyard/lantern lifestyle reshoot
+    // of the same bottle, found in a later export batch — leads ahead of the older plain
+    // studio shots since it matches the site's dark-theme-leads convention.
+    image: productGallery3ImagesFor("Jannat Firdaus Lifestyle")[0] ?? productGallery2ImagesFor("janat firdos")[0] ?? img("attar-jannat-firdaus"),
+    gallery: [...productGallery3ImagesFor("Jannat Firdaus Lifestyle"), ...productGallery2ImagesFor("janat firdos")].length
+      ? [...productGallery3ImagesFor("Jannat Firdaus Lifestyle"), ...productGallery2ImagesFor("janat firdos")]
+      : [img("attar-jannat-firdaus")],
     notes: { top: ["Honey", "Fruit"], heart: ["Rose", "Oud"], base: ["Amber", "Musk", "Vanilla"] },
     longevity: "12 hours", projection: "Moderate",
     occasions: ["Festive", "Special Occasions", "Gifting"], moods: ["Opulent", "Warm"],
@@ -706,7 +772,9 @@ export const products: Product[] = [
   {
     id: "a-amber", slug: "amber", name: "Amber", tagline: "Liquid warmth",
     price: 699, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-amber"), gallery: [img("attar-amber-real")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Amber")[0] ?? img("attar-amber"),
+    gallery: productGallery3ImagesFor("Amber").length ? productGallery3ImagesFor("Amber") : [img("attar-amber-real")],
     notes: { top: ["Benzoin"], heart: ["Amber Resin", "Labdanum"], base: ["Vanilla", "Musk"] },
     longevity: "12 hours", projection: "Intimate",
     occasions: ["Winter", "Evening", "Daily Wear"], moods: ["Warm", "Cozy"],
@@ -717,7 +785,9 @@ export const products: Product[] = [
   {
     id: "a-rajnigandha", slug: "rajnigandha", name: "Rajnigandha", tagline: "Night-blooming tuberose",
     price: 599, category: "Attar", gender: "Women", volume: ATTAR_VOL,
-    image: img("attar-rajnigandha"), gallery: [img("attar-rajnigandha")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Rajnigandha")[0] ?? img("attar-rajnigandha"),
+    gallery: productGallery3ImagesFor("Rajnigandha").length ? productGallery3ImagesFor("Rajnigandha") : [img("attar-rajnigandha")],
     notes: { top: ["Green Leaves"], heart: ["Tuberose", "Jasmine"], base: ["Sandalwood", "Musk"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Festive", "Pooja", "Daily Wear"], moods: ["Serene", "Feminine"],
@@ -728,7 +798,9 @@ export const products: Product[] = [
   {
     id: "a-lavender", slug: "lavender", name: "Lavender", tagline: "Fields of calm",
     price: 549, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-lavender"), gallery: [img("attar-lavender")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Lavender")[0] ?? img("attar-lavender"),
+    gallery: productGallery3ImagesFor("Lavender").length ? productGallery3ImagesFor("Lavender") : [img("attar-lavender")],
     notes: { top: ["Lavender"], heart: ["Herbs", "Geranium"], base: ["Cedar", "Musk"] },
     longevity: "8-10 hours", projection: "Soft",
     occasions: ["Daily Wear", "Relaxation", "Office"], moods: ["Calm", "Fresh"],
@@ -794,7 +866,9 @@ export const products: Product[] = [
   {
     id: "a-aseel", slug: "aseel", name: "Aseel", tagline: "Pure & noble",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-aseel"), gallery: [img("aseel")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Aseel")[0] ?? img("attar-aseel"),
+    gallery: productGallery3ImagesFor("Aseel").length ? productGallery3ImagesFor("Aseel") : [img("aseel")],
     notes: { top: ["Spices"], heart: ["Oud", "Leather"], base: ["Amber", "Musk", "Woods"] },
     longevity: "12+ hours", projection: "Moderate",
     occasions: ["Formal", "Evening", "Gifting"], moods: ["Bold", "Refined"],
@@ -910,7 +984,13 @@ export const products: Product[] = [
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 349, compareAt: 749 }, "100ml": { price: 549, compareAt: 999 } },
     featuredVolume: "100ml",
-    image: img("dubai-fame"), gallery: [img("dubai-fame")],
+    // New per-size studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Dubai Fame/100 ml")[0] ?? img("dubai-fame"),
+    gallery: productGallery3ImagesFor("Dubai Fame/100 ml").length ? productGallery3ImagesFor("Dubai Fame/100 ml") : [img("dubai-fame")],
+    galleryByVolume: {
+      "50ml": productGallery3ImagesFor("Dubai Fame/50 ml").length ? productGallery3ImagesFor("Dubai Fame/50 ml") : [img("dubai-fame")],
+      "100ml": productGallery3ImagesFor("Dubai Fame/100 ml").length ? productGallery3ImagesFor("Dubai Fame/100 ml") : [img("dubai-fame")],
+    },
     notes: { top: ["Saffron", "Dates"], heart: ["Oud", "Rose"], base: ["Amber", "Musk"] },
     longevity: "10+ hours", projection: "Strong",
     occasions: ["Evening", "Festive", "Special Occasions"], moods: ["Opulent", "Exotic"],
@@ -963,7 +1043,13 @@ export const products: Product[] = [
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 549, compareAt: 999 }, "50ml": { price: 349, compareAt: 749 } },
     featuredVolume: "100ml",
-    image: img("melody"), gallery: [img("melody")],
+    // New per-size studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Melody/100 ml")[0] ?? img("melody"),
+    gallery: productGallery3ImagesFor("Melody/100 ml").length ? productGallery3ImagesFor("Melody/100 ml") : [img("melody")],
+    galleryByVolume: {
+      "50ml": productGallery3ImagesFor("Melody/50 ml").length ? productGallery3ImagesFor("Melody/50 ml") : [img("melody")],
+      "100ml": productGallery3ImagesFor("Melody/100 ml").length ? productGallery3ImagesFor("Melody/100 ml") : [img("melody")],
+    },
     notes: { top: ["Pear", "Bergamot"], heart: ["Jasmine", "Violet"], base: ["Musk", "Tonka"] },
     longevity: "6-8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Brunch", "Casual"], moods: ["Fresh", "Joyful"],
@@ -976,7 +1062,14 @@ export const products: Product[] = [
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
     priceByVolume: { "100ml": { price: 749, compareAt: 1099 }, "20ml": { price: 299, compareAt: 349 }, "50ml": { price: 489, compareAt: 999 } },
     featuredVolume: "100ml",
-    image: img("choco-blast"), gallery: [img("choco-blast")],
+    // New per-size studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Choco Blast/100 ml")[0] ?? img("choco-blast"),
+    gallery: productGallery3ImagesFor("Choco Blast/100 ml").length ? productGallery3ImagesFor("Choco Blast/100 ml") : [img("choco-blast")],
+    galleryByVolume: {
+      "20ml": productGallery3ImagesFor("Choco Blast/20 ml").length ? productGallery3ImagesFor("Choco Blast/20 ml") : [img("choco-blast")],
+      "50ml": productGallery3ImagesFor("Choco Blast/50 ml").length ? productGallery3ImagesFor("Choco Blast/50 ml") : [img("choco-blast")],
+      "100ml": productGallery3ImagesFor("Choco Blast/100 ml").length ? productGallery3ImagesFor("Choco Blast/100 ml") : [img("choco-blast")],
+    },
     notes: { top: ["Cocoa", "Orange"], heart: ["Praline", "Vanilla"], base: ["Musk", "Tonka"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Date Night", "Winter"], moods: ["Sweet", "Cozy"],
@@ -1010,7 +1103,13 @@ export const products: Product[] = [
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 549, compareAt: 999 }, "50ml": { price: 349, compareAt: 749 } },
     featuredVolume: "100ml",
-    image: img("blue-ice"), gallery: [img("blue-ice")],
+    // New per-size studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Blue Ice/100 ml")[0] ?? img("blue-ice"),
+    gallery: productGallery3ImagesFor("Blue Ice/100 ml").length ? productGallery3ImagesFor("Blue Ice/100 ml") : [img("blue-ice")],
+    galleryByVolume: {
+      "50ml": productGallery3ImagesFor("Blue Ice/50 ml").length ? productGallery3ImagesFor("Blue Ice/50 ml") : [img("blue-ice")],
+      "100ml": productGallery3ImagesFor("Blue Ice/100 ml").length ? productGallery3ImagesFor("Blue Ice/100 ml") : [img("blue-ice")],
+    },
     notes: { top: ["Marine Accord", "Mint"], heart: ["Lavender", "Sage"], base: ["Musk", "Driftwood"] },
     longevity: "6-8 hours", projection: "Moderate",
     occasions: ["Office", "Casual", "Summer"], moods: ["Fresh", "Energetic"],
@@ -1034,7 +1133,9 @@ export const products: Product[] = [
   {
     id: "a-oud-wood", slug: "oud-wood-attar", name: "Oud Wood Attar", tagline: "Aged oud, concentrated",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-oud-wood"), gallery: [img("attar-oud-wood")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Oud Wood Attar")[0] ?? img("attar-oud-wood"),
+    gallery: productGallery3ImagesFor("Oud Wood Attar").length ? productGallery3ImagesFor("Oud Wood Attar") : [img("attar-oud-wood")],
     notes: { top: ["Smoke"], heart: ["Aged Oud", "Leather"], base: ["Sandalwood", "Amber"] },
     longevity: "12+ hours", projection: "Strong",
     occasions: ["Formal", "Evening", "Winter"], moods: ["Bold", "Mysterious"],
@@ -1045,7 +1146,9 @@ export const products: Product[] = [
   {
     id: "a-honeymoon", slug: "honeymoon-attar", name: "Honeymoon Attar", tagline: "Sweet beginnings, in oil",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-honeymoon"), gallery: [img("attar-honeymoon")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Honeymoon Attar")[0] ?? img("attar-honeymoon"),
+    gallery: productGallery3ImagesFor("Honeymoon Attar").length ? productGallery3ImagesFor("Honeymoon Attar") : [img("attar-honeymoon")],
     notes: { top: ["Peach"], heart: ["Jasmine", "Rose"], base: ["Vanilla", "Musk", "Amber"] },
     longevity: "10-12 hours", projection: "Moderate",
     occasions: ["Festive", "Gifting", "Special Occasions"], moods: ["Romantic", "Sweet"],
@@ -1056,7 +1159,9 @@ export const products: Product[] = [
   {
     id: "a-lotus", slug: "lotus", name: "Lotus", tagline: "Water's first bloom",
     price: 699, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-lotus"), gallery: [img("attar-lotus")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Lotus")[0] ?? img("attar-lotus"),
+    gallery: productGallery3ImagesFor("Lotus").length ? productGallery3ImagesFor("Lotus") : [img("attar-lotus")],
     notes: { top: ["Lotus Petals"], heart: ["White Florals"], base: ["Sandalwood", "Musk"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Pooja", "Daily Wear", "Festive"], moods: ["Serene", "Pure"],
@@ -1067,7 +1172,9 @@ export const products: Product[] = [
   {
     id: "a-maati", slug: "maati", name: "Maati", tagline: "Scent of the earth",
     price: 1099, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-maati"), gallery: [img("attar-maati")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Maati")[0] ?? img("attar-maati"),
+    gallery: productGallery3ImagesFor("Maati").length ? productGallery3ImagesFor("Maati") : [img("attar-maati")],
     notes: { top: ["Earthy Petrichor"], heart: ["Vetiver", "Patchouli"], base: ["Sandalwood", "Musk"] },
     longevity: "10-12 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Monsoon", "Meditation"], moods: ["Grounded", "Nostalgic"],
@@ -1187,7 +1294,11 @@ export const products: Product[] = [
   {
     id: "p-black-gold", slug: "black-gold", name: "Black Gold", tagline: "Dark, luxurious, unforgettable",
     price: 549, compareAt: 999, category: "Perfume", gender: "Unisex", volume: ["100ml"],
-    image: img("black-gold"), gallery: [img("black-gold")],
+    // New studio photography (Aug 2026) replaces the old single generic photo. A "50 ml"
+    // folder also exists there, but Black Gold only sells 100ml today, so it isn't wired
+    // to a size — flag to Jatin if a 50ml size should be added for sale.
+    image: productGallery3ImagesFor("Black Gold/100 ml")[0] ?? img("black-gold"),
+    gallery: productGallery3ImagesFor("Black Gold/100 ml").length ? productGallery3ImagesFor("Black Gold/100 ml") : [img("black-gold")],
     notes: { top: ["Bergamot", "Black Pepper"], heart: ["Oud", "Leather"], base: ["Amber", "Musk", "Vanilla"] },
     longevity: "8-10 hours", projection: "Strong",
     occasions: ["Evening", "Celebrations", "Formal"], moods: ["Bold", "Mysterious"],
@@ -1198,7 +1309,9 @@ export const products: Product[] = [
   {
     id: "a-famous", slug: "famous", name: "Famous", tagline: "Command the room",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("famous"), gallery: [img("famous")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Famous")[0] ?? img("famous"),
+    gallery: productGallery3ImagesFor("Famous").length ? productGallery3ImagesFor("Famous") : [img("famous")],
     notes: { top: ["Saffron", "Bergamot"], heart: ["Oud", "Rose"], base: ["Amber", "Musk"] },
     longevity: "10+ hours", projection: "Strong",
     occasions: ["Evening", "Special Occasions", "Formal"], moods: ["Confident", "Magnetic"],
@@ -1209,7 +1322,9 @@ export const products: Product[] = [
   {
     id: "a-feel-good", slug: "feel-good", name: "Feel Good", tagline: "Effortless everyday joy",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-feel-good"), gallery: [img("feel-good")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Feel Good Attar")[0] ?? img("attar-feel-good"),
+    gallery: productGallery3ImagesFor("Feel Good Attar").length ? productGallery3ImagesFor("Feel Good Attar") : [img("feel-good")],
     notes: { top: ["Citrus", "Green Notes"], heart: ["Mixed Florals"], base: ["White Musk", "Woods"] },
     longevity: "8-10 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Office", "Brunch"], moods: ["Fresh", "Joyful"],
@@ -1232,7 +1347,9 @@ export const products: Product[] = [
   {
     id: "a-kesar-gulab", slug: "kesar-gulab", name: "Kesar Gulab", tagline: "Saffron-kissed rose",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("kesar-gulab"), gallery: [img("kesar-gulab")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Kesar Gulab")[0] ?? img("kesar-gulab"),
+    gallery: productGallery3ImagesFor("Kesar Gulab").length ? productGallery3ImagesFor("Kesar Gulab") : [img("kesar-gulab")],
     notes: { top: ["Saffron"], heart: ["Turkish Rose", "Rose Petals"], base: ["Sandalwood", "Musk"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Special Occasions", "Festive", "Gifting"], moods: ["Regal", "Romantic"],
@@ -1352,7 +1469,15 @@ export const products: Product[] = [
     price: 1499, compareAt: 1499, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 1499, compareAt: 1499 }, "50ml": { price: 489, compareAt: 1499 } },
     featuredVolume: "100ml",
-    image: img("feel-good"), gallery: [img("feel-good")],
+    // New per-size studio photography (Aug 2026) replaces the old single generic photo. A
+    // "20 ml" folder also exists there, but Feel Good only sells 50ml/100ml today, so it
+    // isn't wired to a size — flag to Jatin if a 20ml size should be added for sale.
+    image: productGallery3ImagesFor("Feel Good/100 ml")[0] ?? img("feel-good"),
+    gallery: productGallery3ImagesFor("Feel Good/100 ml").length ? productGallery3ImagesFor("Feel Good/100 ml") : [img("feel-good")],
+    galleryByVolume: {
+      "50ml": productGallery3ImagesFor("Feel Good/50 ml").length ? productGallery3ImagesFor("Feel Good/50 ml") : [img("feel-good")],
+      "100ml": productGallery3ImagesFor("Feel Good/100 ml").length ? productGallery3ImagesFor("Feel Good/100 ml") : [img("feel-good")],
+    },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1363,7 +1488,9 @@ export const products: Product[] = [
   {
     id: "a-impression", slug: "impression-attar", name: "Impression Attar", tagline: "Discover this fragrance",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-impression"), gallery: [img("attar-impression")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Impression Attar")[0] ?? img("attar-impression"),
+    gallery: productGallery3ImagesFor("Impression Attar").length ? productGallery3ImagesFor("Impression Attar") : [img("attar-impression")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1424,7 +1551,9 @@ export const products: Product[] = [
   {
     id: "a-khawab", slug: "khawab", name: "Khwaab", tagline: "Discover this fragrance",
     price: 1354, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("khawab"), gallery: [img("khawab")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Khwaab")[0] ?? img("khawab"),
+    gallery: productGallery3ImagesFor("Khwaab").length ? productGallery3ImagesFor("Khwaab") : [img("khawab")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1448,7 +1577,9 @@ export const products: Product[] = [
   {
     id: "a-noor-jahan", slug: "noor-jahan", name: "Noor Jahan", tagline: "Discover this fragrance",
     price: 994, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("noor-jahan"), gallery: [img("noor-jahan")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Noor Jahan")[0] ?? img("noor-jahan"),
+    gallery: productGallery3ImagesFor("Noor Jahan").length ? productGallery3ImagesFor("Noor Jahan") : [img("noor-jahan")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1459,7 +1590,9 @@ export const products: Product[] = [
   {
     id: "a-fitoor", slug: "fitoor", name: "Fitoor", tagline: "Discover this fragrance",
     price: 549, compareAt: 1699, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("fitoor"), gallery: [img("fitoor")],
+    // New studio photography (Aug 2026) replaces the old single generic photo.
+    image: productGallery3ImagesFor("Fitoor")[0] ?? img("fitoor"),
+    gallery: productGallery3ImagesFor("Fitoor").length ? productGallery3ImagesFor("Fitoor") : [img("fitoor")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1532,7 +1665,10 @@ export const products: Product[] = [
   {
     id: "a-dargah", slug: "dargah", name: "Dargah", tagline: "Discover this fragrance",
     price: 549, compareAt: 1699, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("dargah"), gallery: [img("dargah")],
+    // New studio photography (Aug 2026, filed under "Dagrah" in the source export) replaces
+    // the old single generic photo.
+    image: productGallery3ImagesFor("Dargah")[0] ?? img("dargah"),
+    gallery: productGallery3ImagesFor("Dargah").length ? productGallery3ImagesFor("Dargah") : [img("dargah")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1605,6 +1741,49 @@ export const products: Product[] = [
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
     ingredients: "100% alcohol-free premium attar oil.",
     description: "Zannat — a premium Itra Wala fragrance, now available on our store.",
+    rating: 4.6, reviews: 0, newArrival: true,
+  },
+  // ─────────────── FOUND IN AUG 2026 PHOTO EXPORT, NOT YET IN ANY PRICE SHEET ───────────────
+  // Flora and Oud Forest are real, fully-branded Itra Wala bottles (studio photography
+  // confirms the labels/sizes) that don't appear in any price sheet or prior catalog entry.
+  // Added as draft listings with placeholder pricing mirrored from comparable existing
+  // perfumes (Chemistry) — flag to Jatin to confirm real price/MRP and notes before promoting
+  // out of "newArrival"/draft status.
+  {
+    id: "p-flora", slug: "flora", name: "Flora", tagline: "Discover this fragrance",
+    price: 799, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL_20,
+    priceByVolume: { "100ml": { price: 799, compareAt: 1299 }, "20ml": { price: 249, compareAt: 699 }, "50ml": { price: 499, compareAt: 899 } },
+    featuredVolume: "100ml",
+    image: productGallery3ImagesFor("Flora/100 ml")[0] ?? PLACEHOLDER_IMG,
+    gallery: productGallery3ImagesFor("Flora/100 ml"),
+    galleryByVolume: {
+      "20ml": productGallery3ImagesFor("Flora/20 ml"),
+      "50ml": productGallery3ImagesFor("Flora/50 ml"),
+      "100ml": productGallery3ImagesFor("Flora/100 ml"),
+    },
+    notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
+    longevity: "8 hours", projection: "Moderate",
+    occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Flora — a premium Itra Wala fragrance, now available on our store.",
+    rating: 4.6, reviews: 0, newArrival: true,
+  },
+  {
+    id: "p-oud-forest", slug: "oud-forest", name: "Oud Forest", tagline: "Discover this fragrance",
+    price: 799, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: ["20ml", "100ml"],
+    priceByVolume: { "100ml": { price: 799, compareAt: 1299 }, "20ml": { price: 249, compareAt: 699 } },
+    featuredVolume: "100ml",
+    image: productGallery3ImagesFor("Oud Forest/100 ml")[0] ?? PLACEHOLDER_IMG,
+    gallery: productGallery3ImagesFor("Oud Forest/100 ml"),
+    galleryByVolume: {
+      "20ml": productGallery3ImagesFor("Oud Forest/20 ml"),
+      "100ml": productGallery3ImagesFor("Oud Forest/100 ml"),
+    },
+    notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
+    longevity: "10+ hours", projection: "Strong",
+    occasions: ["Evening", "Special Occasions"], moods: ["Bold"],
+    ingredients: "Premium fragrance oils, French-grade alcohol base.",
+    description: "Oud Forest — a premium Itra Wala fragrance, now available on our store.",
     rating: 4.6, reviews: 0, newArrival: true,
   },
 

@@ -6,6 +6,8 @@
  * real value is present, the same pattern as src/lib/supabase.ts.
  */
 
+import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
+
 const env = import.meta.env;
 
 /** True when a config value has been filled in (not blank / not a placeholder). */
@@ -78,6 +80,7 @@ export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
   "✦ Raksha Bandhan Sale is Live Now ✦",
+  `New Here? Get ${WELCOME_PERCENT}% Off with Code ${WELCOME_CODE}`,
   "Free Shipping",
   "Amazon's Choice Products Available",
   "100% Money-Back Guarantee",

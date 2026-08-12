@@ -1,0 +1,664 @@
+[
+  {
+    "id": "p-celebrity",
+    "slug": "celebrity",
+    "name": "Celebrity",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-impression",
+    "slug": "impression",
+    "name": "Impression",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-inayat",
+    "slug": "inayat",
+    "name": "Inayat",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-oud-wood",
+    "slug": "oud-wood",
+    "name": "Oud Wood",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-sukoon",
+    "slug": "sukoon",
+    "name": "Sukoon",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-touch",
+    "slug": "touch",
+    "name": "Touch",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-ocean-water",
+    "slug": "ocean-water",
+    "name": "Ocean Water",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-white-musk",
+    "slug": "white-musk",
+    "name": "White Musk",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-temptation",
+    "slug": "temptation",
+    "name": "Temptation",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-rose-petals",
+    "slug": "rose-petals",
+    "name": "Rose Petals",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-legend",
+    "slug": "legend",
+    "name": "Legend",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-royal-oud",
+    "slug": "royal-oud",
+    "name": "Royal Oud",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-shahi-gulab",
+    "slug": "shahi-gulab",
+    "name": "Shahi Gulab",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-mogra-gold",
+    "slug": "mogra-gold",
+    "name": "Mogra Gold",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-rooh-chandan",
+    "slug": "rooh-chandan",
+    "name": "Rooh Chandan",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-jannat-firdaus",
+    "slug": "jannat-firdaus",
+    "name": "Jannat Firdaus",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-amber",
+    "slug": "amber",
+    "name": "Amber",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-rajnigandha",
+    "slug": "rajnigandha",
+    "name": "Rajnigandha",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-lavender",
+    "slug": "lavender",
+    "name": "Lavender",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-tulsi",
+    "slug": "tulsi",
+    "name": "Tulsi",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-ruh-kewra",
+    "slug": "ruh-kewra",
+    "name": "Ruh Kewra",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-shyam-shringar",
+    "slug": "shyam-shringar",
+    "name": "Shyam Shringar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-inayat",
+    "slug": "inayat-attar",
+    "name": "Inayat Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-aseel",
+    "slug": "aseel",
+    "name": "Aseel",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "g-discovery",
+    "slug": "discovery-set",
+    "name": "Pack of 8 Gift Set",
+    "category": "Gift Set",
+    "volumes": [
+      "Variant 1",
+      "Variant 2"
+    ],
+    "usesRealGallery": true
+  },
+  {
+    "id": "g-aqua-duo",
+    "slug": "aqua-duo-gift-set",
+    "name": "Aqua Duo Gift Set",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "g-attar-duo",
+    "slug": "attar-duo-gift-set",
+    "name": "Premium Attar Duo",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-million",
+    "slug": "million",
+    "name": "Million",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-smoke",
+    "slug": "smoke",
+    "name": "Smoke",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-dubai-fame",
+    "slug": "dubai-fame",
+    "name": "Dubai Fame",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-valentine",
+    "slug": "valentine",
+    "name": "Valentine",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-aura",
+    "slug": "aura",
+    "name": "Aura",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-melody",
+    "slug": "melody",
+    "name": "Melody",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-choco-blast",
+    "slug": "choco-blast",
+    "name": "Choco Blast",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-honeymoon",
+    "slug": "honeymoon",
+    "name": "Honeymoon",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-blue-ice",
+    "slug": "blue-ice",
+    "name": "Blue Ice",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-sukoon",
+    "slug": "sukoon-attar",
+    "name": "Sukoon Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-oud-wood",
+    "slug": "oud-wood-attar",
+    "name": "Oud Wood Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-honeymoon",
+    "slug": "honeymoon-attar",
+    "name": "Honeymoon Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-lotus",
+    "slug": "lotus",
+    "name": "Lotus",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-maati",
+    "slug": "maati",
+    "name": "Maati",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-ruh-heena",
+    "slug": "ruh-heena",
+    "name": "Ruh Heena",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-ruh-khus",
+    "slug": "ruh-khus",
+    "name": "Ruh Khus",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-ruh-mogra",
+    "slug": "ruh-mogra",
+    "name": "Ruh Mogra",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "g-pack-of-4",
+    "slug": "pack-of-4-gift-set",
+    "name": "Pack of 4 Gift Set",
+    "category": "Gift Set",
+    "volumes": [
+      "Variant 1",
+      "Variant 2",
+      "Variant 3",
+      "Variant 4"
+    ],
+    "usesRealGallery": true
+  },
+  {
+    "id": "g-rooh-chandan-duo",
+    "slug": "rooh-chandan-duo-gift-set",
+    "name": "Rooh Chandan Duo",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-black-gold",
+    "slug": "black-gold",
+    "name": "Black Gold",
+    "category": "Perfume",
+    "volumes": [
+      "100ml"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-famous",
+    "slug": "famous",
+    "name": "Famous",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-feel-good",
+    "slug": "feel-good",
+    "name": "Feel Good",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-guldasta",
+    "slug": "guldasta",
+    "name": "Guldasta",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-kesar-gulab",
+    "slug": "kesar-gulab",
+    "name": "Kesar Gulab",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "g-whiteoud-blackoud-duo",
+    "slug": "whiteoud-blackoud-gift-set",
+    "name": "White Oud & Black Oud Duo",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "g-mogragold-shahigulab-duo",
+    "slug": "mogragold-shahigulab-gift-set",
+    "name": "Mogra Gold & Shahi Gulab Duo",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "g-royaloud-shyamshringar-duo",
+    "slug": "royaloud-shyamshringar-gift-set",
+    "name": "Royal Oud & Shyam Shringar Duo",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "ce-shabd",
+    "slug": "shabd",
+    "name": "Shabd",
+    "category": "Collector's Edition",
+    "volumes": [
+      "100ml"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "ce-kahani",
+    "slug": "kahani",
+    "name": "Kahani",
+    "category": "Collector's Edition",
+    "volumes": [
+      "100ml"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "ce-ehsaas",
+    "slug": "ehsaas",
+    "name": "Ehsaas",
+    "category": "Collector's Edition",
+    "volumes": [
+      "100ml"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-celebrity",
+    "slug": "celebrity-attar",
+    "name": "Celebrity Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-wild",
+    "slug": "wild",
+    "name": "Wild",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-saffron-sandal",
+    "slug": "saffron-sandal",
+    "name": "Saffron Sandal",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-feel-good",
+    "slug": "feel-good-new",
+    "name": "Feel Good",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-impression",
+    "slug": "impression-attar",
+    "name": "Impression Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-choco-blast",
+    "slug": "choco-blast-attar",
+    "name": "Choco Blast Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-chemistry",
+    "slug": "chemistry",
+    "name": "Chemistry",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-shanaya",
+    "slug": "shanaya",
+    "name": "Shanaya",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-khawab",
+    "slug": "khawab",
+    "name": "Khwaab",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-million",
+    "slug": "million-attar",
+    "name": "Million Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-noor-jahan",
+    "slug": "noor-jahan",
+    "name": "Noor Jahan",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-fitoor",
+    "slug": "fitoor",
+    "name": "Fitoor",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-poetry",
+    "slug": "poetry",
+    "name": "Poetry",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "p-rebel",
+    "slug": "rebel",
+    "name": "Rebel",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "g-royal-oud",
+    "slug": "royal-oud-duo-gift-set",
+    "name": "Royal Oud Duo",
+    "category": "Gift Set",
+    "volumes": [
+      "Gift Box"
+    ],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-smoke",
+    "slug": "smoke-attar",
+    "name": "Smoke Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-dargah",
+    "slug": "dargah",
+    "name": "Dargah",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-touch",
+    "slug": "touch-attar",
+    "name": "Touch Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-white-oud",
+    "slug": "white-oud-attar",
+    "name": "White Oud Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "a-wild",
+    "slug": "wild-attar",
+    "name": "Wild Attar",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  },
+  {
+    "id": "p-wanted",
+    "slug": "wanted",
+    "name": "Wanted",
+    "category": "Perfume",
+    "volumes": [],
+    "usesRealGallery": true
+  },
+  {
+    "id": "a-zannat",
+    "slug": "zannat",
+    "name": "Zannat",
+    "category": "Attar",
+    "volumes": [],
+    "usesRealGallery": false
+  }
+]

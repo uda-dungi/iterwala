@@ -28,3 +28,7 @@ dist-ssr
 *.sw?
 
 .vercel
+
+# Raw source photo exports (huge, only used locally to derive the compressed assets that
+# actually get committed under src/assets/) — never belongs in git history.
+src/assets/*.zip
