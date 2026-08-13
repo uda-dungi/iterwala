@@ -210,12 +210,42 @@ type Identity = { email?: string; phone?: string };
  *  the form is submitted and on sign-in. The values are hashed server-side before they
  *  ever reach Meta (api/_lib/metaCapi.ts); nothing identifying is sent to Meta in clear. */
 export function setPixelIdentity(identity: Identity) {
+  let merged: Identity = identity;
   try {
-    const merged = { ...getIdentity(), ...identity };
+    merged = { ...getIdentity(), ...identity };
     localStorage.setItem(IDENTITY_KEY, JSON.stringify(merged));
   } catch {
-    /* storage blocked — events simply go without em/ph */
+    /* storage blocked — CAPI still gets em/ph via the in-memory value below */
   }
+  // Re-arm browser-side Advanced Matching with the identity we now know.
+  //
+  // initPixel() reads the identity once, at load. On a SPA the shopper usually signs in
+  // (or fills the checkout form) LONG after that, so without this re-init every browser
+  // event for the rest of the session goes out with no em/ph — the two heaviest-weighted
+  // match signals — even though the CAPI copy carries them. Re-calling fbq("init", …) is
+  // Meta's documented way to update user data for subsequent events; it does not reload
+  // the script or re-fire PageView. fbevents.js SHA-256 hashes these in the browser, so
+  // nothing identifying leaves it in clear.
+  applyAdvancedMatching(merged);
+}
+
+/** Passes hashed-in-browser em/ph/external_id to the Pixel for all subsequent events.
+ *
+ *  Normalised to exactly what api/_lib/metaCapi.ts hashes (email: trimmed + lowercased,
+ *  phone: digits only). fbevents.js hashes whatever it is handed, so passing the raw
+ *  "  Shopper@Example.COM " here while the server hashes "shopper@example.com" would
+ *  produce two different SHA-256 values for one person — Meta would then fail to match
+ *  the browser and CAPI copies to the same user, which is the whole point of sending it. */
+function applyAdvancedMatching(identity: Identity) {
+  if (typeof window === "undefined" || !isPixelConfigured() || !window.fbq) return;
+  const em = identity.email?.trim().toLowerCase();
+  const ph = identity.phone?.replace(/\D/g, "");
+  const externalId = getExternalId();
+  window.fbq("init", site.metaPixelId, {
+    ...(em ? { em } : {}),
+    ...(ph ? { ph } : {}),
+    ...(externalId ? { external_id: externalId } : {}),
+  });
 }
 
 function getIdentity(): Identity {
@@ -266,14 +296,9 @@ export function initPixel() {
   // autoConfig:false also turns off Meta's *automatic* advanced matching, so pass the
   // identifiers explicitly instead — fbevents.js SHA-256 hashes these in the browser
   // before they leave it, so nothing identifying goes to Meta in clear. This keeps Event
-  // Match Quality where it was without reintroducing untagged events.
-  const identity = getIdentity();
-  const externalId = getExternalId();
-  window.fbq?.("init", site.metaPixelId, {
-    ...(identity.email ? { em: identity.email } : {}),
-    ...(identity.phone ? { ph: identity.phone } : {}),
-    ...(externalId ? { external_id: externalId } : {}),
-  });
+  // Match Quality where it was without reintroducing untagged events. setPixelIdentity()
+  // calls the same helper again if the shopper signs in later in the session.
+  applyAdvancedMatching(getIdentity());
 
   const eventID = genEventId();
   window.fbq?.("track", "PageView", {}, { eventID });

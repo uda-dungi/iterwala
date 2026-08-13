@@ -80,12 +80,12 @@ export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
 /**
  * Delivery promise shown on the product page, next to Add to Cart.
  *
- * NOTE: the Shipping Policy page (src/pages/Policy.tsx) currently states 1–2 business days
- * to process plus 3–7 business days to deliver — i.e. up to 9 business days, not 6. Keep
- * this string and that page in agreement; a promise here that the policy doesn't back is
- * the kind of thing shoppers screenshot when an order runs late.
+ * Confirmed with Jatin (Aug 2026) as 6 business days end to end — order placed to
+ * doorstep, processing included. The Shipping Policy page (src/pages/Policy.tsx) is
+ * worded to match; keep the two in agreement, since a promise here the policy doesn't
+ * back is what shoppers screenshot when an order runs late.
  */
-export const DELIVERY_ESTIMATE = "Delivered in 4–6 business days";
+export const DELIVERY_ESTIMATE = "Delivered within 6 business days";
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [

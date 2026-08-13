@@ -90,7 +90,9 @@ export type CapiUserData = {
 };
 
 export type CapiEvent = {
-  eventName: "Purchase" | "InitiateCheckout" | "AddToCart" | "PageView";
+  /** ViewContent is relayed from the browser like PageView/AddToCart/InitiateCheckout
+   *  (see api/track/event.ts); Purchase is sent from api/payu/callback.ts instead. */
+  eventName: "Purchase" | "InitiateCheckout" | "AddToCart" | "PageView" | "ViewContent";
   /** Must match the browser Pixel's eventID for the same action so Meta de-dupes. */
   eventId?: string;
   eventSourceUrl?: string;
