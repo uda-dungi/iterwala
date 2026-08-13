@@ -1,4 +1,6 @@
+import { ShieldCheck } from "lucide-react";
 import { StoryImages } from "@/data/collectorStories";
+import { TRADING_SINCE } from "@/config/site";
 
 /**
  * Full-bleed editorial story for a Collector's Edition bottle (Shabd / Kahani / Ehsaas).
@@ -13,10 +15,23 @@ export function CollectorStory({ images, name }: { images: StoryImages; name: st
       {/* 1 · Opening hero */}
       <img src={images.hero} alt="Itrawala Collector's Edition — Three Fragrances, One Legacy" className="block w-full h-auto" loading="lazy" />
 
-      {/* 2 · The story */}
+      {/* 2 · Trust line. Sits directly under the opening hero so the credibility claim
+          frames everything below it, and is the one band on this page with a gold
+          background — the surrounding panels are all dark artwork, so it reads as a
+          deliberate highlight rather than another slide. */}
+      <div className="bg-gradient-gold text-primary-foreground">
+        <div className="container py-4 md:py-5 flex items-center justify-center gap-3 md:gap-4 text-center">
+          <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 shrink-0" strokeWidth={1.5} />
+          <p className="font-serif text-base sm:text-xl md:text-2xl tracking-wide">
+            Trusted by online customers since {TRADING_SINCE}
+          </p>
+        </div>
+      </div>
+
+      {/* 3 · The story */}
       <img src={images.story} alt={`${name} — Every Story Leaves a Trace`} className="block w-full h-auto" loading="lazy" />
 
-      {/* 3 · Fragrance notes — three square cards (3-up on desktop, stacked on mobile) */}
+      {/* 4 · Fragrance notes — three square cards (3-up on desktop, stacked on mobile) */}
       <div className="py-10 md:py-16">
         <div className="text-center mb-6 md:mb-10 px-4">
           <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Fragrance Notes</p>
@@ -30,7 +45,7 @@ export function CollectorStory({ images, name }: { images: StoryImages; name: st
         </div>
       </div>
 
-      {/* 4 · Packaging — the one photo without baked copy, paired with an HTML caption */}
+      {/* 5 · Packaging — the one photo without baked copy, paired with an HTML caption */}
       <div className="grid md:grid-cols-2 items-center">
         <img src={images.packaging} alt={`${name} Collector's Edition packaging`} className="block w-full h-auto order-1 md:order-none" loading="lazy" />
         <div className="px-6 py-10 md:px-12 lg:px-16 text-center md:text-left">
@@ -43,7 +58,7 @@ export function CollectorStory({ images, name }: { images: StoryImages; name: st
         </div>
       </div>
 
-      {/* 5 · Lifestyle poster (portrait). A blurred, dimmed copy of the same image fills
+      {/* 6 · Lifestyle poster (portrait). A blurred, dimmed copy of the same image fills
           the full-width band behind it, so the wide desktop section reads as a framed
           moment instead of an empty void around a small centered poster. */}
       <div className="relative flex justify-center overflow-hidden py-10 md:py-16 px-4">
@@ -62,7 +77,7 @@ export function CollectorStory({ images, name }: { images: StoryImages; name: st
         />
       </div>
 
-      {/* 6 · Closing */}
+      {/* 7 · Closing */}
       <img src={images.closing} alt={`Introducing ${name} — Woven. Warm. Timeless.`} className="block w-full h-auto" loading="lazy" />
     </section>
   );

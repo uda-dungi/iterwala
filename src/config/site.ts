@@ -87,6 +87,10 @@ export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
  */
 export const DELIVERY_ESTIMATE = "Delivered within 6 business days";
 
+/** Year the brand started selling online — used in the trust line on the Collector's
+ *  Edition story page. A public claim, so keep it accurate. */
+export const TRADING_SINCE = 2020;
+
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
   "✦ Raksha Bandhan Sale is Live Now ✦",
