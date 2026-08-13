@@ -50,7 +50,7 @@ export const site = {
   /** Digits only, country code first, no "+" or spaces — e.g. "919876543210". */
   whatsappNumber: (env.VITE_WHATSAPP_NUMBER as string) || "917014657175",
   amazonStoreUrl: (env.VITE_AMAZON_STORE_URL as string) || "PLACEHOLDER_AMAZON_STORE_URL",
-  instagramHandle: stripHandle(env.VITE_INSTAGRAM_HANDLE as string) || "itrawalaa",
+  instagramHandle: stripHandle(env.VITE_INSTAGRAM_HANDLE as string) || "itrawala",
   facebookHandle: stripHandle(env.VITE_FACEBOOK_HANDLE as string) || "theitrawala",
   adminEmails,
   /** Public Instagram reel/post permalinks for the home Reels strip. */

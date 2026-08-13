@@ -12,13 +12,17 @@ import { OrganizationSchema } from "@/components/seo/Schema";
 import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { LazyReelVideo } from "@/components/home/LazyReelVideo";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
+import { MobileCarousel } from "@/components/home/MobileCarousel";
 import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, listingVolume, NEW_LAUNCH_SLUGS, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
 import collection from "@/assets/collection-attars.jpg";
 import attarLineup from "@/assets/brand/attar-lineup.jpg";
-import perfumeCollectionImg from "@/assets/products/celebrity-1.jpg";
+// The old celebrity-1.jpg (cream bottle, ridged silver cap on a red pedestal) read pale
+// and dated against the dark theme. Dubai Fame's shot is dark, gold-lit and centered, so
+// it survives the card's wide 4:3/3:2 crop.
+import perfumeCollectionImg from "@/assets/product-gallery-3/Dubai Fame/100 ml/16.jpg";
 // EDIT: giftset-discovery.jpg's two-box composition crops awkwardly at the card's wide
 // 4:3/3:2 aspect (the boxes sit at an angle, so a vertical center-crop split them oddly).
 // signature-quad's box+bottles are shot straight-on and centered, so it reads cleanly
@@ -63,10 +67,9 @@ const BEST_SELLER_SLUGS = ["celebrity", "inayat-attar", "touch", "white-musk"];
 // Extra picks shown only on the mobile slider (desktop keeps the original 4-up grid).
 const BEST_SELLER_MOBILE_EXTRA_SLUGS = ["oud-wood", "legend"];
 
-// Curated for the "Luxury Gift Boxes" section — lead with the pack-of-4 signature
-// quad, alongside a pack-of-2 attar duo (per request), instead of whichever two gift
-// sets happen to be first in the catalog array.
-const LUXURY_GIFT_SLUGS = ["pack-of-4-gift-set", "attar-duo-gift-set"];
+// Curated for the "Luxury Gift Boxes" section — the two multi-bottle boxed sets, rather
+// than whichever gift sets happen to be first in the catalog array.
+const LUXURY_GIFT_SLUGS = ["pack-of-4-gift-set", "discovery-set"];
 
 // Amazon's Choice feature — Touch at its 50ml size (per request).
 const AMAZON_PICK_SLUG = "touch";
@@ -140,15 +143,13 @@ export default function Index() {
       {/* BEST SELLERS */}
       <Section eyebrow="Loved by Many" title="Best Sellers" subtitle="The fragrances our patrons return for, again and again." className="pt-2 pb-10 md:pt-4 md:pb-20">
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {bestSellers.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          {bestSellers.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} showBadge={false} />)}
         </div>
-        <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+        <MobileCarousel>
           {bestSellersMobile.map((p, i) => (
-            <div key={p.id} className="min-w-[46%] snap-start">
-              <ProductCard product={p} index={i} />
-            </div>
+            <ProductCard key={p.id} product={p} index={i} showBadge={false} />
           ))}
-        </div>
+        </MobileCarousel>
       </Section>
 
       {/* WHY */}
@@ -165,31 +166,29 @@ export default function Index() {
             </motion.div>
           ))}
         </div>
-        <div className="md:hidden -mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-2">
+        <MobileCarousel className="md:hidden" itemClassName="min-w-[80%]">
           {whyChoose.map((f) => (
-            <div key={f.t} className="min-w-[80%] snap-start luxury-card p-8 text-center">
+            <div key={f.t} className="luxury-card p-8 text-center h-full">
               <f.Icon className="w-8 h-8 text-primary mx-auto mb-5" strokeWidth={1.2} />
               <h3 className="font-serif text-xl text-ivory mb-2">{f.t}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{f.d}</p>
             </div>
           ))}
-        </div>
+        </MobileCarousel>
       </Section>
 
       {/* NEW ARRIVALS — a teaser of the first 4 from NEW_LAUNCH_SLUGS (data/products.ts).
           The full line-up lives behind the shop's "New Launch" category filter, which
           reads the same list, so the two never drift apart. */}
-      <Section eyebrow="The Maison" title="New Arrivals" subtitle="Fresh from our Kannauj perfumers — the latest attars and perfumes to join the collection.">
+      <Section title="New Arrivals" subtitle="Fresh from our Kannauj perfumers — the latest attars and perfumes to join the collection.">
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {newArrivals.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+          {newArrivals.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} showBadge={false} />)}
         </div>
-        <div className="sm:hidden -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2">
+        <MobileCarousel>
           {newArrivals.slice(0, 4).map((p, i) => (
-            <div key={p.id} className="min-w-[46%] snap-start">
-              <ProductCard product={p} index={i} />
-            </div>
+            <ProductCard key={p.id} product={p} index={i} showBadge={false} />
           ))}
-        </div>
+        </MobileCarousel>
         <div className="text-center mt-8">
           <Button asChild variant="outline-gold" size="lg">
             <Link to="/shop?category=New Launch">View All New Launches</Link>

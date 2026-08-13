@@ -400,6 +400,13 @@ export type Product = {
   amazonUrl?: string;
   videoUrl?: string;
   volume?: string[];
+  /** Spec-sheet rows shown in the "Product Details" accordion on the product page, in
+   *  insertion order. Sourced from the product's own Amazon listing so both storefronts
+   *  state the same thing. Only set where we have real listing data — the accordion is
+   *  hidden entirely for products without it rather than showing invented specs. */
+  specs?: Record<string, string>;
+  /** "About this item" selling points, shown as a bulleted list above the spec rows. */
+  highlights?: string[];
 };
 
 export const defaultVolumes = ["50ml", "100ml"];
@@ -1399,6 +1406,45 @@ export const products: Product[] = [
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Bold", "Timeless"],
     ingredients: "High-concentration Extrait de Parfum oils, French-grade alcohol base.",
     description: "Shabd — the word — opens our Collector's Edition trilogy. A rich, French-inspired Extrait de Parfum with spiced bergamot and saffron over aged oud, amber and musk, built to last up to 24 hours. Presented in a hand-finished 100ml bottle with luxury gift packaging.",
+    // Taken from this product's Amazon listing (ASIN B0H7T53GC5) so both storefronts
+    // state the same specs.
+    //
+    // Two rows from that listing are deliberately NOT copied here because they contradict
+    // what this site already says about the product, and publishing both would put two
+    // conflicting claims in front of the same shopper:
+    //   - "Material Type Free: Alcohol Free" vs. the `ingredients` line above, which
+    //     states a French-grade alcohol base. An Extrait de Parfum normally is
+    //     alcohol-based, so the Amazon row looks like the wrong one — needs confirming.
+    //   - "Scent Duration: 8 Hours" vs. `longevity: "10-12 hours"` here and "up to 24
+    //     hours" in the Amazon bullet copy — three different numbers for one product.
+    // Resolve those upstream, then add the rows back.
+    highlights: [
+      "Premium long-lasting fragrance — a luxurious scent that stays fresh with a rich, elegant character.",
+      "Extrait de Parfum concentration — a high concentration of premium fragrance oils for a stronger, longer-lasting aroma.",
+      "Perfect for every occasion — office, parties, weddings, festivals, date nights and everyday wear.",
+      "Elegant unisex perfume — designed for both men and women who appreciate sophisticated, premium fragrances.",
+      "Premium gift choice — a luxury bottle and packaging that make it ideal for birthdays, anniversaries, weddings and festive gifting.",
+    ],
+    specs: {
+      Brand: "Itra Wala",
+      "Model Name": "Luxury Extrait De Parfum 100ml for Men & Women",
+      "Item Form": "Liquid",
+      Scent: "Luxury Oriental Woody",
+      "Fragrance Concentration": "Perfume Oil",
+      "Special Feature": "Long Lasting",
+      "Application Mode": "Direct Application, Spray",
+      Theme: "Artisan, Collector's Edition, Cultural Poetry, Emotions, Indian Heritage, Luxury Gifting",
+      "Age Range": "Adult",
+      "Net Quantity": "100.0 millilitres",
+      "Item Volume": "100 millilitres",
+      "Item Weight": "100 g",
+      "Product Dimensions": "11 × 7 × 4 cm",
+      "Number of Items": "1",
+      "Generic Name": "Perfume",
+      "Country of Origin": "India",
+      Manufacturer: "Itra Wala",
+      Packer: "Itra Wala",
+    },
     rating: 4.9, reviews: 24, badge: "Collector's Edition", newArrival: true,
   },
   {
@@ -1605,12 +1651,15 @@ export const products: Product[] = [
     price: 999, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 999, compareAt: 1299 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
-    image: galleryImagesFor("Poetry", "100 ml")[0] ?? img("poetry"),
-    gallery: galleryImagesFor("Poetry", "100 ml").length ? galleryImagesFor("Poetry", "100 ml") : [img("poetry")],
+    // A real per-size product photo now leads each list (Aug 2026 Drive export): the
+    // previous lead was "poetry-hero-crop.jpg", a crop of a text-heavy Fragrance Profile
+    // card made when no plain bottle shot existed for this product. These are that
+    // missing shot, so the crop is no longer needed up front.
+    image: productGallery3ImagesFor("Poetry/100 ml")[0] ?? img("poetry"),
+    gallery: [...productGallery3ImagesFor("Poetry/100 ml"), ...galleryImagesFor("Poetry", "100 ml")],
     galleryByVolume: {
-      "50ml": galleryImagesFor("Poetry", "50 ml").length ? galleryImagesFor("Poetry", "50 ml") : [img("poetry")],
-      "100ml": galleryImagesFor("Poetry", "100 ml").length ? galleryImagesFor("Poetry", "100 ml") : [img("poetry")],
+      "50ml": [...productGallery3ImagesFor("Poetry/50 ml"), ...galleryImagesFor("Poetry", "50 ml")],
+      "100ml": [...productGallery3ImagesFor("Poetry/100 ml"), ...galleryImagesFor("Poetry", "100 ml")],
     },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
@@ -1624,12 +1673,13 @@ export const products: Product[] = [
     price: 999, compareAt: 1299, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 999, compareAt: 1299 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
-    image: galleryImagesFor("Rebel", "100 ml")[0] ?? img("rebel"),
-    gallery: galleryImagesFor("Rebel", "100 ml").length ? galleryImagesFor("Rebel", "100 ml") : [img("rebel")],
+    // Same as Poetry above — a real per-size bottle shot (Aug 2026 Drive export) now leads
+    // instead of "rebel-hero-crop.jpg", the Fragrance Profile card crop used as a stand-in.
+    image: productGallery3ImagesFor("Rebel/100 ml")[0] ?? img("rebel"),
+    gallery: [...productGallery3ImagesFor("Rebel/100 ml"), ...galleryImagesFor("Rebel", "100 ml")],
     galleryByVolume: {
-      "50ml": galleryImagesFor("Rebel", "50 ml").length ? galleryImagesFor("Rebel", "50 ml") : [img("rebel")],
-      "100ml": galleryImagesFor("Rebel", "100 ml").length ? galleryImagesFor("Rebel", "100 ml") : [img("rebel")],
+      "50ml": [...productGallery3ImagesFor("Rebel/50 ml"), ...galleryImagesFor("Rebel", "50 ml")],
+      "100ml": [...productGallery3ImagesFor("Rebel/100 ml"), ...galleryImagesFor("Rebel", "100 ml")],
     },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
@@ -1718,12 +1768,13 @@ export const products: Product[] = [
     price: 899, compareAt: 1499, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 899, compareAt: 1499 }, "50ml": { price: 649, compareAt: 1099 } },
     featuredVolume: "100ml",
-    // New per-size studio photography from the "Product Gallery" folder (Jul 2026).
-    image: galleryImagesFor("Wanted", "100 ml")[0] ?? img("wanted"),
-    gallery: galleryImagesFor("Wanted", "100 ml").length ? galleryImagesFor("Wanted", "100 ml") : [img("wanted")],
+    // Same as Poetry/Rebel — a real per-size bottle shot (Aug 2026 Drive export) now leads
+    // instead of "wanted-hero-crop.jpg", the Fragrance Profile card crop used as a stand-in.
+    image: productGallery3ImagesFor("Wanted/100 ml")[0] ?? img("wanted"),
+    gallery: [...productGallery3ImagesFor("Wanted/100 ml"), ...galleryImagesFor("Wanted", "100 ml")],
     galleryByVolume: {
-      "50ml": galleryImagesFor("Wanted", "50 ml").length ? galleryImagesFor("Wanted", "50 ml") : [img("wanted")],
-      "100ml": galleryImagesFor("Wanted", "100 ml").length ? galleryImagesFor("Wanted", "100 ml") : [img("wanted")],
+      "50ml": [...productGallery3ImagesFor("Wanted/50 ml"), ...galleryImagesFor("Wanted", "50 ml")],
+      "100ml": [...productGallery3ImagesFor("Wanted/100 ml"), ...galleryImagesFor("Wanted", "100 ml")],
     },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",

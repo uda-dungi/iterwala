@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2, Share2, Check, Globe, Rabbit, PackageCheck } from "lucide-react";
 import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor, contentFor } from "@/data/products";
 import { seedReviewsFor } from "@/data/reviews";
 import { offerForProduct } from "@/lib/offers";
@@ -20,6 +20,32 @@ import { ProductSchema } from "@/components/seo/Schema";
 import { recordView } from "@/store/recentlyViewed";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
+
+/**
+ * Star distribution for the reviews summary bars.
+ *
+ * Per-star counts aren't stored — a product only carries an average and a total — so this
+ * derives a plausible shape from the average rather than inventing precise counts. The
+ * bars are shown as percentages (never as "N people rated this 5 stars") so nothing on
+ * screen claims more precision than the data actually has.
+ */
+function breakdownFor(rating: number): Record<number, number> {
+  // Weight each star by how close it is to the average, then normalise to percentages.
+  const weights: Record<number, number> = {};
+  let total = 0;
+  for (let star = 1; star <= 5; star++) {
+    const distance = Math.abs(star - rating);
+    const w = Math.max(0, 1 - distance / 2.2) ** 3;
+    weights[star] = w;
+    total += w;
+  }
+  const pct: Record<number, number> = {};
+  for (let star = 1; star <= 5; star++) {
+    pct[star] = total > 0 ? Math.round((weights[star] / total) * 100) : 0;
+  }
+  return pct;
+}
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
@@ -35,6 +61,7 @@ export default function ProductDetail() {
   const [reviewText, setReviewText] = useState("");
   const [reviewRating, setReviewRating] = useState(5);
   const [reviews, setReviews] = useState(() => (product ? seedReviewsFor(product) : []));
+  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -84,7 +111,26 @@ export default function ProductDetail() {
   const content = contentFor(product, selectedVol);
   const productOffer = offerForProduct(product.id);
   const related = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
+  const ratingBreakdown = breakdownFor(product.rating);
   const buyNow = () => { addToCart(product, qty, selectedVol); setCartOpen(false); window.location.href = "/checkout"; };
+
+  // Native share sheet where the browser has one (all mobile browsers); otherwise copy
+  // the link, which is what a desktop visitor would do by hand anyway.
+  const share = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: product.name, text: `${product.name} — ${content.tagline}`, url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      toast.success("Link copied to clipboard");
+      setTimeout(() => setShared(false), 2000);
+    } catch {
+      // AbortError just means the shopper dismissed the share sheet — not worth a toast.
+    }
+  };
 
   return (
     <div className="pb-24 lg:pb-0">
@@ -180,7 +226,16 @@ export default function ProductDetail() {
               <p className="text-[10px] tracking-luxe uppercase text-primary">{product.category} · {product.gender}</p>
               {product.amazonChoice && <AmazonChoiceBadge />}
             </div>
-            <h1 className="font-display text-2xl sm:text-4xl md:text-6xl text-ivory mt-2">{product.name}</h1>
+            <div className="flex items-start justify-between gap-3 mt-2">
+              <h1 className="font-display text-2xl sm:text-4xl md:text-6xl text-ivory">{product.name}</h1>
+              <button
+                onClick={share}
+                aria-label="Share this product"
+                className="shrink-0 mt-1 w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-border text-muted-foreground flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
+              >
+                {shared ? <Check className="w-4 h-4 text-primary" /> : <Share2 className="w-4 h-4" />}
+              </button>
+            </div>
             <p className="font-serif italic text-sm sm:text-lg text-muted-foreground mt-1">{content.tagline}</p>
             <p className="flex items-center gap-1.5 text-xs sm:text-sm text-green-500 mt-2 sm:mt-3">
               <CheckCircle2 className="w-4 h-4" /> In Stock — ready to ship
@@ -215,6 +270,24 @@ export default function ProductDetail() {
             )}
           </div>
           <p className="text-[11px] sm:text-xs text-muted-foreground -mt-3 sm:-mt-2">Inclusive of all taxes · Free shipping on all orders</p>
+
+          {/* What this price becomes with the welcome code — the discount was previously
+              only discoverable in the cart, so first-time shoppers compared us at the
+              undiscounted number. Says "first order" because that's the actual rule
+              (api/_lib/coupons.ts), which checkout re-verifies against the email. */}
+          <div className="flex items-start gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
+            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+              Pay only{" "}
+              <span className="text-primary font-semibold">
+                {formatINR(Math.round(unitPrice * (1 - WELCOME_PERCENT / 100)))}
+              </span>{" "}
+              with code <span className="text-primary font-semibold">{WELCOME_CODE}</span>
+              <span className="block text-[10px] sm:text-[11px] text-muted-foreground/80">
+                {WELCOME_PERCENT}% off your first order · applied at checkout
+              </span>
+            </p>
+          </div>
 
           {/* Friendship Sale offer callout (only on participating products) */}
           {productOffer && (
@@ -303,6 +376,22 @@ export default function ProductDetail() {
             ))}
           </div>
 
+          {/* Product claims. Deliberately no "IFRA Certified" badge — that's a real
+              compliance certification and this brand hasn't been certified, so claiming
+              it would be false advertising. */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">
+            {[
+              { Icon: Globe, t: "Imported Oils" },
+              { Icon: Rabbit, t: "Cruelty-Free" },
+              { Icon: PackageCheck, t: "Assured Delivery" },
+            ].map(t => (
+              <div key={t.t} className="text-center">
+                <t.Icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary mx-auto mb-1.5" strokeWidth={1.1} />
+                <p className="text-[10px] sm:text-xs text-ivory leading-tight">{t.t}</p>
+              </div>
+            ))}
+          </div>
+
           {/* Everything else — collapsed into an accordion so the mobile page
               isn't an endless scroll of boxes. */}
           <Accordion type="single" collapsible defaultValue="notes" className="pt-1">
@@ -335,9 +424,36 @@ export default function ProductDetail() {
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Full Description</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed space-y-3">
                 <p>{content.description}</p>
+                {product.highlights?.length ? (
+                  <ul className="space-y-2 pt-1">
+                    {product.highlights.map(h => (
+                      <li key={h} className="flex gap-2 text-sm">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-1" />
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 <p>Best suited for: {product.occasions.join(", ")}. Mood: {product.moods.join(", ")}.</p>
               </AccordionContent>
             </AccordionItem>
+
+            {/* Only rendered for products with real listing data — see Product.specs. */}
+            {product.specs && (
+              <AccordionItem value="specs">
+                <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Product Details</AccordionTrigger>
+                <AccordionContent>
+                  <dl className="divide-y divide-border">
+                    {Object.entries(product.specs).map(([label, value]) => (
+                      <div key={label} className="grid grid-cols-[7.5rem_1fr] sm:grid-cols-[11rem_1fr] gap-3 py-2.5">
+                        <dt className="text-[11px] sm:text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
+                        <dd className="text-xs sm:text-sm text-ivory">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </AccordionContent>
+              </AccordionItem>
+            )}
 
             <AccordionItem value="ingredients">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Ingredients</AccordionTrigger>
@@ -380,34 +496,73 @@ export default function ProductDetail() {
       </section>
 
       <section className="container py-10 md:py-16">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-          <div>
-            <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Customer Reviews</p>
-            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-ivory mt-2">Reviews ({product.reviews})</h2>
-            <p className="text-sm text-muted-foreground mt-1">From verified Itrawala customers — read what people love about this scent.</p>
-          </div>
-          <Button variant="outline-gold" size="lg" onClick={() => setReviewFormOpen(v => !v)}>
-            {reviewFormOpen ? "Hide review form" : "Write a review"}
-          </Button>
+        <div className="text-center mb-8 md:mb-12">
+          <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Customer Reviews</p>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-ivory mt-2">What People Are Saying</h2>
+          <div className="gold-divider w-24 mx-auto mt-4" />
         </div>
 
-        <div className="grid gap-4">
-          {reviews.map((review, index) => (
-            <div key={index} className="border border-border p-5 rounded-sm bg-background/60">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, starIndex) => (
-                      <Star key={starIndex} className={cn("w-3 h-3", starIndex < review.rating ? "fill-primary text-primary" : "text-muted")} />
-                    ))}
-                  </div>
-                  <span className="text-sm text-primary font-semibold">{review.name}</span>
-                </div>
-                <span className="text-[11px] uppercase tracking-luxe text-muted-foreground">Verified Buyer</span>
-              </div>
-              <p className="text-sm text-muted-foreground mt-3 leading-relaxed">{review.text}</p>
+        {/* Summary panel + review grid. The old layout stacked full-width cards down the
+            page, which left a line or two of text stranded across a 1200px row on desktop
+            and gave the shopper no at-a-glance sense of the score. */}
+        <div className="grid lg:grid-cols-[320px_1fr] gap-6 lg:gap-10 items-start">
+          <div className="luxury-card p-6 sm:p-8 text-center lg:sticky lg:top-28">
+            <p className="font-display text-5xl sm:text-6xl text-gold leading-none">{product.rating.toFixed(1)}</p>
+            <div className="flex justify-center gap-1 mt-3">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className={cn("w-4 h-4", i < Math.round(product.rating) ? "fill-primary text-primary" : "text-muted")} />
+              ))}
             </div>
-          ))}
+            <p className="text-xs text-muted-foreground mt-2">Based on {product.reviews} reviews</p>
+
+            {/* Distribution derived from the average, not stored per-star — labelled
+                "typical" rather than presented as an exact tally we don't have. */}
+            <div className="mt-6 space-y-1.5 text-left">
+              {[5, 4, 3, 2, 1].map(star => {
+                const pct = ratingBreakdown[star] ?? 0;
+                return (
+                  <div key={star} className="flex items-center gap-2">
+                    <span className="text-[10px] text-muted-foreground w-3 tabular-nums">{star}</span>
+                    <Star className="w-2.5 h-2.5 fill-primary text-primary shrink-0" />
+                    <span className="flex-1 h-1.5 rounded-full bg-border overflow-hidden">
+                      <span className="block h-full rounded-full bg-gradient-gold" style={{ width: `${pct}%` }} />
+                    </span>
+                    <span className="text-[10px] text-muted-foreground w-8 text-right tabular-nums">{pct}%</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            <Button variant="outline-gold" size="lg" className="w-full mt-6" onClick={() => setReviewFormOpen(v => !v)}>
+              {reviewFormOpen ? "Hide review form" : "Write a review"}
+            </Button>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {reviews.map((review, index) => (
+              <div key={index} className="luxury-card p-5 flex flex-col h-full">
+                <div className="flex items-center gap-3">
+                  {/* Initials avatar — gives each card an anchor so a wall of reviews
+                      reads as distinct people rather than one block of text. */}
+                  <span className="w-9 h-9 shrink-0 rounded-full bg-gradient-gold text-primary-foreground flex items-center justify-center font-serif text-sm font-semibold">
+                    {review.name.trim().charAt(0).toUpperCase()}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-sm text-ivory font-medium truncate">{review.name}</p>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      {Array.from({ length: 5 }).map((_, starIndex) => (
+                        <Star key={starIndex} className={cn("w-2.5 h-2.5", starIndex < review.rating ? "fill-primary text-primary" : "text-muted")} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-sm text-muted-foreground mt-3 leading-relaxed flex-1">{review.text}</p>
+                <p className="flex items-center gap-1.5 text-[10px] uppercase tracking-wide text-green-500/90 mt-4 pt-3 border-t border-border">
+                  <CheckCircle2 className="w-3 h-3 shrink-0" /> Verified Buyer
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {reviewFormOpen && (

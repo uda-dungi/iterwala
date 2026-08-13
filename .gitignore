@@ -30,5 +30,6 @@ dist-ssr
 .vercel
 
 # Raw source photo exports (huge, only used locally to derive the compressed assets that
-# actually get committed under src/assets/) — never belongs in git history.
-src/assets/*.zip
+# actually get committed under src/assets/) — never belongs in git history. Recursive:
+# these land in src/assets/ and src/assets/brand/ depending on how they're dropped in.
+src/assets/**/*.zip

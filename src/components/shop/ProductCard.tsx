@@ -8,7 +8,13 @@ import { toast } from "sonner";
 import { AmazonChoiceBadge } from "@/components/shop/AmazonChoiceBadge";
 import { offerForProduct } from "@/lib/offers";
 
-export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
+/** `showBadge` turns off the plain product badge (Bestseller / Heritage / Signature /
+ *  Editor's Pick) and the Amazon's Choice pill. The homepage's curated strips are already
+ *  titled "Best Sellers" / "New Arrivals", so repeating that on every tile was just noise
+ *  over the bottle — those labels earn their place on the shop grid, where nothing else
+ *  distinguishes one tile from the next. Offer badges always show: they're an active
+ *  promotion, not a label. */
+export function ProductCard({ product, index = 0, showBadge = true }: { product: Product; index?: number; showBadge?: boolean }) {
   const { addToCart, toggleWishlist, wishlist } = useShop();
   const wished = wishlist.includes(product.id);
   const offer = offerForProduct(product.id);
@@ -24,27 +30,32 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, delay: index * 0.05 }}
-      className="group relative"
+      className="group relative h-full"
     >
-      <Link to={`/product/${product.slug}`} className="block luxury-card">
+      {/* h-full + flex column so tiles in a row share one height and their Add to Cart
+          buttons line up — "Perfume · Unisex" wraps to two lines where "Attar · Unisex"
+          fits on one, which otherwise left neighbouring cards visibly uneven. */}
+      <Link to={`/product/${product.slug}`} className="flex h-full flex-col luxury-card">
         {/* Square to match the catalogue's 1:1 product photos — a 4:5 box cropped the
             sides off every bottle (worst on small mobile cards). */}
         <div className="relative aspect-square overflow-hidden bg-deep-brown">
-          <div className="absolute top-2 left-2 sm:top-3 sm:left-3 z-10 flex flex-col items-start gap-1.5">
+          {/* Kept small on mobile — these used to be wide enough (0.3em tracking) to
+              cover the bottle in the card photo on narrow screens. */}
+          <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 z-10 flex flex-col items-start gap-1 sm:gap-1.5">
             {/* The offer badge wins the spot — hide the plain product badge alongside it
                 so small mobile cards don't stack two labels over the same corner. */}
             {offer ? (
-              <span className="text-[9px] sm:text-[10px] tracking-luxe uppercase px-2 py-1 bg-primary text-primary-foreground font-semibold rounded-sm shadow-gold">
+              <span className="text-[7px] sm:text-[10px] tracking-wide sm:tracking-luxe uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary text-primary-foreground font-semibold rounded-sm shadow-gold">
                 {offer.badge}
               </span>
             ) : (
-              product.badge && (
-                <span className="text-[9px] sm:text-[10px] tracking-luxe uppercase px-2 sm:px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
+              showBadge && product.badge && (
+                <span className="text-[7px] sm:text-[10px] tracking-wide sm:tracking-luxe uppercase px-1.5 sm:px-3 py-0.5 sm:py-1 bg-gradient-gold text-primary-foreground font-semibold rounded-sm">
                   {product.badge}
                 </span>
               )
             )}
-            {product.amazonChoice && <AmazonChoiceBadge />}
+            {showBadge && product.amazonChoice && <AmazonChoiceBadge className="text-[7px] sm:text-[10px] px-1.5 py-0.5 sm:px-2 sm:py-1" />}
           </div>
           <button
             onClick={(e) => {
@@ -79,7 +90,7 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             </button>
           </div>
         </div>
-        <div className="p-3 sm:p-5 text-center space-y-1.5 sm:space-y-1.5">
+        <div className="flex flex-1 flex-col p-3 sm:p-5 text-center space-y-1.5 sm:space-y-1.5">
           <p className="text-[9px] sm:text-[10px] tracking-luxe uppercase text-muted-foreground">{product.category} · {product.gender}</p>
           <h3 className="font-serif text-base sm:text-xl text-ivory group-hover:text-primary transition-colors line-clamp-1">{product.name}</h3>
           <p className="hidden sm:block text-xs italic text-muted-foreground/80">{product.tagline}</p>
@@ -89,7 +100,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
             ))}
             <span className="text-[9px] sm:text-[10px] text-muted-foreground ml-1">({product.reviews})</span>
           </div>
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-1 sm:pt-2">
+          {/* mt-auto pins the price + button block to the bottom, so a card whose meta
+              line wraps still ends level with its neighbours. */}
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-1 sm:pt-2 mt-auto">
             <span className="font-serif text-base sm:text-lg text-gold">{formatINR(cardPrice)}</span>
             {cardCompareAt && <span className="text-[10px] sm:text-xs text-muted-foreground line-through">{formatINR(cardCompareAt)}</span>}
           </div>
