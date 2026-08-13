@@ -21,6 +21,7 @@ import { recordView } from "@/store/recentlyViewed";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
+import { DELIVERY_ESTIMATE } from "@/config/site";
 
 /**
  * Star distribution for the reviews summary bars.
@@ -360,6 +361,30 @@ export default function ProductDetail() {
           <Button variant="ivory" size="xl" className="hidden lg:flex w-full" onClick={buyNow}>
             Buy Now — {formatINR(unitPrice * qty)}
           </Button>
+
+          {/* Delivery + returns, directly under the buy buttons — the two questions a
+              shopper has at the moment of deciding. Both link out to the full policy
+              rather than restating it, so there's one authoritative version. */}
+          <div className="rounded-sm border border-border divide-y divide-border">
+            <div className="flex items-start gap-2.5 px-3 py-2.5">
+              <Truck className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.4} />
+              <p className="text-xs sm:text-sm text-ivory leading-snug">
+                {DELIVERY_ESTIMATE}
+                <Link to="/shipping" className="block text-[11px] text-muted-foreground hover:text-primary underline underline-offset-2 mt-0.5">
+                  Free shipping across India · Shipping policy
+                </Link>
+              </p>
+            </div>
+            <div className="flex items-start gap-2.5 px-3 py-2.5">
+              <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.4} />
+              <p className="text-xs sm:text-sm text-ivory leading-snug">
+                Damaged or wrong item? We'll replace or refund it.
+                <Link to="/returns" className="block text-[11px] text-muted-foreground hover:text-primary underline underline-offset-2 mt-0.5">
+                  Report within 48 hours of delivery · Returns policy
+                </Link>
+              </p>
+            </div>
+          </div>
 
           {/* Trust badges — compact strip, always visible */}
           <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-border">

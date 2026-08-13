@@ -471,10 +471,13 @@ export const products: Product[] = [
     // studio shots kept later in the gallery for detail views.
     featuredVolume: "50ml",
     image: img("celebrity-50ml-lifestyle-1"),
-    gallery: [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), img("celebrity-50ml-studio-1"), img("celebrity-50ml-studio-2")],
+    gallery: [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), ...productGallery3ImagesFor("Celebrity/50 ml")],
     galleryByVolume: {
       "20ml": [img("celebrity-20ml-lifestyle-1"), img("celebrity-20ml-lifestyle-2"), img("celebrity-20ml-lifestyle-3"), img("celebrity-20ml-studio-1"), img("celebrity-20ml-studio-2")],
-      "50ml": [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), img("celebrity-50ml-studio-1"), img("celebrity-50ml-studio-2")],
+      // The last two are square (1080²) re-crops from the Aug 2026 Drive export, replacing
+      // the portrait 768×1290 studio-1/studio-2 versions of the same two shots — those got
+      // their tops and bottoms center-cropped in the site's square image containers.
+      "50ml": [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), ...productGallery3ImagesFor("Celebrity/50 ml")],
       "100ml": [img("celebrity-100ml-lifestyle-1"), img("celebrity-100ml-lifestyle-3"), img("celebrity-100ml-studio-1"), img("celebrity-100ml-lifestyle-2")],
     },
     notes: { top: ["Bergamot", "Pink Pepper"], heart: ["Jasmine", "Saffron"], base: ["Amber", "Vanilla", "Musk"] },

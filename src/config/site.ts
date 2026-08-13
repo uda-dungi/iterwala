@@ -77,6 +77,16 @@ export const whatsappLink = (message?: string) =>
 export const instagramLink = `https://instagram.com/${site.instagramHandle}`;
 export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
 
+/**
+ * Delivery promise shown on the product page, next to Add to Cart.
+ *
+ * NOTE: the Shipping Policy page (src/pages/Policy.tsx) currently states 1–2 business days
+ * to process plus 3–7 business days to deliver — i.e. up to 9 business days, not 6. Keep
+ * this string and that page in agreement; a promise here that the policy doesn't back is
+ * the kind of thing shoppers screenshot when an order runs late.
+ */
+export const DELIVERY_ESTIMATE = "Delivered in 4–6 business days";
+
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
   "✦ Raksha Bandhan Sale is Live Now ✦",
