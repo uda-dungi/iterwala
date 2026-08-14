@@ -109,9 +109,13 @@ export function priceForServer(productId: string, volume?: string): number | nul
   const entry = PRICE_TABLE[productId];
   if (!entry) return null;
   const base = (volume && entry.priceByVolume && entry.priceByVolume[volume])
-    ? entry.priceByVolume[volume].price
-    : entry.price;
-  return isIndependenceDaySaleActive() ? independenceDayPrice(base) : base;
+    ? entry.priceByVolume[volume]
+    : { price: entry.price, compareAt: entry.compareAt ?? undefined };
+  if (!isIndependenceDaySaleActive()) return base.price;
+  // Discount off the original base price (compareAt), not the already marked-down
+  // `price` — mirrors src/data/products.ts's priceFor().
+  const original = base.compareAt ?? base.price;
+  return independenceDayPrice(original);
 }
 
 export const FREE_SHIPPING_THRESHOLD = 0;

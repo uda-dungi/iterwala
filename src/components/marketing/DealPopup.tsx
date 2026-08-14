@@ -5,17 +5,20 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getProduct, imageFor, listingVolume } from "@/data/products";
 import { FRIENDSHIP_SALE_ACTIVE } from "@/lib/offers";
+import { isIndependenceDaySaleActive, INDEPENDENCE_DAY_PERCENT } from "@/lib/independenceDaySale";
 import { settleDealPopup } from "@/lib/popupGate";
 import { site } from "@/config/site";
 
 /**
- * "Deal of the day" overlay for the Collector's Edition Buy 2 Get 1 offer — product
- * artwork on one side, a live countdown and CTA on the other.
+ * "Deal of the day" overlay — product artwork on one side, a live countdown and CTA on
+ * the other. Normally promotes the Collector's Edition Buy 2 Get 1 offer; while the
+ * Independence Day sale is active (isIndependenceDaySaleActive) it promotes that instead.
  *
  * The clock runs to local midnight and resets every night, which is what makes this a
- * recurring daily deal rather than a one-off sale timer. Days therefore always reads 00;
- * it's kept in the row because dropping it makes the countdown look like it's mid-way
- * through something rather than a full day's window.
+ * recurring daily deal rather than a one-off sale timer — it also happens to be exactly
+ * when the Independence Day sale itself ends, so no separate end-time logic is needed.
+ * Days therefore always reads 00; it's kept in the row because dropping it makes the
+ * countdown look like it's mid-way through something rather than a full day's window.
  *
  * Shown at most once per calendar day per browser, and it hands the stage to EmailPopup
  * when it closes (see src/lib/popupGate.ts) so the two never overlap.
@@ -51,6 +54,7 @@ function breakdown(ms: number) {
 export function DealPopup() {
   const [open, setOpen] = useState(false);
   const [remaining, setRemaining] = useState(() => msUntilMidnight());
+  const independenceDay = isIndependenceDaySaleActive();
 
   // Shabd leads the trilogy, so its bottle is the one that carries the artwork.
   const product = useMemo(() => getProduct("shabd"), []);
@@ -140,7 +144,9 @@ export function DealPopup() {
 
             {/* Deal side */}
             <div className="bg-deep-brown p-7 sm:p-9 text-center flex flex-col justify-center">
-              <h2 className="font-display text-2xl sm:text-3xl text-gold">Deal of the Day</h2>
+              <h2 className="font-display text-2xl sm:text-3xl text-gold">
+                {independenceDay ? "Independence Day Sale" : "Deal of the Day"}
+              </h2>
               <p className="text-sm text-ivory mt-1.5">This offer expires in:</p>
 
               <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mt-5">
@@ -156,15 +162,27 @@ export function DealPopup() {
                 ))}
               </div>
 
-              <p className="font-serif text-lg text-ivory mt-6 leading-snug">
-                The Collector's Edition
-              </p>
-              <p className="text-sm text-primary mt-1">Buy 2 Get 1 Free — mix &amp; match</p>
-              <p className="text-xs text-ivory/60 mt-1">Shabd · Kahani · Ehsaas</p>
+              {independenceDay ? (
+                <>
+                  <p className="font-serif text-lg text-ivory mt-6 leading-snug">
+                    Flat {INDEPENDENCE_DAY_PERCENT}% Off on Everything
+                  </p>
+                  <p className="text-sm text-primary mt-1">Attars, perfumes &amp; gift sets</p>
+                  <p className="text-xs text-ivory/60 mt-1">Applied automatically at checkout — no code needed</p>
+                </>
+              ) : (
+                <>
+                  <p className="font-serif text-lg text-ivory mt-6 leading-snug">
+                    The Collector's Edition
+                  </p>
+                  <p className="text-sm text-primary mt-1">Buy 2 Get 1 Free — mix &amp; match</p>
+                  <p className="text-xs text-ivory/60 mt-1">Shabd · Kahani · Ehsaas</p>
+                </>
+              )}
 
               <Button asChild variant="luxury" size="lg" className="w-full mt-6">
-                <Link to="/shop?category=Collector's Edition" onClick={close}>
-                  Shop the Trilogy
+                <Link to={independenceDay ? "/shop" : "/shop?category=Collector's Edition"} onClick={close}>
+                  {independenceDay ? "Shop Now" : "Shop the Trilogy"}
                 </Link>
               </Button>
             </div>

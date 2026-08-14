@@ -47,7 +47,7 @@ const slides: Slide[] = [
     eyebrow: "Independence Day · 15th August",
     title: "Freedom",
     highlight: "Sale",
-    copy: "Flat 25% off every fragrance and attar — one day only, on 15th August. Not combinable with other offers.",
+    copy: "Flat 25% off every fragrance and attar — one day only, on 15th August. Stacks with the Raksha Bandhan Sale on Pack of 4 & Collector's Edition.",
     cta: { label: "Browse the Collection", to: "/shop" },
   },
   // Raksha Bandhan Sale promo banners — placed first so the live offers show on load.

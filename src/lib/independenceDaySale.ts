@@ -7,10 +7,10 @@
 // price the browser shows and the price the server charges can never disagree (same
 // pattern as offers.ts / coupons.ts / prices.ts).
 //
-// Replaces the Raksha Bandhan Sale's BOGO offers for the day rather than stacking with
-// them, per the hero banner's own "Not combinable with other offers" line
-// (src/components/home/HeroCarousel.tsx) — see the isIndependenceDaySaleActive() checks
-// in offers.ts / api/_lib/offers.ts.
+// Stacks on top of the Raksha Bandhan Sale's BOGO offers (Pack of 4, Collector's
+// Edition) rather than replacing them — see priceFor() / priceForServer() in
+// products.ts / prices.ts, which apply this discount before offers.ts's BOGO math runs
+// on the resulting (already discounted) unit price.
 
 export const INDEPENDENCE_DAY_PERCENT = 25;
 

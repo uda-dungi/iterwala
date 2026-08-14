@@ -7,10 +7,9 @@
 //
 // To end the sale: flip FRIENDSHIP_SALE_ACTIVE to false here AND in api/_lib/offers.ts.
 //
-// Independence Day Freedom Sale (independenceDaySale.ts) replaces these BOGO
-// offers for its one day rather than stacking with them, per the hero banner's "Not
-// combinable with other offers" line — computeOffers()/offerNudge() return nothing while
-// it's active, and offerForProduct() shows the flat-25%-off badge instead.
+// Independence Day Freedom Sale (independenceDaySale.ts) stacks on top of these BOGO
+// offers rather than replacing them — `unitPrice` below is already the post-25%-off
+// price (via priceFor / priceForServer), so the BOGO math just runs on top of that.
 
 import { isIndependenceDaySaleActive, INDEPENDENCE_DAY_PERCENT } from "@/lib/independenceDaySale";
 
@@ -31,7 +30,7 @@ export type CartLineInput = { id: string; qty: number; unitPrice: number };
  * server-truth price of the line (priceFor / priceForServer), never a client-sent value.
  */
 export function computeOffers(lines: CartLineInput[]): { discount: number; offers: OfferLine[] } {
-  if (!FRIENDSHIP_SALE_ACTIVE || isIndependenceDaySaleActive()) return { discount: 0, offers: [] };
+  if (!FRIENDSHIP_SALE_ACTIVE) return { discount: 0, offers: [] };
   const offers: OfferLine[] = [];
 
   // Pack of 4 — pair pricing. 1 box = full price, every 2 boxes = PACK_OF_4_PAIR_PRICE.
@@ -65,7 +64,7 @@ export function computeOffers(lines: CartLineInput[]): { discount: number; offer
 
 /** How many more of a participating item unlocks / extends its offer — drives the cart nudge. */
 export function offerNudge(lines: CartLineInput[]): string | null {
-  if (!FRIENDSHIP_SALE_ACTIVE || isIndependenceDaySaleActive()) return null;
+  if (!FRIENDSHIP_SALE_ACTIVE) return null;
   const pack = lines.find((l) => l.id === PACK_OF_4_ID);
   if (pack && pack.qty % 2 === 1) {
     return "Add 1 more Pack of 4 to get Buy 1 Get 1 Free 🎁";
@@ -82,26 +81,31 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 /** Marketing copy for a participating product — used on product pages & cards. */
 export function offerForProduct(id: string): { badge: string; headline: string; detail: string } | null {
-  if (isIndependenceDaySaleActive()) {
+  const independenceDay = isIndependenceDaySaleActive();
+
+  if (FRIENDSHIP_SALE_ACTIVE && id === PACK_OF_4_ID) {
+    return {
+      badge: "Buy 1 Get 1 Free",
+      headline: "Raksha Bandhan Sale · Buy 1 Get 1 Free",
+      detail: independenceDay
+        ? `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)} — plus ${INDEPENDENCE_DAY_PERCENT}% off everything today.`
+        : `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)}.`,
+    };
+  }
+  if (FRIENDSHIP_SALE_ACTIVE && COLLECTORS_EDITION_IDS.includes(id)) {
+    return {
+      badge: "Buy 2 Get 1 Free",
+      headline: "Raksha Bandhan Sale · Buy 2 Get 1 Free",
+      detail: independenceDay
+        ? `Mix and match any three across Shabd, Kahani and Ehsaas — plus ${INDEPENDENCE_DAY_PERCENT}% off today.`
+        : "Mix and match any three across Shabd, Kahani and Ehsaas.",
+    };
+  }
+  if (independenceDay) {
     return {
       badge: `Save ${INDEPENDENCE_DAY_PERCENT}%`,
       headline: `Independence Day Sale · Flat ${INDEPENDENCE_DAY_PERCENT}% Off`,
       detail: "Applied automatically at checkout — no code needed. Ends tonight, 15th August.",
-    };
-  }
-  if (!FRIENDSHIP_SALE_ACTIVE) return null;
-  if (id === PACK_OF_4_ID) {
-    return {
-      badge: "Buy 1 Get 1 Free",
-      headline: "Raksha Bandhan Sale · Buy 1 Get 1 Free",
-      detail: `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)}.`,
-    };
-  }
-  if (COLLECTORS_EDITION_IDS.includes(id)) {
-    return {
-      badge: "Buy 2 Get 1 Free",
-      headline: "Raksha Bandhan Sale · Buy 2 Get 1 Free",
-      detail: "Mix and match any three across Shabd, Kahani and Ehsaas.",
     };
   }
   return null;
