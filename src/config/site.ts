@@ -92,7 +92,7 @@ export const TRADING_SINCE = 2020;
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
   "✦ Raksha Bandhan Sale is Live Now ✦",
-  "🇮🇳 Independence Day Sale — Flat 25% Off on All Orders",
+  "🇮🇳 Independence Day Sale — Flat 25% Off Sitewide",
   "Free Shipping",
   "Amazon's Choice Products Available",
   "100% Money-Back Guarantee",

@@ -145,7 +145,7 @@ export function DealPopup() {
             {/* Deal side */}
             <div className="bg-deep-brown p-7 sm:p-9 text-center flex flex-col justify-center">
               <h2 className="font-display text-2xl sm:text-3xl text-gold">
-                {independenceDay ? "Independence Day Sale" : "Deal of the Day"}
+                {independenceDay ? "Independence Day Sale 🇮🇳" : "Deal of the Day"}
               </h2>
               <p className="text-sm text-ivory mt-1.5">This offer expires in:</p>
 
