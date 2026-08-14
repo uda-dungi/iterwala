@@ -948,7 +948,12 @@ export const products: Product[] = [
   {
     id: "g-attar-duo", slug: "attar-duo-gift-set", name: "Premium Attar Duo", tagline: "Lavender & Rajnigandha",
     price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-attar-duo"), gallery: [img("giftset-attar-duo-real")],
+    image: img("giftset-attar-duo"),
+    gallery: [
+      img("giftset-attar-duo-real"),
+      ...productGallery3ImagesFor("Lavender").slice(0, 1),
+      ...productGallery3ImagesFor("Rajnigandha").slice(0, 1),
+    ],
     notes: { top: ["Lavender", "Green Leaves"], heart: ["Tuberose", "Herbs"], base: ["Sandalwood", "Musk"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Gifting", "Festive", "Daily Wear"], moods: ["Calm", "Feminine"],
@@ -1305,7 +1310,8 @@ export const products: Product[] = [
   {
     id: "g-rooh-chandan-duo", slug: "rooh-chandan-duo-gift-set", name: "Rooh Chandan Duo", tagline: "Two bottles, one sacred sandalwood",
     price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-rooh-chandan-duo"), gallery: [img("giftset-rooh-chandan-duo")],
+    image: img("giftset-rooh-chandan-duo"),
+    gallery: [img("giftset-rooh-chandan-duo"), ...productGallery2ImagesFor("Rooh Chandan").slice(0, 2)],
     notes: { top: ["Cardamom"], heart: ["Sandalwood", "Rose"], base: ["Cream", "Amber", "Vanilla"] },
     longevity: "12+ hours", projection: "Intimate",
     occasions: ["Gifting", "Festive", "Meditation"], moods: ["Calm", "Devotional"],
@@ -1395,7 +1401,12 @@ export const products: Product[] = [
   {
     id: "g-mogragold-shahigulab-duo", slug: "mogragold-shahigulab-gift-set", name: "Mogra Gold & Shahi Gulab Duo", tagline: "Mogra Gold & Shahi Gulab",
     price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-mogragold-shahigulab"), gallery: [img("giftset-mogragold-shahigulab")],
+    image: img("giftset-mogragold-shahigulab"),
+    gallery: [
+      img("giftset-mogragold-shahigulab"),
+      ...productGallery2ImagesFor("Mogra Gold").slice(0, 1),
+      ...newGalleryImagesFor("Shahi Gulab Attar").slice(0, 1),
+    ],
     notes: { top: ["Mogra Buds", "Rose Petals"], heart: ["Jasmine Sambac", "Turkish Rose"], base: ["White Musk", "Sandalwood"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Gifting", "Festive", "Pooja"], moods: ["Joyful", "Romantic"],
@@ -1406,7 +1417,12 @@ export const products: Product[] = [
   {
     id: "g-royaloud-shyamshringar-duo", slug: "royaloud-shyamshringar-gift-set", name: "Royal Oud & Shyam Shringar Duo", tagline: "Royal Oud & Shyam Shringar",
     price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-royaloud-shyamshringar"), gallery: [img("giftset-royaloud-shyamshringar")],
+    image: img("giftset-royaloud-shyamshringar"),
+    gallery: [
+      img("giftset-royaloud-shyamshringar"),
+      ...newGalleryImagesFor("Royal Oud Attar").slice(0, 1),
+      ...newGalleryImagesFor("Shyam Shringar").slice(0, 1),
+    ],
     notes: { top: ["Smoke", "Florals"], heart: ["Aged Oud", "Rose", "Jasmine", "Saffron"], base: ["Sandalwood", "Amber", "Musk", "Woods"] },
     longevity: "12+ hours", projection: "Strong",
     occasions: ["Gifting", "Special Occasions", "Devotional"], moods: ["Regal", "Devotional"],
@@ -1715,7 +1731,8 @@ export const products: Product[] = [
   {
     id: "g-royal-oud", slug: "royal-oud-duo-gift-set", name: "Royal Oud Duo", tagline: "Discover this fragrance",
     price: 499, compareAt: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
-    image: img("giftset-royal-oud-duo"), gallery: [img("giftset-royal-oud-duo")],
+    image: img("giftset-royal-oud-duo"),
+    gallery: [img("giftset-royal-oud-duo"), ...newGalleryImagesFor("Royal Oud Attar").slice(0, 2)],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "Varies", projection: "Moderate",
     occasions: ["Gifting", "Festive"], moods: ["Confident"],
