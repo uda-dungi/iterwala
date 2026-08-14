@@ -7,6 +7,12 @@
 // (same reason api/_lib/prices.ts mirrors src/data/products.ts).
 //
 // To end the sale: flip FRIENDSHIP_SALE_ACTIVE to false here AND in src/lib/offers.ts.
+//
+// Independence Day Freedom Sale (independenceDaySale.ts) replaces these BOGO offers for
+// its one day rather than stacking with them — computeOffers() returns nothing while it's
+// active, mirroring src/lib/offers.ts.
+
+import { isIndependenceDaySaleActive } from "./independenceDaySale.js";
 
 export const FRIENDSHIP_SALE_ACTIVE = true;
 
@@ -19,7 +25,7 @@ export type OfferLine = { code: string; label: string; amount: number };
 export type CartLineInput = { id: string; qty: number; unitPrice: number };
 
 export function computeOffers(lines: CartLineInput[]): { discount: number; offers: OfferLine[] } {
-  if (!FRIENDSHIP_SALE_ACTIVE) return { discount: 0, offers: [] };
+  if (!FRIENDSHIP_SALE_ACTIVE || isIndependenceDaySaleActive()) return { discount: 0, offers: [] };
   const offers: OfferLine[] = [];
 
   const pack = lines.find((l) => l.id === PACK_OF_4_ID);

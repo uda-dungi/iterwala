@@ -1,3 +1,5 @@
+import { isIndependenceDaySaleActive, independenceDayPrice } from "@/lib/independenceDaySale";
+
 // Product images live in src/assets/products and are loaded by filename via Vite glob.
 const modules = import.meta.glob("../assets/products/*.jpg", { eager: true, import: "default" }) as Record<string, string>;
 // A 1x1 transparent PNG — used only when an image filename can't be resolved.
@@ -1912,8 +1914,14 @@ export const imageAltFor = (p: Product) =>
 /** Resolves { price, compareAt } for a given size. Falls back to the product's flat
  *  price/compareAt when that size has no dedicated entry in priceByVolume. */
 export const priceFor = (p: Product, volume?: string): { price: number; compareAt?: number } => {
-  if (volume && p.priceByVolume?.[volume]) return p.priceByVolume[volume];
-  return { price: p.price, compareAt: p.compareAt };
+  const base = (volume && p.priceByVolume?.[volume]) ? p.priceByVolume[volume] : { price: p.price, compareAt: p.compareAt };
+  // Independence Day Freedom Sale — flat 25% off every product, 15 Aug 2026 only. See
+  // src/lib/independenceDaySale.ts. Overrides compareAt to the pre-sale price so "Save
+  // 25%" is always exactly right, even on products that already had their own compareAt.
+  if (isIndependenceDaySaleActive()) {
+    return { price: independenceDayPrice(base.price), compareAt: base.price };
+  }
+  return base;
 };
 
 /** Resolves { tagline, description, ingredients } for a given variant, falling back to

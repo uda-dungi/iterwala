@@ -6,6 +6,13 @@
 // the logic or the constants below, edit BOTH files.
 //
 // To end the sale: flip FRIENDSHIP_SALE_ACTIVE to false here AND in api/_lib/offers.ts.
+//
+// Independence Day Freedom Sale (independenceDaySale.ts) replaces these BOGO
+// offers for its one day rather than stacking with them, per the hero banner's "Not
+// combinable with other offers" line — computeOffers()/offerNudge() return nothing while
+// it's active, and offerForProduct() shows the flat-25%-off badge instead.
+
+import { isIndependenceDaySaleActive, INDEPENDENCE_DAY_PERCENT } from "@/lib/independenceDaySale";
 
 export const FRIENDSHIP_SALE_ACTIVE = true;
 
@@ -24,7 +31,7 @@ export type CartLineInput = { id: string; qty: number; unitPrice: number };
  * server-truth price of the line (priceFor / priceForServer), never a client-sent value.
  */
 export function computeOffers(lines: CartLineInput[]): { discount: number; offers: OfferLine[] } {
-  if (!FRIENDSHIP_SALE_ACTIVE) return { discount: 0, offers: [] };
+  if (!FRIENDSHIP_SALE_ACTIVE || isIndependenceDaySaleActive()) return { discount: 0, offers: [] };
   const offers: OfferLine[] = [];
 
   // Pack of 4 — pair pricing. 1 box = full price, every 2 boxes = PACK_OF_4_PAIR_PRICE.
@@ -58,7 +65,7 @@ export function computeOffers(lines: CartLineInput[]): { discount: number; offer
 
 /** How many more of a participating item unlocks / extends its offer — drives the cart nudge. */
 export function offerNudge(lines: CartLineInput[]): string | null {
-  if (!FRIENDSHIP_SALE_ACTIVE) return null;
+  if (!FRIENDSHIP_SALE_ACTIVE || isIndependenceDaySaleActive()) return null;
   const pack = lines.find((l) => l.id === PACK_OF_4_ID);
   if (pack && pack.qty % 2 === 1) {
     return "Add 1 more Pack of 4 to get Buy 1 Get 1 Free 🎁";
@@ -75,6 +82,13 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 /** Marketing copy for a participating product — used on product pages & cards. */
 export function offerForProduct(id: string): { badge: string; headline: string; detail: string } | null {
+  if (isIndependenceDaySaleActive()) {
+    return {
+      badge: `Save ${INDEPENDENCE_DAY_PERCENT}%`,
+      headline: `Independence Day Sale · Flat ${INDEPENDENCE_DAY_PERCENT}% Off`,
+      detail: "Applied automatically at checkout — no code needed. Ends tonight, 15th August.",
+    };
+  }
   if (!FRIENDSHIP_SALE_ACTIVE) return null;
   if (id === PACK_OF_4_ID) {
     return {
