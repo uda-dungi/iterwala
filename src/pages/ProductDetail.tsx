@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2, Share2, Check, Globe, Rabbit, PackageCheck } from "lucide-react";
-import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor, contentFor } from "@/data/products";
+import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor, contentFor, imageAltFor } from "@/data/products";
 import { seedReviewsFor } from "@/data/reviews";
 import { offerForProduct } from "@/lib/offers";
 import { trackViewContent } from "@/lib/pixel";
@@ -156,7 +156,7 @@ export default function ProductDetail() {
                 {gallery.map((g, i) => (
                   <CarouselItem key={i}>
                     <div className="relative aspect-square bg-deep-brown">
-                      <img src={g} alt={`${product.name} ${selectedVol}`} className="w-full h-full object-contain" loading={i === 0 ? "eager" : "lazy"} />
+                      <img src={g} alt={imageAltFor(product)} className="w-full h-full object-contain" loading={i === 0 ? "eager" : "lazy"} />
                     </div>
                   </CarouselItem>
                 ))}
@@ -197,7 +197,7 @@ export default function ProductDetail() {
             >
               <img
                 src={gallery[active] ?? gallery[0]}
-                alt={`${product.name} ${selectedVol}`}
+                alt={imageAltFor(product)}
                 className={cn("w-full h-full object-contain transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
               />
               {product.badge && (
@@ -211,7 +211,7 @@ export default function ProductDetail() {
                 <button key={i} onClick={() => setActive(i)}
                   className={cn("aspect-square overflow-hidden border rounded-sm transition-all",
                     active === i ? "border-primary shadow-gold" : "border-border hover:border-primary/50")}>
-                  <img src={g} alt="" className="w-full h-full object-contain" />
+                  <img src={g} alt={imageAltFor(product)} className="w-full h-full object-contain" />
                 </button>
               ))}
             </div>
@@ -671,13 +671,13 @@ export default function ProductDetail() {
             {products.filter((p) => p.category === "Collector's Edition").map((p) => (
               <Link key={p.id} to={`/product/${p.slug}`} className="group overflow-hidden rounded-xl border border-border bg-background/80 transition hover:-translate-y-1">
                 <div className="overflow-hidden bg-slate-950">
-                  <img src={p.gallery[0]} alt={p.name} className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={p.gallery[0]} alt={imageAltFor(p)} className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
                 <div className="p-4 space-y-3">
                   <div className="grid grid-cols-2 gap-2">
                     {p.gallery.map((photo, index) => (
                       <div key={index} className="aspect-square overflow-hidden rounded-sm border border-border">
-                        <img src={photo} alt={`${p.name} photo ${index + 1}`} className="w-full h-full object-cover" />
+                        <img src={photo} alt={imageAltFor(p)} className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>

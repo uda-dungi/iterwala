@@ -821,7 +821,8 @@ export const products: Product[] = [
   {
     id: "a-tulsi", slug: "tulsi", name: "Tulsi", tagline: "Sacred basil",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-tulsi"), gallery: [img("attar-tulsi-real")],
+    image: newGalleryImagesFor("Tulsi")[0] ?? img("attar-tulsi"),
+    gallery: [...newGalleryImagesFor("Tulsi"), img("attar-tulsi-real")],
     notes: { top: ["Holy Basil"], heart: ["Green Herbs", "Clove"], base: ["Woods", "Musk"] },
     longevity: "8 hours", projection: "Intimate",
     occasions: ["Pooja", "Meditation", "Daily Wear"], moods: ["Pure", "Grounded"],
@@ -832,7 +833,8 @@ export const products: Product[] = [
   {
     id: "a-ruh-kewra", slug: "ruh-kewra", name: "Ruh Kewra", tagline: "Royal pandanus",
     price: 2199, compareAt: 2599, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-ruh-kewra"), gallery: [img("attar-ruh-kewra")],
+    image: newGalleryImagesFor("Ruh Kewra")[0] ?? img("attar-ruh-kewra"),
+    gallery: [...newGalleryImagesFor("Ruh Kewra"), img("attar-ruh-kewra")],
     notes: { top: ["Kewra Flower"], heart: ["Pandanus", "Honey"], base: ["Sandalwood", "Musk"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Festive", "Daily Wear", "Pooja"], moods: ["Refreshing", "Regal"],
@@ -843,7 +845,8 @@ export const products: Product[] = [
   {
     id: "a-shyam-shringar", slug: "shyam-shringar", name: "Shyam Shringar", tagline: "Devotion, distilled",
     price: 649, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-shyam-shringar"), gallery: [img("attar-shyam-shringar")],
+    image: newGalleryImagesFor("Shyam Shringar")[0] ?? img("attar-shyam-shringar"),
+    gallery: [...newGalleryImagesFor("Shyam Shringar"), img("attar-shyam-shringar")],
     notes: { top: ["Florals"], heart: ["Rose", "Jasmine", "Saffron"], base: ["Sandalwood", "Amber", "Musk"] },
     longevity: "12 hours", projection: "Moderate",
     occasions: ["Festive", "Pooja", "Special Occasions"], moods: ["Devotional", "Warm"],
@@ -981,7 +984,15 @@ export const products: Product[] = [
     price: 749, compareAt: 1099, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "50ml": { price: 449, compareAt: 649 }, "100ml": { price: 749, compareAt: 1099 } },
     featuredVolume: "100ml",
-    image: img("smoke"), gallery: [img("smoke")],
+    // Shoot batch also included a 20ml lineup, but Smoke isn't sold in 20ml on this site
+    // (no price for it) — those photos are left unused rather than wired into a size that
+    // isn't purchasable.
+    image: newGalleryImagesFor("Smoke/100 ml")[0] ?? img("smoke"),
+    gallery: [...newGalleryImagesFor("Smoke/100 ml"), img("smoke")],
+    galleryByVolume: {
+      "50ml": [...newGalleryImagesFor("Smoke/50 ml"), img("smoke")],
+      "100ml": [...newGalleryImagesFor("Smoke/100 ml"), img("smoke")],
+    },
     notes: { top: ["Smoke Accord", "Black Pepper"], heart: ["Leather", "Oud"], base: ["Vetiver", "Amber"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Evening", "Winter", "Formal"], moods: ["Mysterious", "Bold"],
@@ -1132,7 +1143,8 @@ export const products: Product[] = [
   {
     id: "a-sukoon", slug: "sukoon-attar", name: "Sukoon Attar", tagline: "Peace, in oil",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-sukoon"), gallery: [img("attar-sukoon")],
+    image: newGalleryImagesFor("Sukoon Attar")[0] ?? img("attar-sukoon"),
+    gallery: [...newGalleryImagesFor("Sukoon Attar"), img("attar-sukoon")],
     notes: { top: ["Lavender"], heart: ["Cedar", "Iris"], base: ["Amber", "Musk"] },
     longevity: "12+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Meditation", "Relaxation"], moods: ["Calm", "Grounded"],
@@ -1195,7 +1207,8 @@ export const products: Product[] = [
   {
     id: "a-ruh-heena", slug: "ruh-heena", name: "Ruh Heena", tagline: "Heena's deepest note",
     price: 1399, compareAt: 1599, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-ruh-heena"), gallery: [img("attar-ruh-heena")],
+    image: newGalleryImagesFor("Ruh Heena")[0] ?? img("attar-ruh-heena"),
+    gallery: [...newGalleryImagesFor("Ruh Heena"), img("attar-ruh-heena")],
     notes: { top: ["Herbal Green"], heart: ["Heena Flower", "Musk"], base: ["Amber", "Woods"] },
     longevity: "14+ hours", projection: "Strong",
     occasions: ["Festive", "Special Occasions", "Winter"], moods: ["Regal", "Traditional"],
@@ -1206,7 +1219,8 @@ export const products: Product[] = [
   {
     id: "a-ruh-khus", slug: "ruh-khus", name: "Ruh Khus", tagline: "Cooling roots of khus",
     price: 1999, compareAt: 2499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-ruh-khus"), gallery: [img("attar-ruh-khus")],
+    image: newGalleryImagesFor("Ruh Khus")[0] ?? img("attar-ruh-khus"),
+    gallery: [...newGalleryImagesFor("Ruh Khus"), img("attar-ruh-khus")],
     notes: { top: ["Khus Root"], heart: ["Green Herbs"], base: ["Woods", "Musk"] },
     longevity: "10-12 hours", projection: "Moderate",
     occasions: ["Summer", "Daily Wear", "Relaxation"], moods: ["Fresh", "Grounded"],
@@ -1494,7 +1508,12 @@ export const products: Product[] = [
     price: 899, compareAt: 1799, category: "Perfume", gender: "Unisex", volume: PERFUME_VOL,
     priceByVolume: { "100ml": { price: 899, compareAt: 1799 }, "50ml": { price: 449, compareAt: 1299 } },
     featuredVolume: "100ml",
-    image: img("wild"), gallery: [img("wild")],
+    image: newGalleryImagesFor("Wild/100 ml")[0] ?? img("wild"),
+    gallery: [...newGalleryImagesFor("Wild/100 ml"), img("wild")],
+    galleryByVolume: {
+      "50ml": [...newGalleryImagesFor("Wild/50 ml"), img("wild")],
+      "100ml": [...newGalleryImagesFor("Wild/100 ml"), img("wild")],
+    },
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "8 hours", projection: "Moderate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1505,7 +1524,8 @@ export const products: Product[] = [
   {
     id: "a-saffron-sandal", slug: "saffron-sandal", name: "Saffron Sandal", tagline: "Discover this fragrance",
     price: 499, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("saffron-sandal"), gallery: [img("saffron-sandal")],
+    image: newGalleryImagesFor("Saffron Sandal")[0] ?? img("saffron-sandal"),
+    gallery: [...newGalleryImagesFor("Saffron Sandal"), img("saffron-sandal")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1589,7 +1609,8 @@ export const products: Product[] = [
   {
     id: "a-shanaya", slug: "shanaya", name: "Shanaya", tagline: "Discover this fragrance",
     price: 569, compareAt: 1699, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("shanaya"), gallery: [img("shanaya")],
+    image: newGalleryImagesFor("Shanaya")[0] ?? img("shanaya"),
+    gallery: [...newGalleryImagesFor("Shanaya"), img("shanaya")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1747,7 +1768,8 @@ export const products: Product[] = [
   {
     id: "a-white-oud", slug: "white-oud-attar", name: "White Oud Attar", tagline: "Discover this fragrance",
     price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("white-oud"), gallery: [img("white-oud")],
+    image: newGalleryImagesFor("White Oud Attar")[0] ?? img("white-oud"),
+    gallery: [...newGalleryImagesFor("White Oud Attar"), img("white-oud")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1758,7 +1780,8 @@ export const products: Product[] = [
   {
     id: "a-wild", slug: "wild-attar", name: "Wild Attar", tagline: "Discover this fragrance",
     price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("attar-wild"), gallery: [img("attar-wild")],
+    image: newGalleryImagesFor("Wild Attar")[0] ?? img("attar-wild"),
+    gallery: [...newGalleryImagesFor("Wild Attar"), img("attar-wild")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1789,7 +1812,8 @@ export const products: Product[] = [
   {
     id: "a-zannat", slug: "zannat", name: "Zannat", tagline: "Discover this fragrance",
     price: 999, compareAt: 1299, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
-    image: img("zannat"), gallery: [img("zannat")],
+    image: newGalleryImagesFor("Zannat")[0] ?? img("zannat"),
+    gallery: [...newGalleryImagesFor("Zannat"), img("zannat")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
     longevity: "10+ hours", projection: "Intimate",
     occasions: ["Daily Wear", "Special Occasions"], moods: ["Confident"],
@@ -1862,6 +1886,11 @@ export const galleryFor = (p: Product, volume?: string) =>
 
 export const imageFor = (p: Product, volume?: string) =>
   galleryFor(p, volume)?.[0] ?? p.image;
+
+/** Descriptive alt text for a product image, category-aware ("Attar" for Attar
+ *  products, "Perfume" for everything else — Perfume, Gift Set, Collector's Edition). */
+export const imageAltFor = (p: Product) =>
+  `${p.name} Premium ${p.category === "Attar" ? "Attar" : "Perfume"} - Itrawala`;
 
 /** Resolves { price, compareAt } for a given size. Falls back to the product's flat
  *  price/compareAt when that size has no dedicated entry in priceByVolume. */

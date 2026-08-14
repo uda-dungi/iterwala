@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, RotateCcw, ArrowLeft, Star, ShoppingBag } from "lucide-react";
-import { products, Product, imageFor, listingVolume, priceFor } from "@/data/products";
+import { products, Product, imageFor, imageAltFor, listingVolume, priceFor } from "@/data/products";
 import { useShop, formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -162,7 +162,7 @@ export default function Quiz() {
               </div>
               <div className="luxury-card grid md:grid-cols-2 gap-0 overflow-hidden">
                 <div className="relative aspect-square md:aspect-auto bg-deep-brown">
-                  <img src={resultCardImage} alt={result.match.name} className="w-full h-full object-cover" />
+                  <img src={resultCardImage} alt={imageAltFor(result.match)} className="w-full h-full object-cover" />
                   {result.match.badge && (
                     <span className="absolute top-4 left-4 text-[10px] tracking-luxe uppercase px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
                       {result.match.badge}
@@ -203,7 +203,7 @@ export default function Quiz() {
                   return (
                     <Link key={p.id} to={`/product/${p.slug}`} className="luxury-card group">
                       <div className="aspect-[4/5] overflow-hidden bg-deep-brown">
-                        <img src={cardImage} alt={p.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                        <img src={cardImage} alt={imageAltFor(p)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       </div>
                       <div className="p-4 text-center">
                         <h4 className="font-serif text-lg text-ivory group-hover:text-primary transition-colors">{p.name}</h4>

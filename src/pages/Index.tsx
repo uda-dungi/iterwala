@@ -13,7 +13,7 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { LazyReelVideo } from "@/components/home/LazyReelVideo";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
 import { MobileCarousel } from "@/components/home/MobileCarousel";
-import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, listingVolume, NEW_LAUNCH_SLUGS, type Product } from "@/data/products";
+import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, imageAltFor, listingVolume, NEW_LAUNCH_SLUGS, type Product } from "@/data/products";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
@@ -145,7 +145,7 @@ export default function Index() {
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {bestSellers.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} showBadge={false} />)}
         </div>
-        <MobileCarousel>
+        <MobileCarousel className="sm:hidden">
           {bestSellersMobile.map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} showBadge={false} />
           ))}
@@ -184,7 +184,7 @@ export default function Index() {
         <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {newArrivals.slice(0, 4).map((p, i) => <ProductCard key={p.id} product={p} index={i} showBadge={false} />)}
         </div>
-        <MobileCarousel>
+        <MobileCarousel className="sm:hidden">
           {newArrivals.slice(0, 4).map((p, i) => (
             <ProductCard key={p.id} product={p} index={i} showBadge={false} />
           ))}
@@ -200,7 +200,7 @@ export default function Index() {
       <section className="container py-10 md:py-20">
         <div className="luxury-card grid lg:grid-cols-2 gap-0 overflow-hidden">
           <div className="relative aspect-square lg:aspect-auto bg-deep-brown">
-            <img src={amazonPick.image} alt={amazonPick.name} className="w-full h-full object-cover" />
+            <img src={amazonPick.image} alt={imageAltFor(amazonPick)} className="w-full h-full object-cover" />
             <div className="absolute top-5 left-5"><AmazonChoiceBadge className="text-xs px-3 py-1.5" /></div>
           </div>
           <div className="p-6 sm:p-10 md:p-14 flex flex-col justify-center">
@@ -385,7 +385,7 @@ export default function Index() {
                 initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.05 }}
                 className="aspect-square overflow-hidden rounded-sm group relative">
-                <img src={cardImage} alt="" loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <img src={cardImage} alt={imageAltFor(p)} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 <div className="absolute inset-0 bg-gradient-gold opacity-0 group-hover:opacity-40 transition-opacity flex items-center justify-center">
                   <Heart className="w-6 h-6 text-ivory" />
                 </div>
