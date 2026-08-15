@@ -103,7 +103,7 @@ export const PRICE_TABLE: Record<string, PriceEntry> = {
 };
 
 /** Server-truth unit price for a product id + selected volume, mirroring src/data/products.ts's priceFor().
- *  Applies the Independence Day Freedom Sale's flat 25% off (api/_lib/independenceDaySale.ts)
+ *  Applies the Independence Day Freedom Sale's 10% off (api/_lib/independenceDaySale.ts)
  *  when active, same as the client. */
 export function priceForServer(productId: string, volume?: string): number | null {
   const entry = PRICE_TABLE[productId];
@@ -112,10 +112,9 @@ export function priceForServer(productId: string, volume?: string): number | nul
     ? entry.priceByVolume[volume]
     : { price: entry.price, compareAt: entry.compareAt ?? undefined };
   if (!isIndependenceDaySaleActive()) return base.price;
-  // Discount off the original base price (compareAt), not the already marked-down
-  // `price` — mirrors src/data/products.ts's priceFor().
-  const original = base.compareAt ?? base.price;
-  return independenceDayPrice(original);
+  // Discount off the original selling price (`price`), not the MRP (`compareAt`) —
+  // mirrors src/data/products.ts's priceFor().
+  return independenceDayPrice(base.price);
 }
 
 export const FREE_SHIPPING_THRESHOLD = 0;

@@ -47,7 +47,7 @@ const slides: Slide[] = [
     eyebrow: "Independence Day · 15th August",
     title: "Freedom",
     highlight: "Sale",
-    copy: "Flat 25% off every fragrance and attar — one day only, on 15th August. Stacks with the Raksha Bandhan Sale on Pack of 4 & Collector's Edition.",
+    copy: "Flat 10% off every fragrance and attar — one day only, on 15th August. Stacks with the Raksha Bandhan Sale on Pack of 4 & Collector's Edition.",
     cta: { label: "Browse the Collection", to: "/shop" },
   },
   // Raksha Bandhan Sale promo banners — placed first so the live offers show on load.
@@ -110,7 +110,7 @@ const mobileSlides: MobileSlide[] = [
   // Independence Day teaser. Shot at 899x1599 — a 9:16 within a rounding error of the
   // carousel frame, so object-cover shows the whole thing with nothing cropped. Unlike the
   // desktop version this one has all its copy baked in, so it needs no overlay text.
-  { image: mobileFreedomSale, alt: "Freedom Sale — flat 25% off on 15th August, Independence Day. One day only.", fit: "cover", cta: { label: "Browse the Collection", to: "/shop" } },
+  { image: mobileFreedomSale, alt: "Freedom Sale — flat 10% off on 15th August, Independence Day. One day only.", fit: "cover", cta: { label: "Browse the Collection", to: "/shop" } },
   { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "contain", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },// side and cut their baked-in text, so these letterbox instead.

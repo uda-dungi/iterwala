@@ -9,7 +9,7 @@
 // To end the sale: flip FRIENDSHIP_SALE_ACTIVE to false here AND in src/lib/offers.ts.
 //
 // Independence Day Freedom Sale (independenceDaySale.ts) stacks on top of these BOGO
-// offers rather than replacing them — `unitPrice` below is already the post-25%-off
+// offers rather than replacing them — `unitPrice` below is already the post-10%-off
 // price, so the BOGO math just runs on top of that. Mirrors src/lib/offers.ts.
 
 export const FRIENDSHIP_SALE_ACTIVE = true;

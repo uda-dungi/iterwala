@@ -1,5 +1,7 @@
-// Independence Day Freedom Sale — automatic flat 25% off every product, one day only
-// (15 August 2026, India Standard Time).
+// Independence Day Freedom Sale — automatic 10% off every product's original selling
+// price, one day only (15 August 2026, India Standard Time). The product's true MRP
+// (compareAt) still shows as the strikethrough — this is 10% off the already-marked-down
+// selling price, not off the MRP.
 //
 // Date-gated so the sale switches on and off by itself at IST midnight, with no manual
 // toggle and no redeploy needed — every call recomputes from the current clock rather
@@ -12,7 +14,7 @@
 // products.ts / prices.ts, which apply this discount before offers.ts's BOGO math runs
 // on the resulting (already discounted) unit price.
 
-export const INDEPENDENCE_DAY_PERCENT = 25;
+export const INDEPENDENCE_DAY_PERCENT = 10;
 
 const SALE_YEAR = 2026;
 const SALE_MONTH_INDEX = 7; // August (0-indexed)
@@ -31,7 +33,7 @@ export function isIndependenceDaySaleActive(now: Date = new Date()): boolean {
   );
 }
 
-/** Flat 25% off a base price, rounded to the nearest rupee, while the sale is active.
+/** 10% off a base price, rounded to the nearest rupee, while the sale is active.
  *  Returns the base price unchanged once the sale has ended. */
 export function independenceDayPrice(basePrice: number, now: Date = new Date()): number {
   if (!isIndependenceDaySaleActive(now)) return basePrice;

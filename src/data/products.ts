@@ -1915,14 +1915,13 @@ export const imageAltFor = (p: Product) =>
  *  price/compareAt when that size has no dedicated entry in priceByVolume. */
 export const priceFor = (p: Product, volume?: string): { price: number; compareAt?: number } => {
   const base = (volume && p.priceByVolume?.[volume]) ? p.priceByVolume[volume] : { price: p.price, compareAt: p.compareAt };
-  // Independence Day Freedom Sale — flat 25% off every product's original base price
-  // (compareAt — the pre-existing "MRP" struck-through price), not off the already
-  // marked-down `price`, so today's discount doesn't stack on top of a standing sale.
-  // Falls back to `price` when a product has no compareAt to begin with. See
-  // src/lib/independenceDaySale.ts.
+  // Independence Day Freedom Sale — 10% off every product's original selling price
+  // (`price`), since that already has the standing markdown built in — a flat 25% off
+  // the MRP (`compareAt`) would double-discount. The true MRP still shows as the
+  // strikethrough (falls back to the selling price for products with no compareAt).
+  // See src/lib/independenceDaySale.ts.
   if (isIndependenceDaySaleActive()) {
-    const original = base.compareAt ?? base.price;
-    return { price: independenceDayPrice(original), compareAt: original };
+    return { price: independenceDayPrice(base.price), compareAt: base.compareAt ?? base.price };
   }
   return base;
 };
