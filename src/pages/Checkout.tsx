@@ -165,6 +165,12 @@ export default function Checkout() {
       // Submit before clearing: if the handover to PayU throws, the customer keeps
       // their bag instead of being left on an empty cart with no payment started.
       payuForm.submit();
+      // Normally the browser navigates away right after this and tears the page down
+      // anyway, but if that handover gets interrupted (blocked redirect, or the page
+      // getting restored from bfcache via the browser Back button), this hidden form —
+      // untracked by React since it's a raw DOM node — would otherwise sit in
+      // document.body forever, and every retried checkout would add another one.
+      document.body.removeChild(payuForm);
       clearCart();
     } catch (err) {
       console.error(err);
