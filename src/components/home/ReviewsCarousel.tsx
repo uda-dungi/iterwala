@@ -29,11 +29,12 @@ export function ReviewsCarousel() {
   useEffect(() => {
     if (!api) return;
     const onSelect = () => setSelected(api.selectedScrollSnap());
+    const onReInit = () => { setDotCount(api.scrollSnapList().length); onSelect(); };
     setDotCount(api.scrollSnapList().length);
     api.on("select", onSelect);
-    api.on("reInit", () => { setDotCount(api.scrollSnapList().length); onSelect(); });
+    api.on("reInit", onReInit);
     onSelect();
-    return () => { api.off("select", onSelect); };
+    return () => { api.off("select", onSelect); api.off("reInit", onReInit); };
   }, [api]);
 
   useEffect(() => {
