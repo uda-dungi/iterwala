@@ -1,5 +1,3 @@
-import { isIndependenceDaySaleActive, independenceDayPrice } from "@/lib/independenceDaySale";
-
 // Product images live in src/assets/products and are loaded by filename via Vite glob.
 const modules = import.meta.glob("../assets/products/*.jpg", { eager: true, import: "default" }) as Record<string, string>;
 // A 1x1 transparent PNG — used only when an image filename can't be resolved.
@@ -1914,16 +1912,8 @@ export const imageAltFor = (p: Product) =>
 /** Resolves { price, compareAt } for a given size. Falls back to the product's flat
  *  price/compareAt when that size has no dedicated entry in priceByVolume. */
 export const priceFor = (p: Product, volume?: string): { price: number; compareAt?: number } => {
-  const base = (volume && p.priceByVolume?.[volume]) ? p.priceByVolume[volume] : { price: p.price, compareAt: p.compareAt };
-  // Independence Day Freedom Sale — 25% off every product's original selling price
-  // (`price`), since that already has the standing markdown built in — a flat 25% off
-  // the MRP (`compareAt`) would double-discount. The true MRP still shows as the
-  // strikethrough (falls back to the selling price for products with no compareAt).
-  // See src/lib/independenceDaySale.ts.
-  if (isIndependenceDaySaleActive()) {
-    return { price: independenceDayPrice(base.price), compareAt: base.compareAt ?? base.price };
-  }
-  return base;
+  if (volume && p.priceByVolume?.[volume]) return p.priceByVolume[volume];
+  return { price: p.price, compareAt: p.compareAt };
 };
 
 /** Resolves { tagline, description, ingredients } for a given variant, falling back to

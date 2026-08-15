@@ -119,7 +119,7 @@ export default function Cart() {
               </div>
             ) : (
               <>
-                {/* First-time shoppers won't know WELCOME25 exists otherwise — the input's
+                {/* First-time shoppers won't know WELCOME15 exists otherwise — the input's
                     placeholder alone is too easy to miss. */}
                 <p className="text-[11px] text-muted-foreground">
                   New here? Use <span className="text-primary font-medium">{WELCOME_CODE}</span> for {WELCOME_PERCENT}% off your first order.
@@ -131,7 +131,7 @@ export default function Cart() {
               </>
             )}
             {/* First-order-only is enforced server-side, so say so rather than letting the
-                shopper discover it at the payment step. WELCOME25 stacks on top of the
+                shopper discover it at the payment step. WELCOME15 stacks on top of the
                 Raksha Bandhan Sale (see api/_lib/coupons.ts) — there's no "can't combine"
                 restriction to mention here. */}
             {couponDiscount > 0 && (

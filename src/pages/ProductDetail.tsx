@@ -21,7 +21,6 @@ import { recordView } from "@/store/recentlyViewed";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
-import { isIndependenceDaySaleActive } from "@/lib/independenceDaySale";
 import { DELIVERY_ESTIMATE } from "@/config/site";
 
 /**
@@ -276,24 +275,20 @@ export default function ProductDetail() {
           {/* What this price becomes with the welcome code — the discount was previously
               only discoverable in the cart, so first-time shoppers compared us at the
               undiscounted number. Says "first order" because that's the actual rule
-              (api/_lib/coupons.ts), which checkout re-verifies against the email.
-              Hidden during the Independence Day sale — the 25% off is already applied
-              automatically, so stacking WELCOME25 here would be confusing. */}
-          {!isIndependenceDaySaleActive() && (
-            <div className="flex items-start gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
-              <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-              <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
-                Pay only{" "}
-                <span className="text-primary font-semibold">
-                  {formatINR(Math.round(unitPrice * (1 - WELCOME_PERCENT / 100)))}
-                </span>{" "}
-                with code <span className="text-primary font-semibold">{WELCOME_CODE}</span>
-                <span className="block text-[10px] sm:text-[11px] text-muted-foreground/80">
-                  {WELCOME_PERCENT}% off your first order · applied at checkout
-                </span>
-              </p>
-            </div>
-          )}
+              (api/_lib/coupons.ts), which checkout re-verifies against the email. */}
+          <div className="flex items-start gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
+            <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
+              Pay only{" "}
+              <span className="text-primary font-semibold">
+                {formatINR(Math.round(unitPrice * (1 - WELCOME_PERCENT / 100)))}
+              </span>{" "}
+              with code <span className="text-primary font-semibold">{WELCOME_CODE}</span>
+              <span className="block text-[10px] sm:text-[11px] text-muted-foreground/80">
+                {WELCOME_PERCENT}% off your first order · applied at checkout
+              </span>
+            </p>
+          </div>
 
           {/* Friendship Sale offer callout (only on participating products) */}
           {productOffer && (

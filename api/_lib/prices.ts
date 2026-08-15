@@ -12,8 +12,6 @@
 // dumps `{ id: { price, compareAt, priceByVolume } }` for every product — see the repo's
 // internal notes for the exact one-off script, or just hand-edit the changed entries below.
 
-import { isIndependenceDaySaleActive, independenceDayPrice } from "./independenceDaySale.js";
-
 export type PriceEntry = {
   price: number;
   compareAt: number | null;
@@ -102,19 +100,14 @@ export const PRICE_TABLE: Record<string, PriceEntry> = {
   "a-zannat": { "price": 999, "compareAt": 1299, "priceByVolume": null },
 };
 
-/** Server-truth unit price for a product id + selected volume, mirroring src/data/products.ts's priceFor().
- *  Applies the Independence Day Freedom Sale's 25% off (api/_lib/independenceDaySale.ts)
- *  when active, same as the client. */
+/** Server-truth unit price for a product id + selected volume, mirroring src/data/products.ts's priceFor(). */
 export function priceForServer(productId: string, volume?: string): number | null {
   const entry = PRICE_TABLE[productId];
   if (!entry) return null;
-  const base = (volume && entry.priceByVolume && entry.priceByVolume[volume])
-    ? entry.priceByVolume[volume]
-    : { price: entry.price, compareAt: entry.compareAt ?? undefined };
-  if (!isIndependenceDaySaleActive()) return base.price;
-  // Discount off the original selling price (`price`), not the MRP (`compareAt`) —
-  // mirrors src/data/products.ts's priceFor().
-  return independenceDayPrice(base.price);
+  if (volume && entry.priceByVolume && entry.priceByVolume[volume]) {
+    return entry.priceByVolume[volume].price;
+  }
+  return entry.price;
 }
 
 export const FREE_SHIPPING_THRESHOLD = 0;

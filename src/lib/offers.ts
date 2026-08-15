@@ -6,12 +6,6 @@
 // the logic or the constants below, edit BOTH files.
 //
 // To end the sale: flip FRIENDSHIP_SALE_ACTIVE to false here AND in api/_lib/offers.ts.
-//
-// Independence Day Freedom Sale (independenceDaySale.ts) stacks on top of these BOGO
-// offers rather than replacing them — `unitPrice` below is already the post-25%-off
-// price (via priceFor / priceForServer), so the BOGO math just runs on top of that.
-
-import { isIndependenceDaySaleActive, INDEPENDENCE_DAY_PERCENT } from "@/lib/independenceDaySale";
 
 export const FRIENDSHIP_SALE_ACTIVE = true;
 
@@ -81,31 +75,19 @@ const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 /** Marketing copy for a participating product — used on product pages & cards. */
 export function offerForProduct(id: string): { badge: string; headline: string; detail: string } | null {
-  const independenceDay = isIndependenceDaySaleActive();
-
-  if (FRIENDSHIP_SALE_ACTIVE && id === PACK_OF_4_ID) {
+  if (!FRIENDSHIP_SALE_ACTIVE) return null;
+  if (id === PACK_OF_4_ID) {
     return {
       badge: "Buy 1 Get 1 Free",
       headline: "Raksha Bandhan Sale · Buy 1 Get 1 Free",
-      detail: independenceDay
-        ? `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)} — plus ${INDEPENDENCE_DAY_PERCENT}% off everything today.`
-        : `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)}.`,
+      detail: `Add 2 Pack of 4 gift sets for just ${inr(PACK_OF_4_PAIR_PRICE)}.`,
     };
   }
-  if (FRIENDSHIP_SALE_ACTIVE && COLLECTORS_EDITION_IDS.includes(id)) {
+  if (COLLECTORS_EDITION_IDS.includes(id)) {
     return {
       badge: "Buy 2 Get 1 Free",
       headline: "Raksha Bandhan Sale · Buy 2 Get 1 Free",
-      detail: independenceDay
-        ? `Mix and match any three across Shabd, Kahani and Ehsaas — plus ${INDEPENDENCE_DAY_PERCENT}% off today.`
-        : "Mix and match any three across Shabd, Kahani and Ehsaas.",
-    };
-  }
-  if (independenceDay) {
-    return {
-      badge: `${INDEPENDENCE_DAY_PERCENT}% Off`,
-      headline: `Independence Day Sale · Flat ${INDEPENDENCE_DAY_PERCENT}% Off`,
-      detail: "Applied automatically on all products — no code needed. Ends tonight, 15th August.",
+      detail: "Mix and match any three across Shabd, Kahani and Ehsaas.",
     };
   }
   return null;
