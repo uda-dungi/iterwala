@@ -105,7 +105,7 @@ export function offerForProduct(id: string): { badge: string; headline: string; 
     return {
       badge: `${INDEPENDENCE_DAY_PERCENT}% Off`,
       headline: `Independence Day Sale · Flat ${INDEPENDENCE_DAY_PERCENT}% Off`,
-      detail: "Applied automatically at checkout — no code needed. Ends tonight, 15th August.",
+      detail: "Applied automatically on all products — no code needed. Ends tonight, 15th August.",
     };
   }
   return null;
