@@ -42,6 +42,13 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
           {/* Kept small on mobile — these used to be wide enough (0.3em tracking) to
               cover the bottle in the card photo on narrow screens. */}
           <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 z-10 flex flex-col items-start gap-1 sm:gap-1.5">
+            {/* MRP-discount badge — same styling as the old Independence Day "Save 25%"
+                badge, shown on any card with a strikethrough compareAt. */}
+            {cardCompareAt && (
+              <span className="text-[7px] sm:text-[10px] tracking-wide sm:tracking-luxe uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary text-primary-foreground font-semibold rounded-sm shadow-gold">
+                Save 25%
+              </span>
+            )}
             {/* The offer badge wins the spot — hide the plain product badge alongside it
                 so small mobile cards don't stack two labels over the same corner. */}
             {offer ? (
