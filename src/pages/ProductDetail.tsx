@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2, Share2, Check, Globe, Rabbit, PackageCheck } from "lucide-react";
@@ -63,6 +63,11 @@ export default function ProductDetail() {
   const [reviewRating, setReviewRating] = useState(5);
   const [reviews, setReviews] = useState(() => (product ? seedReviewsFor(product) : []));
   const [shared, setShared] = useState(false);
+  const shareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current); };
+  }, []);
 
   useEffect(() => {
     if (product) {
@@ -127,7 +132,8 @@ export default function ProductDetail() {
       await navigator.clipboard.writeText(url);
       setShared(true);
       toast.success("Link copied to clipboard");
-      setTimeout(() => setShared(false), 2000);
+      if (shareTimeoutRef.current) clearTimeout(shareTimeoutRef.current);
+      shareTimeoutRef.current = setTimeout(() => setShared(false), 2000);
     } catch {
       // AbortError just means the shopper dismissed the share sheet — not worth a toast.
     }

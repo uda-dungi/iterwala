@@ -1,9 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Product } from "@/data/products";
 import { site } from "@/config/site";
 
-/** Injects a JSON-LD <script> into <head> and cleans it up on unmount. */
+/** Injects a JSON-LD <script> into <head> and cleans it up on unmount.
+ *
+ *  `data` is an object literal built fresh on every render by the callers below, so it's
+ *  a new reference every time even when its contents haven't changed. Keying the effect
+ *  on `data` directly made it re-run (removing and recreating the <script> tag) on every
+ *  single render of the page instead of only when the actual content changes — memoizing
+ *  on its JSON string keeps `stableData`'s reference stable across renders with the same
+ *  content. */
 function useJsonLd(id: string, data: unknown) {
+  const stableData = useMemo(() => data, [JSON.stringify(data)]);
   useEffect(() => {
     let el = document.getElementById(id) as HTMLScriptElement | null;
     if (!el) {
@@ -12,9 +20,9 @@ function useJsonLd(id: string, data: unknown) {
       el.id = id;
       document.head.appendChild(el);
     }
-    el.textContent = JSON.stringify(data);
+    el.textContent = JSON.stringify(stableData);
     return () => { el?.remove(); };
-  }, [id, data]);
+  }, [id, stableData]);
   return null;
 }
 
