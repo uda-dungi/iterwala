@@ -1915,7 +1915,7 @@ export const imageAltFor = (p: Product) =>
  *  price/compareAt when that size has no dedicated entry in priceByVolume. */
 export const priceFor = (p: Product, volume?: string): { price: number; compareAt?: number } => {
   const base = (volume && p.priceByVolume?.[volume]) ? p.priceByVolume[volume] : { price: p.price, compareAt: p.compareAt };
-  // Independence Day Freedom Sale — 10% off every product's original selling price
+  // Independence Day Freedom Sale — 25% off every product's original selling price
   // (`price`), since that already has the standing markdown built in — a flat 25% off
   // the MRP (`compareAt`) would double-discount. The true MRP still shows as the
   // strikethrough (falls back to the selling price for products with no compareAt).

@@ -103,7 +103,7 @@ export const PRICE_TABLE: Record<string, PriceEntry> = {
 };
 
 /** Server-truth unit price for a product id + selected volume, mirroring src/data/products.ts's priceFor().
- *  Applies the Independence Day Freedom Sale's 10% off (api/_lib/independenceDaySale.ts)
+ *  Applies the Independence Day Freedom Sale's 25% off (api/_lib/independenceDaySale.ts)
  *  when active, same as the client. */
 export function priceForServer(productId: string, volume?: string): number | null {
   const entry = PRICE_TABLE[productId];

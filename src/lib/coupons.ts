@@ -28,10 +28,10 @@ export const normalizeCode = (code: string): string => code.trim().toUpperCase()
 export function computeCoupon(code: string, discountedSubtotal: number, offerDiscount: number): CouponResult {
   const c = normalizeCode(code);
   if (!c) return { valid: false, discount: 0 };
-  // All coupon codes are paused for the Independence Day Sale — the automatic 10% off
+  // All coupon codes are paused for the Independence Day Sale — the automatic 25% off
   // (independenceDaySale.ts) is not meant to stack with a coupon on top of it.
   if (isIndependenceDaySaleActive()) {
-    return { valid: false, discount: 0, reason: "Coupons are paused during the Independence Day Sale — 10% off is already applied automatically." };
+    return { valid: false, discount: 0, reason: "Coupons are paused during the Independence Day Sale — 25% off is already applied automatically." };
   }
   if (c !== WELCOME_CODE && !LEGACY_CODES.includes(c)) {
     return { valid: false, discount: 0, reason: "That code isn't valid." };

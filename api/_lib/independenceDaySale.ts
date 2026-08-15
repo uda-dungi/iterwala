@@ -7,7 +7,7 @@
  * Keep the two files in sync (same reason api/_lib/prices.ts mirrors src/data/products.ts).
  */
 
-export const INDEPENDENCE_DAY_PERCENT = 10;
+export const INDEPENDENCE_DAY_PERCENT = 25;
 
 const SALE_YEAR = 2026;
 const SALE_MONTH_INDEX = 7; // August (0-indexed)
@@ -25,7 +25,7 @@ export function isIndependenceDaySaleActive(now: Date = new Date()): boolean {
   );
 }
 
-/** 10% off a base price, rounded to the nearest rupee, while the sale is active. */
+/** 25% off a base price, rounded to the nearest rupee, while the sale is active. */
 export function independenceDayPrice(basePrice: number, now: Date = new Date()): number {
   if (!isIndependenceDaySaleActive(now)) return basePrice;
   return Math.round(basePrice * (1 - INDEPENDENCE_DAY_PERCENT / 100));

@@ -277,7 +277,7 @@ export default function ProductDetail() {
               only discoverable in the cart, so first-time shoppers compared us at the
               undiscounted number. Says "first order" because that's the actual rule
               (api/_lib/coupons.ts), which checkout re-verifies against the email.
-              Hidden during the Independence Day sale — the 10% off is already applied
+              Hidden during the Independence Day sale — the 25% off is already applied
               automatically, so stacking WELCOME25 here would be confusing. */}
           {!isIndependenceDaySaleActive() && (
             <div className="flex items-start gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
