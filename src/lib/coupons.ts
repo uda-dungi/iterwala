@@ -9,6 +9,8 @@
 // /api/coupon/validate confirms it once an email is known, and /api/checkout/initiate
 // re-checks authoritatively before anything is charged.
 
+import { isIndependenceDaySaleActive } from "@/lib/independenceDaySale";
+
 export const WELCOME_CODE = "WELCOME25";
 export const WELCOME_PERCENT = 25;
 
@@ -26,6 +28,11 @@ export const normalizeCode = (code: string): string => code.trim().toUpperCase()
 export function computeCoupon(code: string, discountedSubtotal: number, offerDiscount: number): CouponResult {
   const c = normalizeCode(code);
   if (!c) return { valid: false, discount: 0 };
+  // All coupon codes are paused for the Independence Day Sale — the automatic 10% off
+  // (independenceDaySale.ts) is not meant to stack with a coupon on top of it.
+  if (isIndependenceDaySaleActive()) {
+    return { valid: false, discount: 0, reason: "Coupons are paused during the Independence Day Sale — 10% off is already applied automatically." };
+  }
   if (c !== WELCOME_CODE && !LEGACY_CODES.includes(c)) {
     return { valid: false, discount: 0, reason: "That code isn't valid." };
   }
