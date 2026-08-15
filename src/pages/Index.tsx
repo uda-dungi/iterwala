@@ -371,7 +371,7 @@ export default function Index() {
       </Section>
 
       {/* REVIEWS — auto-sliding, more comments (edit the list in ReviewsCarousel.tsx) */}
-      <Section eyebrow="In Their Words" title="From Our Customers">
+      <Section id="reviews" eyebrow="In Their Words" title="From Our Customers">
         <ReviewsCarousel />
       </Section>
 
@@ -564,9 +564,9 @@ function ReelsSlider({ items }: { items: string[] }) {
   );
 }
 
-function Section({ eyebrow, title, subtitle, children, className }: { eyebrow?: string; title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
+function Section({ eyebrow, title, subtitle, children, className, id }: { eyebrow?: string; title: string; subtitle?: string; children: React.ReactNode; className?: string; id?: string }) {
   return (
-    <section className={`container ${className ?? "py-12 md:py-20"}`}>
+    <section id={id} className={`container ${className ?? "py-12 md:py-20"}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }} transition={{ duration: 0.6 }}

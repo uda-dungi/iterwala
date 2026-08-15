@@ -1,8 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Filter, X } from "lucide-react";
+import { Filter, ShieldCheck, X } from "lucide-react";
 import { products, priceFor, listingVolume, NEW_LAUNCH_SLUGS } from "@/data/products";
+import { TRADING_SINCE } from "@/config/site";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -216,6 +217,20 @@ export default function Shop() {
               </Select>
             </div>
           </div>
+
+          {/* Trust badge — same gold band, shield icon, and copy as the Collector's
+              Edition page's trust line (src/components/product/CollectorStory.tsx),
+              adapted to sit inside this column rather than full-bleed. Links to the
+              homepage reviews section. */}
+          <a
+            href="/#reviews"
+            className="mb-5 sm:mb-8 flex items-center justify-center gap-3 md:gap-4 rounded-sm bg-gradient-gold px-4 py-4 md:py-5 text-center text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 shrink-0" strokeWidth={1.5} />
+            <p className="font-serif text-base sm:text-xl md:text-2xl tracking-wide">
+              Trusted by online customers since {TRADING_SINCE}
+            </p>
+          </a>
 
           {filtered.length === 0 ? (
             <div className="text-center py-14 sm:py-24">
