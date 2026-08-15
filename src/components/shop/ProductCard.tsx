@@ -46,7 +46,7 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
                 badge, shown on any card with a strikethrough compareAt. */}
             {cardCompareAt && (
               <span className="text-[7px] sm:text-[10px] tracking-wide sm:tracking-luxe uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 bg-primary text-primary-foreground font-semibold rounded-sm shadow-gold">
-                Save 25%
+                Save 15%
               </span>
             )}
             {/* The offer badge wins the spot — hide the plain product badge alongside it
