@@ -52,11 +52,14 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
   const { data } = useQuery({
     queryKey: ["catalog"],
     queryFn: fetchCatalog,
-    // The snapshot is a real, complete catalogue — not a loading state — so it is
-    // rendered immediately and never shows a spinner.
-    initialData: null,
-    // Catalogue edits are infrequent; a minute of staleness is invisible to shoppers
-    // and keeps this from refetching on every route change.
+    // Deliberately NO initialData. React Query treats initialData as data that was
+    // just fetched, so pairing it with a staleTime marks the query fresh on mount and
+    // skips the fetch entirely — the snapshot would render forever and admin edits
+    // would never appear. `data` is simply undefined until the fetch resolves, and the
+    // `data ?? SNAPSHOT` below covers that first paint just as well.
+    //
+    // Catalogue edits are infrequent, so a minute of staleness is invisible to
+    // shoppers while still keeping route changes from refetching.
     staleTime: 60_000,
     refetchOnWindowFocus: false,
     retry: 1,

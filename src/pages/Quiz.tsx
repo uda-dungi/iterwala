@@ -99,7 +99,8 @@ export default function Quiz() {
       .map(p => ({ p, s: scoreProduct(p, answers) }))
       .sort((a, b) => b.s - a.s || b.p.rating - a.p.rating);
     return { match: ranked[0].p, alts: ranked.slice(1, 4).map(r => r.p) };
-  }, [done, answers]);
+    // `products` swaps from snapshot to live data once the catalogue fetch resolves.
+  }, [products, done, answers]);
 
   const choose = (value: string) => {
     const q = questions[step];

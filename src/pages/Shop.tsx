@@ -125,7 +125,10 @@ export default function Shop() {
     if (sort === "new") r = r.filter(p => p.newArrival).concat(r.filter(p => !p.newArrival));
     if (sort === "best") r = r.filter(p => p.bestSeller).concat(r.filter(p => !p.bestSeller));
     return r;
-  }, [selectedGender, selectedCategory, selectedMood, price, search, sort, selectedNotes, selectedOccasions]);
+    // `products` and `newLaunchSlugs` belong here: the catalogue starts as the bundled
+    // snapshot and is replaced when the live fetch resolves. Without them this memo
+    // keeps serving the snapshot forever, so admin edits never reach the shop grid.
+  }, [products, newLaunchSlugs, selectedGender, selectedCategory, selectedMood, price, search, sort, selectedNotes, selectedOccasions]);
 
   const Filters = () => (
     <aside className="space-y-8">
