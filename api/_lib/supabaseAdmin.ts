@@ -16,11 +16,30 @@ const adminEmails = (process.env.ADMIN_EMAILS || process.env.VITE_ADMIN_EMAILS |
   .map((value) => value.trim().toLowerCase())
   .filter(Boolean);
 
+/**
+ * Optional domain-wide admin grant, off unless ADMIN_EMAIL_DOMAIN is set.
+ *
+ * This used to be a hardcoded `endsWith("@itrawala.in")`, which meant ANY address at
+ * that domain was a full admin without appearing on any allowlist. Sign-in is
+ * passwordless magic-link, so that amounted to: whoever can receive mail at any
+ * address on the domain can edit prices. Tolerable when the dashboard only listed
+ * orders; not once it controls what customers are charged — and a catch-all mailbox,
+ * an ex-employee's alias, or a lapsed domain registration each turn it into a way in.
+ *
+ * Explicit allowlisting via ADMIN_EMAILS is the intended path. This exists only for
+ * teams that genuinely want it, and must be opted into.
+ */
+const adminDomain = (process.env.ADMIN_EMAIL_DOMAIN || "")
+  .trim()
+  .toLowerCase()
+  .replace(/^@/, "");
+
 export function isAdminEmail(email?: string | null): boolean {
   if (!email) return false;
   const value = email.trim().toLowerCase();
   if (adminEmails.includes(value)) return true;
-  return value.endsWith("@itrawala.in");
+  if (adminDomain && value.endsWith(`@${adminDomain}`)) return true;
+  return false;
 }
 
 export function getSupabaseAdmin(): SupabaseClient | null {

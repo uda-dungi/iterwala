@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "import:products": "node scripts/import-products.mjs",
-    "seed:catalog": "node scripts/seed-catalog.mjs"
+    "seed:catalog": "node scripts/seed-catalog.mjs",
+    "seed:push": "node scripts/seed-catalog.mjs --push"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

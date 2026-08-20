@@ -29,6 +29,52 @@ export type AdminContext = {
 };
 
 /**
+ * Per-instance throttle on failed auth attempts, keyed by client IP.
+ *
+ * Serverless instances are recycled and requests spread across them, so this is not a
+ * hard guarantee — a determined attacker with many IPs is not stopped by it. What it
+ * does buy is a cheap cap on credential-stuffing against a single origin, and it costs
+ * nothing. Only FAILURES count, so a working admin is never throttled.
+ *
+ * A real distributed limit would need shared state (Upstash/Redis); this is the
+ * proportionate version for an endpoint that already requires a valid Supabase JWT.
+ */
+const failures = new Map<string, { count: number; first: number }>();
+const WINDOW_MS = 60_000;
+const MAX_FAILURES = 10;
+
+function clientIp(req: any): string {
+  const fwd =
+    (req.headers?.["x-forwarded-for"] as string) ||
+    (req.headers?.["x-vercel-forwarded-for"] as string) ||
+    (req.headers?.["x-real-ip"] as string) ||
+    "";
+  return fwd.split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown";
+}
+
+function isThrottled(ip: string): boolean {
+  const entry = failures.get(ip);
+  if (!entry) return false;
+  if (Date.now() - entry.first > WINDOW_MS) {
+    failures.delete(ip);
+    return false;
+  }
+  return entry.count >= MAX_FAILURES;
+}
+
+function recordFailure(ip: string): void {
+  const now = Date.now();
+  const entry = failures.get(ip);
+  if (!entry || now - entry.first > WINDOW_MS) {
+    failures.set(ip, { count: 1, first: now });
+    return;
+  }
+  entry.count += 1;
+  // Unbounded growth would be a slow memory leak across a long-lived instance.
+  if (failures.size > 5000) failures.clear();
+}
+
+/**
  * Resolves the caller to an admin, or writes the error response and returns null.
  *
  * Returning null (rather than throwing) keeps handlers as a flat `if (!ctx) return;`
@@ -36,10 +82,18 @@ export type AdminContext = {
  * carries on to the write.
  */
 export async function requireAdmin(req: any, res: any): Promise<AdminContext | null> {
+  const ip = clientIp(req);
+  if (isThrottled(ip)) {
+    res.setHeader("Retry-After", "60");
+    res.status(429).json({ error: "Too many attempts. Try again in a minute." });
+    return null;
+  }
+
   const authHeader = String(req.headers?.authorization || "");
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
 
   if (!token) {
+    recordFailure(ip);
     res.status(401).json({ error: "Unauthorized" });
     return null;
   }
@@ -60,16 +114,23 @@ export async function requireAdmin(req: any, res: any): Promise<AdminContext | n
   // the kind of mistake that stays invisible until it's exploited.
   const { data, error } = await admin.auth.getUser(token);
   if (error || !data?.user?.email) {
+    recordFailure(ip);
     res.status(401).json({ error: "Unauthorized" });
     return null;
   }
 
   const email = String(data.user.email).toLowerCase();
   if (!isAdminEmail(email)) {
+    // A valid account that is not an admin is the signal worth logging: it means
+    // someone signed in and then probed the admin API.
+    console.warn(`adminAuth: non-admin ${email} attempted ${req.method} ${req.url}`);
+    recordFailure(ip);
     res.status(403).json({ error: "Forbidden" });
     return null;
   }
 
+  // Successful auth clears the counter so a typo earlier can't lock out real work.
+  failures.delete(ip);
   return { admin, email, userId: data.user.id };
 }
 

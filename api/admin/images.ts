@@ -62,9 +62,20 @@ export default async function handler(req: any, res: any) {
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
+
+      // Everything here is covered by the signature, so the browser cannot widen it:
+      // Cloudinary rejects the upload if any signed parameter is altered in transit.
+      //
+      //   allowed_formats — without this, an admin token (or a stolen one) could push
+      //                     arbitrary files through an endpoint labelled "image upload"
+      //                     and get them served from a domain we allow in our CSP.
+      //   transformation  — normalises on arrival to at most 2000px and strips EXIF,
+      //                     which also removes GPS coordinates from phone photos.
       const params: Record<string, string | number> = {
+        allowed_formats: "jpg,jpeg,png,webp,avif",
         folder: UPLOAD_FOLDER,
         timestamp,
+        transformation: "c_limit,w_2000,h_2000,q_auto",
       };
       const signature = signParams(params);
 
@@ -73,7 +84,11 @@ export default async function handler(req: any, res: any) {
         apiKey: API_KEY,
         timestamp,
         folder: UPLOAD_FOLDER,
+        allowedFormats: params.allowed_formats,
+        transformation: params.transformation,
         signature,
+        // Pinned to the image endpoint — /raw/upload or /video/upload would accept
+        // things this signature is not meant to authorise.
         uploadUrl: `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
       });
       return;

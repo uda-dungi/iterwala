@@ -22,12 +22,26 @@ const adminEmails = ((env.VITE_ADMIN_EMAILS as string) || "")
   .map((value) => value.trim().toLowerCase())
   .filter(Boolean);
 
-/** Matches server-side admin check in api/_lib/supabaseAdmin.ts */
+const adminDomain = ((env.VITE_ADMIN_EMAIL_DOMAIN as string) || "")
+  .trim()
+  .toLowerCase()
+  .replace(/^@/, "");
+
+/**
+ * Mirrors the server check in api/_lib/supabaseAdmin.ts, which is the one that
+ * actually protects anything — this only decides whether to render the dashboard.
+ * Every /api/admin/* route re-verifies the token and re-checks the allowlist, so a
+ * user who forced this to return true would still be refused by the API.
+ *
+ * The previous hardcoded "@itrawala.in" domain grant was removed: see the server
+ * file for why a domain-wide rule is unsafe now that admins can edit prices.
+ */
 export const isAdminEmail = (email?: string | null) => {
   if (!email) return false;
   const value = email.trim().toLowerCase();
   if (adminEmails.includes(value)) return true;
-  return value.endsWith("@itrawala.in");
+  if (adminDomain && value.endsWith(`@${adminDomain}`)) return true;
+  return false;
 };
 
 export const site = {

@@ -33,3 +33,5 @@ dist-ssr
 # actually get committed under src/assets/) — never belongs in git history. Recursive:
 # these land in src/assets/ and src/assets/brand/ depending on how they're dropped in.
 src/assets/**/*.zip
+
+.vercel

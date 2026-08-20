@@ -111,20 +111,36 @@ export const adminApi = {
    * ~4.5 MB — smaller than plenty of phone photos.
    */
   uploadImage: async (file: File): Promise<string> => {
+    // Checked here purely so a mistake fails instantly with a clear message. The
+    // real constraint is the signed allowed_formats on the server — Cloudinary
+    // rejects anything outside it regardless of what this code sends.
+    if (!/^image\/(jpeg|png|webp|avif)$/.test(file.type)) {
+      throw new Error("Only JPG, PNG, WebP or AVIF images can be uploaded.");
+    }
+    const MAX_BYTES = 15 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      throw new Error(`That image is ${(file.size / 1e6).toFixed(1)}MB. Maximum is 15MB.`);
+    }
+
     const sig = await request<{
       cloudName: string;
       apiKey: string;
       timestamp: number;
       folder: string;
+      allowedFormats: string;
+      transformation: string;
       signature: string;
       uploadUrl: string;
     }>("/api/admin/images?action=sign", { method: "POST", body: JSON.stringify({}) });
 
+    // Every signed parameter must be echoed back exactly, or the signature fails.
     const form = new FormData();
     form.append("file", file);
     form.append("api_key", sig.apiKey);
     form.append("timestamp", String(sig.timestamp));
     form.append("folder", sig.folder);
+    form.append("allowed_formats", sig.allowedFormats);
+    form.append("transformation", sig.transformation);
     form.append("signature", sig.signature);
 
     const res = await fetch(sig.uploadUrl, { method: "POST", body: form });
