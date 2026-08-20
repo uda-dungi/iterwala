@@ -20,7 +20,7 @@ type ResourceName = "banners" | "announcements" | "collections" | "settings";
 const WRITABLE: Record<Exclude<ResourceName, "settings">, Set<string>> = {
   banners: new Set([
     "source", "storage_key", "url",
-    "mobile_source", "mobile_storage_key", "mobile_url",
+    "mobile_source", "mobile_storage_key", "mobile_url", "mobile_fit",
     "eyebrow", "headline", "subtext", "cta_label", "cta_href",
     "position", "active",
   ]),
@@ -76,6 +76,9 @@ function validate(resource: ResourceName, fields: Record<string, any>, partial: 
     // but if a source is given it still needs its locator.
     if (fields.mobile_source) {
       validateImageRef(fields, "mobile_source", "mobile_storage_key", "mobile_url", errors, { required: false });
+    }
+    if (fields.mobile_fit !== undefined && !["cover", "contain"].includes(String(fields.mobile_fit))) {
+      errors.push('mobile_fit must be "cover" or "contain"');
     }
     // A CTA with a label but no destination renders a dead button.
     if (String(fields.cta_label ?? "").trim() && !String(fields.cta_href ?? "").trim()) {

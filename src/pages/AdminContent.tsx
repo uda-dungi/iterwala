@@ -176,6 +176,11 @@ function BannersTab() {
               {b.cta_label && (
                 <p className="text-[10px] text-primary mt-0.5">{b.cta_label} → {b.cta_href}</p>
               )}
+              <p className="text-[10px] text-muted-foreground/70 mt-0.5">
+                {b.mobile_storage_key || b.mobile_url
+                  ? `Separate mobile image · ${b.mobile_fit === "contain" ? "fit" : "fill"}`
+                  : "Mobile uses the desktop image"}
+              </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <IconBtn onClick={() => toggleActive(b)} title={b.active ? "Hide" : "Show"}>
@@ -232,19 +237,74 @@ function BannerEditor({ value, onChange, onClose, onSaved }: any) {
   return (
     <Modal title={value.__isNew ? "New banner" : "Edit banner"} onClose={onClose}>
       <ImageField
-        label="Banner image"
+        label="Desktop image"
+        hint="Wide artwork. The headline and subtext below are drawn over it in HTML."
         source={value.source}
         storageKey={value.storage_key}
         url={value.url}
         onChange={(ref) => onChange({ ...value, source: ref.source, storage_key: ref.storageKey, url: ref.url })}
       />
-      <Labelled label="Eyebrow" hint="Small text above the headline">
+
+      <div className="rounded-sm border border-border p-3 space-y-3">
+        <ImageField
+          label="Mobile image"
+          hint="Tall 9:16 artwork with the headline built into the image. Optional — falls back to the desktop image."
+          source={value.mobile_source}
+          storageKey={value.mobile_storage_key}
+          url={value.mobile_url}
+          onChange={(ref) =>
+            onChange({
+              ...value,
+              mobile_source: ref.source,
+              mobile_storage_key: ref.storageKey,
+              mobile_url: ref.url,
+              // Default new mobile art to cover; the picker below can override.
+              mobile_fit: value.mobile_fit ?? "cover",
+            })
+          }
+        />
+        <Labelled
+          label="Mobile framing"
+          hint="Fill crops to 9:16 — right for artwork shot at that ratio. Fit letterboxes instead, which 4:5 artwork needs or a third of its width (and its headline) is cropped away."
+        >
+          <div className="flex gap-2">
+            {(["cover", "contain"] as const).map((f) => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => set("mobile_fit", f)}
+                className={cn(
+                  "px-3 py-2 rounded-sm border text-xs transition-colors",
+                  (value.mobile_fit ?? "cover") === f
+                    ? "border-primary bg-primary/15 text-primary"
+                    : "border-border text-muted-foreground hover:text-ivory"
+                )}
+              >
+                {f === "cover" ? "Fill (9:16 art)" : "Fit (4:5 art)"}
+              </button>
+            ))}
+          </div>
+        </Labelled>
+        {(value.mobile_storage_key || value.mobile_url) && (
+          <button
+            type="button"
+            onClick={() =>
+              onChange({ ...value, mobile_source: null, mobile_storage_key: null, mobile_url: null })
+            }
+            className="text-[11px] text-muted-foreground hover:text-destructive underline"
+          >
+            Remove mobile image (use the desktop one)
+          </button>
+        )}
+      </div>
+
+      <Labelled label="Eyebrow" hint="Small text above the headline. Desktop only.">
         <Input value={value.eyebrow ?? ""} onChange={(e) => set("eyebrow", e.target.value)} />
       </Labelled>
-      <Labelled label="Headline">
+      <Labelled label="Headline" hint="Desktop only — mobile artwork carries its own. Also used as the mobile image's alt text.">
         <Input value={value.headline ?? ""} onChange={(e) => set("headline", e.target.value)} />
       </Labelled>
-      <Labelled label="Subtext">
+      <Labelled label="Subtext" hint="Desktop only.">
         <textarea
           rows={2}
           value={value.subtext ?? ""}
@@ -609,7 +669,7 @@ function Labelled({ label, hint, children }: any) {
 
 /** Image chooser shared by banners and collections: upload a new file, or reuse one
  *  of the photos already committed to the repo (free to serve, no upload needed). */
-function ImageField({ label, source, storageKey, url, onChange }: any) {
+function ImageField({ label, hint, source, storageKey, url, onChange }: any) {
   const [busy, setBusy] = useState(false);
   const [picking, setPicking] = useState(false);
   const [q, setQ] = useState("");
@@ -638,6 +698,7 @@ function ImageField({ label, source, storageKey, url, onChange }: any) {
   return (
     <div className="space-y-2">
       <span className="text-xs text-muted-foreground">{label}</span>
+      {hint && <span className="block text-[10px] text-muted-foreground/70">{hint}</span>}
       <div className="flex items-start gap-3">
         <div className="w-32 h-20 rounded-sm overflow-hidden bg-deep-brown border border-border shrink-0">
           {has && <img src={resolveImage({ source, storageKey, url })} alt="" className="w-full h-full object-cover" />}

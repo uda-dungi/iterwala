@@ -87,7 +87,7 @@ const fallbackSlides: Slide[] = [
 // EDIT: add/remove entries here whenever the mobile banner set changes.
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
-const mobileSlides: MobileSlide[] = [
+const fallbackMobileSlides: MobileSlide[] = [
   // Raksha Bandhan Sale banner — shot at 9:16, exactly the carousel's aspect below, so
   // object-cover shows it edge to edge with nothing cropped. The offer headline and
   // price sit near the top of the artwork, which is precisely what a shorter frame used
@@ -117,6 +117,18 @@ export function HeroCarousel() {
         cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
       }))
     : fallbackSlides;
+
+  // Phones get their own artwork per banner, falling back to the desktop image when a
+  // banner has no mobile art. The copy is baked into mobile artwork, so only the image
+  // and the CTA carry over — the eyebrow/headline/subtext fields are desktop-only.
+  const mobileSlides: MobileSlide[] = banners.length
+    ? banners.map((b) => ({
+        image: b.mobileImage ?? b.image,
+        alt: b.headline ?? "Itrawala",
+        fit: b.mobileFit,
+        cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
+      }))
+    : fallbackMobileSlides;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
   const [selected, setSelected] = useState(0);
@@ -164,6 +176,13 @@ export function HeroCarousel() {
     onSelect();
     return () => { mEmblaApi.off("select", onSelect); };
   }, [mEmblaApi]);
+
+  // Embla measures its slides once, so a changed banner count needs a reInit or the
+  // dots and scroll bounds keep describing the previous list.
+  useEffect(() => {
+    mEmblaApi?.reInit();
+    setMSelected(0);
+  }, [mEmblaApi, mobileSlides.length]);
 
   useEffect(() => {
     if (!mEmblaApi) return;

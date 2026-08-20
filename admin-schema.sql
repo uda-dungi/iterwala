@@ -122,9 +122,15 @@ create table if not exists public.banners (
   storage_key  text,
   url          text,
   -- Separate mobile art. Optional: falls back to the desktop image when unset.
+  -- Mobile artwork carries its own baked-in headline, so the phone carousel shows the
+  -- image plus a CTA and none of the text fields below.
   mobile_source      text check (mobile_source in ('repo','cloudinary')),
   mobile_storage_key text,
   mobile_url         text,
+  -- 'cover' fills the 9:16 frame; 'contain' letterboxes. Artwork shot at 4:5 loses
+  -- roughly a third of its width to a 9:16 cover crop, taking the baked-in headline
+  -- with it, so those need 'contain'.
+  mobile_fit         text default 'cover' check (mobile_fit in ('cover','contain')),
 
   eyebrow      text,
   headline     text,
@@ -137,6 +143,19 @@ create table if not exists public.banners (
   created_at   timestamptz default now(),
   updated_at   timestamptz default now()
 );
+
+-- Existing installs: `create table if not exists` above will not add a column to a
+-- table that already exists, so bring mobile_fit in explicitly.
+alter table public.banners add column if not exists mobile_fit text default 'cover';
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'banners_mobile_fit_check'
+  ) then
+    alter table public.banners
+      add constraint banners_mobile_fit_check check (mobile_fit in ('cover','contain'));
+  end if;
+end $$;
 
 -- ── Announcement bar ─────────────────────────────────────────────────────────
 create table if not exists public.announcements (

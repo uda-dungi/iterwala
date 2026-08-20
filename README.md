@@ -104,6 +104,20 @@ The old table remains only as a pre-seed fallback.
    already committed under `src/assets/` — no image migration required.
 3. Confirm the storefront still matches, then use `/admin/products` from there on.
 
+If you applied `admin-schema.sql` before the mobile-banner feature existed, also run
+`migration-mobile-banner.sql` (or simply re-run `admin-schema.sql` — it is idempotent).
+
+### Hero banners: desktop vs mobile
+
+Each banner holds two images. The desktop one is wide, with the eyebrow/headline/subtext
+drawn over it in HTML. The mobile one is tall 9:16 artwork with its headline already baked
+into the image, so the phone carousel shows the picture plus a CTA and none of the text
+fields. A banner with no mobile image falls back to its desktop image.
+
+**Mobile framing** matters: *Fill* crops to 9:16 and is right for artwork shot at that
+ratio. *Fit* letterboxes instead — 4:5 artwork needs it, or roughly a third of its width
+is cropped away, taking the baked-in headline with it.
+
 ### Images
 
 Two sources coexist:

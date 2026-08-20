@@ -37,6 +37,8 @@ export type Banner = {
   id: string;
   image: string;
   mobileImage?: string;
+  /** How the mobile artwork fills the 9:16 frame. See admin-schema.sql. */
+  mobileFit: "cover" | "contain";
   eyebrow?: string;
   headline?: string;
   subtext?: string;
@@ -206,6 +208,7 @@ export async function fetchCatalog(): Promise<Catalog | null> {
         mobileImage: b.mobile_source
           ? resolveImage({ source: b.mobile_source, storageKey: b.mobile_storage_key, url: b.mobile_url })
           : undefined,
+        mobileFit: b.mobile_fit === "contain" ? "contain" : "cover",
         eyebrow: b.eyebrow ?? undefined,
         headline: b.headline ?? undefined,
         subtext: b.subtext ?? undefined,
