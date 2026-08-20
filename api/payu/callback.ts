@@ -1,6 +1,8 @@
 import { verifyPayuResponseHash } from "../_lib/payu.js";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
-import { sendOrderConfirmationEmail } from "../_lib/email.js";
+import { sendOrderConfirmationEmail, sendAdminOrderNotification } from "../_lib/email.js";
+import { generateInvoicePdf, getSellerDetails, getAdminNotifyEmail, type InvoiceOrder } from "../_lib/invoice.js";
+import { generateShippingLabelPdf } from "../_lib/shippingLabel.js";
 import { sendCapiEvent } from "../_lib/metaCapi.js";
 
 function parseRequestBody(rawBody: any) {
@@ -77,7 +79,7 @@ export default async function handler(req: any, res: any) {
           // actually drives attribution — reached Meta with nothing but a hashed email
           // and phone. The columns exist (supabase-tables.sql) and checkout/initiate.ts
           // populates them; only the projection was short.
-          .select("email, phone, name, items, total, fbp, fbc, client_ip, client_ua, external_id")
+          .select("email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id, created_at, invoice_no, invoice_date, admin_notified_at, fbp, fbc, client_ip, client_ua, external_id")
           .maybeSingle();
 
         // Awaited (not fire-and-forget): serverless functions can be frozen/killed the
@@ -100,6 +102,54 @@ export default async function handler(req: any, res: any) {
             items: Array.isArray(updated.items) ? updated.items : [],
             total: Number(updated.total) || 0,
           });
+
+          // Internal dispatch alert, with the invoice and shipping label attached so
+          // fulfilment can print both straight from the mail.
+          //
+          // Guarded on admin_notified_at because PayU can post this callback more than
+          // once for the same order. The whole block is wrapped: PDF generation is the
+          // only thing in this handler that can throw on malformed order data, and a
+          // notification failing must not stop the customer's redirect.
+          const notifyTo = getAdminNotifyEmail();
+          if (notifyTo && !updated.admin_notified_at) {
+            try {
+              // Re-read to pick up the invoice number the RPC just assigned.
+              const { data: withInvoice } = await admin
+                .from("orders")
+                .select("invoice_no, invoice_date")
+                .eq("txnid", txnid)
+                .maybeSingle();
+
+              const full = { ...updated, txnid, ...(withInvoice ?? {}) } as InvoiceOrder;
+              const seller = getSellerDetails();
+              const [invoicePdf, labelPdf] = await Promise.all([
+                generateInvoicePdf(full, seller),
+                generateShippingLabelPdf(full, seller),
+              ]);
+
+              await sendAdminOrderNotification({
+                to: notifyTo,
+                txnid,
+                invoiceNo: withInvoice?.invoice_no ?? null,
+                name: updated.name ?? undefined,
+                email: updated.email,
+                phone: updated.phone ?? undefined,
+                address: (updated.address as Record<string, any>) ?? null,
+                items: Array.isArray(updated.items) ? updated.items : [],
+                total: Number(updated.total) || 0,
+                attachments: [
+                  { filename: `${(withInvoice?.invoice_no || txnid).replace(/[^A-Za-z0-9._-]/g, "-")}.pdf`, content: invoicePdf },
+                  { filename: `label-${txnid.replace(/[^A-Za-z0-9._-]/g, "-")}.pdf`, content: labelPdf },
+                ],
+              });
+
+              // Stamped only after a successful send, so a failure retries next callback
+              // rather than silently marking the shop as notified.
+              await admin.from("orders").update({ admin_notified_at: new Date().toISOString() }).eq("txnid", txnid);
+            } catch (err) {
+              console.error("payu/callback: admin notification failed", err);
+            }
+          }
 
           // Meta Conversions API — the server-verified Purchase, sent with the same
           // txnid as the browser Pixel's eventID (src/lib/pixel.ts trackPurchase) so

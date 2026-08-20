@@ -26,6 +26,11 @@ type OrderRow = {
   payu_mode: string | null;
   invoice_no: string | null;
   invoice_date: string | null;
+  tracking_id: string | null;
+  carrier: string | null;
+  tracking_url: string | null;
+  dispatched_at: string | null;
+  shipped_email_sent_at: string | null;
 };
 
 export default function AdminOrders() {
@@ -34,6 +39,9 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  // False until migration-order-tracking.sql has been run; the API reports it so the
+  // dispatch UI can explain itself rather than failing on save.
+  const [dispatchReady, setDispatchReady] = useState(true);
 
   const fetchOrders = useMemo(
     () => async () => {
@@ -56,6 +64,7 @@ export default function AdminOrders() {
           setOrders([]);
         } else {
           setOrders(data.orders || []);
+          setDispatchReady(data.dispatchReady !== false);
         }
       } catch (err) {
         console.error(err);
@@ -144,6 +153,15 @@ export default function AdminOrders() {
 
       {error && <div className="luxury-card p-4 mb-6 border border-destructive text-destructive">{error}</div>}
 
+      {!dispatchReady && (
+        <div className="luxury-card p-4 mb-6 border border-primary/40 text-sm text-muted-foreground">
+          <span className="text-primary">Dispatch tracking isn't enabled yet.</span>{" "}
+          Run <code className="text-ivory">migration-order-tracking.sql</code> in the Supabase SQL
+          editor to add tracking IDs and the customer dispatch email. Orders below work as normal
+          until then.
+        </div>
+      )}
+
       {orders?.length === 0 ? (
         <div className="luxury-card p-8 text-center text-muted-foreground">No orders found.</div>
       ) : (
@@ -185,6 +203,7 @@ export default function AdminOrders() {
                       </Button>
                     </div>
                   )}
+                  {order.status === "paid" && dispatchReady && <DispatchPanel order={order} token={session?.access_token} onSaved={fetchOrders} />}
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <Stat icon={Database} label="Amount" value={formatINR(order.total)} />
@@ -251,4 +270,139 @@ function formatAddress(address: OrderRow["address"]) {
   if (!address) return "No address provided.";
   const parts = [address.line1, address.city, address.state, address.pin, address.country].filter(Boolean);
   return parts.join(", ") || "No address provided.";
+}
+
+/**
+ * Dispatch tracking for a paid order.
+ *
+ * Saving records the courier reference and emails the customer their tracking number
+ * with the tax invoice attached. The server sends that email once per order — re-saving
+ * to fix a typo updates the record without re-sending, because a second "your order has
+ * shipped" reads as a second parcel. The response says which happened, and this shows it
+ * rather than claiming an email went out.
+ */
+function DispatchPanel({
+  order,
+  token,
+  onSaved,
+}: {
+  order: OrderRow;
+  token?: string;
+  onSaved: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [trackingId, setTrackingId] = useState(order.tracking_id ?? "");
+  const [carrier, setCarrier] = useState(order.carrier ?? "");
+  const [trackingUrl, setTrackingUrl] = useState(order.tracking_url ?? "");
+  const [saving, setSaving] = useState(false);
+
+  const dispatched = Boolean(order.tracking_id);
+
+  const save = async () => {
+    if (!trackingId.trim()) {
+      toast.error("Enter the tracking ID first.");
+      return;
+    }
+    if (!token) {
+      toast.error("Session expired — sign in again.");
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/orders", {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          txnid: order.txnid,
+          tracking_id: trackingId.trim(),
+          carrier: carrier.trim(),
+          tracking_url: trackingUrl.trim(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || `Could not save tracking (${res.status}).`);
+        return;
+      }
+      toast.success(
+        data.emailed
+          ? "Tracking saved — customer emailed with the invoice."
+          : data.alreadyEmailed
+            ? "Tracking updated. The customer was already emailed, so no second email was sent."
+            : "Tracking saved, but the email could not be sent — try saving again."
+      );
+      setOpen(false);
+      await onSaved();
+    } catch {
+      toast.error("Network error while saving tracking.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (dispatched && !open) {
+    return (
+      <div className="mt-3 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] tracking-luxe uppercase text-primary">Dispatched</p>
+            <p className="text-sm text-ivory truncate">
+              {order.carrier ? `${order.carrier} · ` : ""}
+              {order.tracking_id}
+            </p>
+            <p className="text-[10px] text-muted-foreground">
+              {order.shipped_email_sent_at ? "Customer emailed" : "Customer not emailed yet"}
+              {order.dispatched_at ? ` · ${new Date(order.dispatched_at).toLocaleDateString("en-IN")}` : ""}
+            </p>
+          </div>
+          <Button variant="ghostGold" size="sm" onClick={() => setOpen(true)}>Edit</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!open) {
+    return (
+      <Button variant="luxury" size="sm" className="mt-3" onClick={() => setOpen(true)}>
+        <Truck className="w-4 h-4 mr-2" /> Add Tracking ID
+      </Button>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-sm border border-border p-3 space-y-2 max-w-md">
+      <p className="text-[10px] tracking-luxe uppercase text-primary">Dispatch details</p>
+      <input
+        value={trackingId}
+        onChange={(e) => setTrackingId(e.target.value)}
+        placeholder="Tracking ID (required)"
+        className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
+        autoFocus
+      />
+      <input
+        value={carrier}
+        onChange={(e) => setCarrier(e.target.value)}
+        placeholder="Courier — e.g. Delhivery, Blue Dart"
+        className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
+      />
+      <input
+        value={trackingUrl}
+        onChange={(e) => setTrackingUrl(e.target.value)}
+        placeholder="Tracking link (optional) — https://…"
+        className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
+      />
+      <p className="text-[10px] text-muted-foreground">
+        {order.shipped_email_sent_at
+          ? "This customer has already been emailed — saving updates the record only."
+          : "Saving emails the customer their tracking number with the invoice attached."}
+      </p>
+      <div className="flex justify-end gap-2">
+        <Button variant="ghostGold" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button variant="luxury" size="sm" onClick={save} disabled={saving}>
+          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Truck className="w-4 h-4 mr-2" />}
+          {order.shipped_email_sent_at ? "Update" : "Save & notify"}
+        </Button>
+      </div>
+    </div>
+  );
 }

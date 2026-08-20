@@ -69,6 +69,31 @@ Vercel automatically deploys everything under `/api` as serverless functions, no
 config needed. (There's also an unused `server/` folder left over from testing a
 different hosting option — it's not part of the Vercel deploy and can be deleted.)
 
+## Dispatch & tracking
+
+Two transactional emails sit either side of fulfilment:
+
+| When | To | Contains |
+|---|---|---|
+| Payment confirmed | Admin | New-order alert with the **invoice and shipping label attached** — print both straight from the mail |
+| Admin saves a tracking ID | Customer | Tracking number, courier, optional tracking link, **invoice attached** |
+
+Add the tracking ID under **Admin → Orders**, on any paid order. Saving records the
+courier reference and emails the customer.
+
+Both sends are guarded against duplicates. PayU can post its payment callback more than
+once, and an admin may re-save the tracking form to correct a typo — `admin_notified_at`
+and `shipped_email_sent_at` mean neither results in a second email. Re-saving updates the
+record and tells you plainly that no new email went out, because a second "your order has
+shipped" reads to a customer as a second parcel.
+
+Emails require `RESEND_API_KEY` and `RESEND_FROM_EMAIL`. Without them the tracking ID
+still saves; only the email is skipped.
+
+**Setup:** run `migration-order-tracking.sql` in the Supabase SQL Editor. Until you do,
+the orders dashboard works as normal and shows a note explaining that tracking is not yet
+enabled — deploying the code before running the SQL will not break anything.
+
 ## Admin dashboard (content management)
 
 `/admin` manages the catalogue and homepage content without a redeploy.

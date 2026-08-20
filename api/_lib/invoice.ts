@@ -241,3 +241,44 @@ export function generateInvoicePdf(order: InvoiceOrder, seller: SellerDetails): 
     }
   });
 }
+
+/**
+ * Seller block for invoices, shipping labels and the emails that attach them.
+ *
+ * Previously copy-pasted into api/admin/invoice.ts and api/admin/label.ts. That was
+ * survivable while two routes needed it; with the dispatch emails attaching the same
+ * documents it became four copies of a GSTIN that has to be right on a legal document.
+ *
+ * The fallbacks are the real business details, not placeholders: a missing env var
+ * printing a blank GSTIN on a tax invoice is a compliance problem, so it fails to the
+ * correct value rather than to nothing.
+ */
+export function getSellerDetails(): SellerDetails {
+  const seller: SellerDetails = {
+    brand: process.env.VITE_BRAND_NAME || "Itrawala",
+    address:
+      process.env.VITE_BUSINESS_ADDRESS ||
+      "Near Agarwal Jain Mandir, 08, Main Market, Sadar Bazar, Deoli, Tonk, Rajasthan, 304804",
+    gstin: process.env.VITE_GST || "08ALPPM3755J1ZI",
+    email: process.env.VITE_SUPPORT_EMAIL || "itrawalabrand@gmail.com",
+    phone: process.env.VITE_SUPPORT_PHONE || "+91 70146 57175",
+  };
+
+  if (!/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/.test(seller.gstin)) {
+    console.warn(
+      `invoice: VITE_GST is not a valid 15-character GSTIN ("${seller.gstin}") — invoices will show an invalid number.`
+    );
+  }
+  return seller;
+}
+
+/** Where admin notifications go. Falls back to the first configured admin, then to
+ *  support — an order alert with no recipient is worse than one sent to support. */
+export function getAdminNotifyEmail(): string | null {
+  const explicit = process.env.ADMIN_NOTIFY_EMAIL?.trim();
+  if (explicit) return explicit;
+  const list = (process.env.ADMIN_EMAILS || process.env.VITE_ADMIN_EMAILS || "")
+    .split(",").map((s) => s.trim()).filter(Boolean);
+  if (list.length) return list[0];
+  return process.env.VITE_SUPPORT_EMAIL?.trim() || null;
+}
