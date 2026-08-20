@@ -275,3 +275,125 @@ console.log(`  settings     ${Object.keys(settings).length}`);
 if (skipped) {
   console.log(`  skipped      ${skipped} unresolvable image reference(s)`);
 }
+
+/* ── 5 · optional: push straight to Supabase (--push) ──────────────────────── */
+/**
+ * `node scripts/seed-catalog.mjs --push` writes the same data directly instead of
+ * leaving you to paste a 300KB file into the SQL editor.
+ *
+ * Uses the SERVICE ROLE key, which bypasses RLS — that is required here (the public
+ * policies grant no writes at all) and is why this only ever runs locally from .env,
+ * never from the browser or a deployed function.
+ *
+ * The schema itself still has to go through the Supabase SQL editor: Supabase exposes
+ * no generic "run this DDL" endpoint, so create-table statements can't be sent this way.
+ */
+if (process.argv.includes("--push")) {
+  const { createClient } = await import("@supabase/supabase-js");
+
+  // Minimal .env reader — avoids adding dotenv just for this one script.
+  const env = {};
+  const envPath = path.join(ROOT, ".env");
+  if (fs.existsSync(envPath)) {
+    for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+      const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/);
+      if (m) env[m[1]] = m[2].replace(/^["']|["']$/g, "").trim();
+    }
+  }
+
+  const url = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    console.error("\n✗ Need VITE_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env");
+    process.exit(1);
+  }
+
+  const db = createClient(url, key, { auth: { persistSession: false } });
+  const die = (label, error) => {
+    if (!error) return;
+    console.error(`\n✗ ${label}: ${error.message}`);
+    if (/does not exist|schema cache|relation .* does not exist/i.test(error.message)) {
+      console.error("  Run admin-schema.sql in the Supabase SQL editor first.");
+    }
+    process.exit(1);
+  };
+
+  console.log("\nPushing to Supabase…");
+
+  // Products — upsert so a re-run updates rather than duplicates.
+  const productRows = products.map((p, i) => ({
+    id: p.id, slug: p.slug, name: p.name,
+    tagline: p.tagline ?? "", description: p.description ?? "",
+    ingredients: p.ingredients ?? "",
+    category: p.category, gender: p.gender ?? "Unisex",
+    price: p.price, compare_at: p.compareAt ?? null,
+    price_by_volume: p.priceByVolume ?? null,
+    volumes: p.volume ?? [], featured_volume: p.featuredVolume ?? null,
+    variant_label: p.variantLabel ?? null,
+    content_by_volume: p.contentByVolume ?? null,
+    notes: p.notes ?? { top: [], heart: [], base: [] },
+    longevity: p.longevity ?? "", projection: p.projection ?? "",
+    occasions: p.occasions ?? [], moods: p.moods ?? [],
+    rating: p.rating ?? 4.5, reviews_count: p.reviews ?? 0,
+    badge: p.badge ?? null,
+    best_seller: !!p.bestSeller, new_arrival: !!p.newArrival,
+    trending: !!p.trending, amazon_choice: !!p.amazonChoice,
+    amazon_url: p.amazonUrl ?? null, video_url: p.videoUrl ?? null,
+    position: i,
+  }));
+  die("products", (await db.from("products").upsert(productRows, { onConflict: "id" })).error);
+  console.log(`  ✓ products     ${productRows.length}`);
+
+  // Repo images are rebuilt wholesale so a re-run can't duplicate galleries. Uploaded
+  // (cloudinary) rows are deliberately left alone — those aren't derived from source.
+  die("clear images", (await db.from("product_images").delete().eq("source", "repo")).error);
+
+  const imageRows = [];
+  for (const p of products) {
+    (p.gallery ?? []).forEach((src, i) => {
+      const k = toStorageKey(src);
+      if (k) imageRows.push({ product_id: p.id, volume: null, source: "repo", storage_key: k, position: i });
+    });
+    for (const [volume, list] of Object.entries(p.galleryByVolume ?? {})) {
+      (list ?? []).forEach((src, i) => {
+        const k = toStorageKey(src);
+        if (k) imageRows.push({ product_id: p.id, volume, source: "repo", storage_key: k, position: i });
+      });
+    }
+  }
+  // Chunked: one 800-row insert risks a payload limit or statement timeout.
+  for (let i = 0; i < imageRows.length; i += 400) {
+    die("images", (await db.from("product_images").insert(imageRows.slice(i, i + 400))).error);
+  }
+  console.log(`  ✓ images       ${imageRows.length}`);
+
+  const collectionRows = (collections ?? []).map((c, i) => ({
+    key: c.key, title: c.title, blurb: c.blurb ?? "",
+    sub: [...c.sub], position: i, active: true,
+  }));
+  die("collections", (await db.from("collections").upsert(collectionRows, { onConflict: "key" })).error);
+  console.log(`  ✓ collections  ${collectionRows.length}`);
+
+  // Only seed announcements into an empty table — re-running must not resurrect lines
+  // the admin has since deleted.
+  const { count, error: countErr } = await db
+    .from("announcements").select("id", { count: "exact", head: true });
+  die("announcements check", countErr);
+  if (!count) {
+    die("announcements", (await db.from("announcements").insert(
+      ANNOUNCEMENTS.map((text, i) => ({ text, position: i, active: true }))
+    )).error);
+    console.log(`  ✓ announcements ${ANNOUNCEMENTS.length}`);
+  } else {
+    console.log(`  · announcements skipped (${count} already present)`);
+  }
+
+  die("settings", (await db.from("site_settings").upsert(
+    Object.entries(settings).map(([key, value]) => ({ key, value })),
+    { onConflict: "key" }
+  )).error);
+  console.log(`  ✓ settings     ${Object.keys(settings).length}`);
+
+  console.log("\nDone. Reload the site — it now reads from the database.");
+}
