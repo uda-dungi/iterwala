@@ -191,7 +191,10 @@ const packModules = import.meta.glob(
 // folders) prints "8 N X 8 ml" fill info on what is otherwise a 4-pack folder, and a
 // MRP/price that matches neither this site's pack-of-4 nor pack-of-8 pricing. It's a
 // leftover shared placeholder, not real per-variant packaging, so it's excluded below.
-const PACK_EXCLUDE = /02_02_50 AM\.png$/;
+// Matches any extension: these were originally .png and were later recompressed to
+// .jpg, which silently broke a `\.png$` version of this pattern and let the placeholder
+// back onto the Pack of 4 and Pack of 8 pages.
+const PACK_EXCLUDE = /02_02_50 AM\.(png|jpe?g)$/i;
 
 // Lead-image order per pack/variant folder (best hero shot first), mirroring
 // GALLERY_ORDER above.

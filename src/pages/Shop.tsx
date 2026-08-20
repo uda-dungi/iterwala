@@ -2,7 +2,8 @@ import { useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Filter, ShieldCheck, X } from "lucide-react";
-import { products, priceFor, listingVolume, NEW_LAUNCH_SLUGS } from "@/data/products";
+import { priceFor, listingVolume, type Product } from "@/data/products";
+import { useCatalog } from "@/store/catalog";
 import { TRADING_SINCE } from "@/config/site";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const noteList = ["Oud", "Rose", "Saffron", "Amber", "Sandalwood", "Musk", "Vani
 const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "Festive"];
 
 export default function Shop() {
+  const { products, newLaunchSlugs } = useCatalog();
   const [params, setParams] = useSearchParams();
   const [sort, setSort] = useState(params.get("sort") || "popular");
   const [price, setPrice] = useState<[number]>([4000]);
@@ -80,16 +82,16 @@ export default function Shop() {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const matchesSearch = (p: typeof products[number]) =>
+    const matchesSearch = (p: Product) =>
       !q || [
         p.name, p.tagline, p.category, p.gender, p.description,
         ...p.notes.top, ...p.notes.heart, ...p.notes.base,
         ...p.moods, ...p.occasions,
       ].some(s => s.toLowerCase().includes(q));
 
-    const allNotes = (p: typeof products[number]) => [...p.notes.top, ...p.notes.heart, ...p.notes.base].map(n => n.toLowerCase());
+    const allNotes = (p: Product) => [...p.notes.top, ...p.notes.heart, ...p.notes.base].map(n => n.toLowerCase());
 
-    const matchesGender = (productGender: typeof products[number]["gender"]) => {
+    const matchesGender = (productGender: Product["gender"]) => {
       if (!selectedGender) return true;
       if (selectedGender === "Unisex") return true;
       return productGender === selectedGender || productGender === "Unisex";
@@ -100,9 +102,9 @@ export default function Shop() {
     // category string returned an empty grid. It maps to the same curated line-up the
     // homepage New Arrivals strip shows — NOT the `newArrival` flag, which is set on 58
     // of 79 products and would hand back most of the catalogue.
-    const matchesCategory = (p: typeof products[number]) => {
+    const matchesCategory = (p: Product) => {
       if (!selectedCategory) return true;
-      if (selectedCategory === "New Launch") return (NEW_LAUNCH_SLUGS as readonly string[]).includes(p.slug);
+      if (selectedCategory === "New Launch") return newLaunchSlugs.includes(p.slug);
       return p.category === selectedCategory;
     };
 

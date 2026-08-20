@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCatalog } from "@/store/catalog";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
 import banner3 from "@/assets/brand/banner-4-collectors.jpg";
@@ -36,7 +37,7 @@ type Slide = {
 
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
-const slides: Slide[] = [
+const fallbackSlides: Slide[] = [
   // Raksha Bandhan Sale promo banners — placed first so the live offers show on load.
   // (Aug 2026 redesign: new banners with the current ₹999 Pack of 4 price baked in.)
   {
@@ -103,8 +104,24 @@ const mobileSlides: MobileSlide[] = [
 ];
 
 export function HeroCarousel() {
+  // Banners created in the admin replace the compiled slides wholesale. Until one
+  // exists the list above renders, so an empty table can't blank the homepage hero.
+  const { banners } = useCatalog();
+  const slides: Slide[] = banners.length
+    ? banners.map((b) => ({
+        image: b.image,
+        eyebrow: b.eyebrow ?? "",
+        title: b.headline ?? "",
+        highlight: "",
+        copy: b.subtext ?? "",
+        cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
+      }))
+    : fallbackSlides;
+
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
   const [selected, setSelected] = useState(0);
+  // Swapping in a shorter live banner list can leave `selected` past the end.
+  const current = slides[Math.min(selected, slides.length - 1)] ?? slides[0];
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -119,6 +136,11 @@ export function HeroCarousel() {
     onSelect();
     return () => { emblaApi.off("select", onSelect); };
   }, [emblaApi]);
+
+  useEffect(() => {
+    emblaApi?.reInit();
+    setSelected(0);
+  }, [emblaApi, slides.length]);
 
   // Auto-advance every 5s; pauses on hover/focus and respects reduced-motion preference.
   useEffect(() => {
@@ -229,18 +251,18 @@ export function HeroCarousel() {
           >
             <div className="flex items-center gap-3">
               <span className="h-px w-12 bg-primary" />
-              <span className="text-[10px] tracking-[0.5em] uppercase text-primary">{slides[selected].eyebrow}</span>
+              <span className="text-[10px] tracking-[0.5em] uppercase text-primary">{current.eyebrow}</span>
             </div>
             <h1 className="font-display text-3xl sm:text-4xl md:text-6xl xl:text-7xl leading-[0.98] text-ivory">
-              {slides[selected].title}
-              <span className="block italic font-serif text-gold mt-2">{slides[selected].highlight}</span>
+              {current.title}
+              <span className="block italic font-serif text-gold mt-2">{current.highlight}</span>
             </h1>
             <span className="h-px w-12 bg-primary block" />
             <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-md">
-              {slides[selected].copy}
+              {current.copy}
             </p>
             <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4">
-              <Button asChild variant="luxury" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to={slides[selected].cta.to}>{slides[selected].cta.label}</Link></Button>
+              <Button asChild variant="luxury" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to={current.cta.to}>{current.cta.label}</Link></Button>
               <Button asChild variant="outline-gold" size="lg" className="w-full sm:w-auto sm:h-12 sm:px-8 sm:text-base"><Link to="/shop">View All Fragrances</Link></Button>
             </div>
             {/* Desktop/tablet: stats stay inline with the copy. Mobile version renders

@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2, Share2, Check, Globe, Rabbit, PackageCheck } from "lucide-react";
-import { getProduct, products, galleryFor, listingVolume, volumesFor, priceFor, contentFor, imageAltFor } from "@/data/products";
+import { galleryFor, listingVolume, volumesFor, priceFor, contentFor, imageAltFor } from "@/data/products";
+import { useCatalog } from "@/store/catalog";
 import { seedReviewsFor } from "@/data/reviews";
 import { offerForProduct } from "@/lib/offers";
 import { trackViewContent } from "@/lib/pixel";
@@ -50,6 +51,7 @@ function breakdownFor(rating: number): Record<number, number> {
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
+  const { products, getProduct } = useCatalog();
   const product = getProduct(slug);
   const { addToCart, toggleWishlist, wishlist, setCartOpen } = useShop();
   const [qty, setQty] = useState(1);

@@ -1,6 +1,6 @@
 import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_ACTION_URL } from "../_lib/payu.js";
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
-import { priceForServer, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/prices.js";
+import { priceForServerAsync, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/priceSource.js";
 import { computeOffers } from "../_lib/offers.js";
 import { extractRequestSignals } from "../_lib/metaCapi.js";
 import { computeCoupon, hasPreviousPaidOrder } from "../_lib/coupons.js";
@@ -64,7 +64,7 @@ export default async function handler(req: any, res: any) {
         res.status(400).json({ error: "Invalid item in cart. Please refresh and try again." });
         return;
       }
-      const unitPrice = priceForServer(String(line.id), line.volume ? String(line.volume) : undefined);
+      const unitPrice = await priceForServerAsync(String(line.id), line.volume ? String(line.volume) : undefined);
       if (unitPrice == null) {
         res.status(400).json({ error: "One of the items in your cart is no longer available." });
         return;

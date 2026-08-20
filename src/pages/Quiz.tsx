@@ -2,7 +2,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, RotateCcw, ArrowLeft, Star, ShoppingBag } from "lucide-react";
-import { products, Product, imageFor, imageAltFor, listingVolume, priceFor } from "@/data/products";
+import { Product, imageFor, imageAltFor, listingVolume, priceFor } from "@/data/products";
+import { useCatalog } from "@/store/catalog";
 import { useShop, formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -86,6 +87,7 @@ function scoreProduct(p: Product, answers: Record<string, string>) {
 }
 
 export default function Quiz() {
+  const { products } = useCatalog();
   const { addToCart } = useShop();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});

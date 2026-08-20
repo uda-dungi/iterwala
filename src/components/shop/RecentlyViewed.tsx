@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
-import { products, imageFor, listingVolume, priceFor } from "@/data/products";
+import { imageFor, listingVolume, priceFor, type Product } from "@/data/products";
+import { useCatalog } from "@/store/catalog";
 import { formatINR } from "@/store/shop";
 import { useRecentlyViewed } from "@/store/recentlyViewed";
 
 /** Horizontal strip of recently-viewed products. Renders nothing if fewer than 2. */
 export function RecentlyViewed({ excludeId, title = "Recently Viewed" }: { excludeId?: string; title?: string }) {
+  const { products } = useCatalog();
   const ids = useRecentlyViewed();
   const items = ids
     .filter(id => id !== excludeId)
     .map(id => products.find(p => p.id === id))
     .filter(Boolean)
-    .slice(0, 6) as typeof products;
+    .slice(0, 6) as Product[];
 
   if (items.length < 2) return null;
 

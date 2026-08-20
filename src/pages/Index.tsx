@@ -13,7 +13,8 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { LazyReelVideo } from "@/components/home/LazyReelVideo";
 import { ReviewsCarousel } from "@/components/home/ReviewsCarousel";
 import { MobileCarousel } from "@/components/home/MobileCarousel";
-import { products, collections, amazonChoiceProducts, getProduct, priceFor, imageFor, imageAltFor, listingVolume, NEW_LAUNCH_SLUGS, type Product } from "@/data/products";
+import { priceFor, imageFor, imageAltFor, listingVolume, type Product } from "@/data/products";
+import { useCatalog } from "@/store/catalog";
 import { formatINR } from "@/store/shop";
 import { site, isSet, instagramLink } from "@/config/site";
 import { supabase } from "@/lib/supabase";
@@ -79,11 +80,12 @@ const AMAZON_PICK_VOLUME = "50ml";
 // the shop's "New Launch" category filter so the two can never drift apart.
 
 export default function Index() {
+  const { products, collections, amazonChoiceProducts, getProduct, newLaunchSlugs } = useCatalog();
   const bestSellers = BEST_SELLER_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const bestSellersMobileExtra = BEST_SELLER_MOBILE_EXTRA_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const bestSellersMobile = [...bestSellers, ...bestSellersMobileExtra];
   const attars = products.filter(p => p.category === "Attar");
-  const newArrivals = NEW_LAUNCH_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
+  const newArrivals = newLaunchSlugs.map(getProduct).filter((p): p is Product => Boolean(p));
   const giftSets = LUXURY_GIFT_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const amazonPick = getProduct(AMAZON_PICK_SLUG) ?? amazonChoiceProducts[0] ?? products[0];
   const amazonPickPrice = priceFor(amazonPick, AMAZON_PICK_VOLUME).price;

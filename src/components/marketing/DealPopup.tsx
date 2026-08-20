@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getProduct, imageFor, listingVolume } from "@/data/products";
+import { imageFor, listingVolume } from "@/data/products";
+import { useCatalog } from "@/store/catalog";
 import { FRIENDSHIP_SALE_ACTIVE } from "@/lib/offers";
 import { settleDealPopup } from "@/lib/popupGate";
 import { site } from "@/config/site";
@@ -49,11 +50,12 @@ function breakdown(ms: number) {
 }
 
 export function DealPopup() {
+  const { getProduct } = useCatalog();
   const [open, setOpen] = useState(false);
   const [remaining, setRemaining] = useState(() => msUntilMidnight());
 
   // Shabd leads the trilogy, so its bottle is the one that carries the artwork.
-  const product = useMemo(() => getProduct("shabd"), []);
+  const product = useMemo(() => getProduct("shabd"), [getProduct]);
 
   useEffect(() => {
     // Nothing to promote with the sale switched off, and nothing to show if this browser

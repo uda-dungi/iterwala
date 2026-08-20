@@ -1,6 +1,6 @@
 import { computeCoupon, hasPreviousPaidOrder, normalizeCode } from "../_lib/coupons.js";
 import { computeOffers } from "../_lib/offers.js";
-import { priceForServer } from "../_lib/prices.js";
+import { priceForServerAsync } from "../_lib/priceSource.js";
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 
 /**
@@ -52,7 +52,7 @@ export default async function handler(req: any, res: any) {
     for (const line of items) {
       const qty = Number(line?.qty);
       if (!line?.id || !Number.isFinite(qty) || qty <= 0) continue;
-      const unitPrice = priceForServer(String(line.id), line.volume ? String(line.volume) : undefined);
+      const unitPrice = await priceForServerAsync(String(line.id), line.volume ? String(line.volume) : undefined);
       if (unitPrice == null) continue;
       subtotal += unitPrice * qty;
       lines.push({ id: String(line.id), qty, unitPrice });

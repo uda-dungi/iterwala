@@ -1,5 +1,5 @@
 import { NavLink, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Loader2, LogOut, Package, ShieldCheck } from "lucide-react";
+import { Loader2, LogOut, Package, ShieldCheck, Boxes, LayoutTemplate } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { isAdminEmail } from "@/config/site";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
 const navItems = [
   { to: "/admin/orders", label: "Orders", icon: Package },
+  { to: "/admin/products", label: "Products", icon: Boxes },
+  { to: "/admin/content", label: "Content", icon: LayoutTemplate },
 ];
 
 export function AdminLayout() {
@@ -100,12 +102,33 @@ export function AdminLayout() {
         <header className="md:hidden sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur-xl px-4 py-3 flex items-center justify-between">
           <div>
             <p className="text-[10px] tracking-[0.4em] uppercase text-primary">Admin</p>
-            <p className="font-display text-lg text-ivory">Orders</p>
+            <p className="font-display text-lg text-ivory">
+              {navItems.find((n) => location.pathname.startsWith(n.to))?.label ?? "Admin"}
+            </p>
           </div>
           <Button variant="outline-gold" size="sm" onClick={handleSignOut}>
             <LogOut className="w-4 h-4" />
           </Button>
         </header>
+
+        {/* Mobile section switcher — the sidebar is desktop-only, so without this the
+            other admin sections are unreachable on a phone. */}
+        <nav className="md:hidden flex gap-1 border-b border-border bg-card/60 px-2 overflow-x-auto">
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  "flex items-center gap-1.5 px-3 py-2.5 text-xs whitespace-nowrap border-b-2 -mb-px",
+                  isActive ? "border-primary text-primary" : "border-transparent text-muted-foreground"
+                )
+              }
+            >
+              <Icon className="w-3.5 h-3.5" /> {label}
+            </NavLink>
+          ))}
+        </nav>
 
         <main className="flex-1 overflow-auto">
           <Outlet />

@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ShopProvider } from "@/store/shop";
+import { CatalogProvider } from "@/store/catalog";
 import { AuthProvider } from "@/store/auth";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PixelPageView } from "@/components/analytics/PixelPageView";
@@ -30,6 +31,8 @@ const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AdminOrders = lazy(() => import("./pages/AdminOrders"));
+const AdminProducts = lazy(() => import("./pages/AdminProducts"));
+const AdminContent = lazy(() => import("./pages/AdminContent"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Quiz = lazy(() => import("./pages/Quiz"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
@@ -51,6 +54,7 @@ const App = () => (
         {/* Meta PageView on every client-side route change (SPA) */}
         <PixelPageView />
         <AuthProvider>
+          <CatalogProvider>
           <ShopProvider>
             <ErrorBoundary>
               {/* Fallback for the code-split routes above. Deliberately minimal — the
@@ -66,6 +70,8 @@ const App = () => (
                   />
                   <Route path="login" element={<AdminLogin />} />
                   <Route path="orders" element={<AdminOrders />} />
+                  <Route path="products" element={<AdminProducts />} />
+                  <Route path="content" element={<AdminContent />} />
                   <Route
                     path="*"
                     element={<Navigate to="/admin/orders" replace />}
@@ -101,6 +107,7 @@ const App = () => (
               </Suspense>
             </ErrorBoundary>
           </ShopProvider>
+          </CatalogProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
