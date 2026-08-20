@@ -112,7 +112,7 @@ export function HeroCarousel() {
         image: b.image,
         eyebrow: b.eyebrow ?? "",
         title: b.headline ?? "",
-        highlight: "",
+        highlight: b.highlight ?? "",
         copy: b.subtext ?? "",
         cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
       }))

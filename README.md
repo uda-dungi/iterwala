@@ -129,8 +129,18 @@ The old table remains only as a pre-seed fallback.
    already committed under `src/assets/` — no image migration required.
 3. Confirm the storefront still matches, then use `/admin/products` from there on.
 
-If you applied `admin-schema.sql` before the mobile-banner feature existed, also run
-`migration-mobile-banner.sql` (or simply re-run `admin-schema.sql` — it is idempotent).
+Migrations, if `admin-schema.sql` was applied before these features existed. Re-running
+`admin-schema.sql` covers all of them — it is idempotent — or run them individually:
+
+| File | Adds |
+|---|---|
+| `migration-mobile-banner.sql` | Separate mobile artwork per banner |
+| `migration-banner-highlight.sql` | The gold second line on a hero banner |
+| `migration-order-tracking.sql` | Dispatch tracking + its two emails |
+
+Then re-run `npm run seed:push` to load the hero banners and collection tile artwork —
+the first seed only covered products, so until this runs the admin's banner list is empty
+while the homepage still shows its built-in slides.
 
 ### Hero banners: desktop vs mobile
 

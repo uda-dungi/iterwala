@@ -21,7 +21,7 @@ const WRITABLE: Record<Exclude<ResourceName, "settings">, Set<string>> = {
   banners: new Set([
     "source", "storage_key", "url",
     "mobile_source", "mobile_storage_key", "mobile_url", "mobile_fit",
-    "eyebrow", "headline", "subtext", "cta_label", "cta_href",
+    "eyebrow", "headline", "highlight", "subtext", "cta_label", "cta_href",
     "position", "active",
   ]),
   announcements: new Set(["text", "position", "active"]),

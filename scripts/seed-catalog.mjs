@@ -288,6 +288,91 @@ if (skipped) {
  * The schema itself still has to go through the Supabase SQL editor: Supabase exposes
  * no generic "run this DDL" endpoint, so create-table statements can't be sent this way.
  */
+/* ── 6 · banners + collection tile images ──────────────────────────────────── */
+/**
+ * These were missed in the first seed, which is why the admin's banner list came up
+ * empty while the homepage still showed five slides: the site was rendering its
+ * hardcoded fallback, and there was nothing in the database to edit.
+ *
+ * Mirrors the fallback arrays in src/components/home/HeroCarousel.tsx. Desktop and
+ * mobile artwork are paired by their CTA destination — they are two renderings of the
+ * same promotion, not two separate banners.
+ */
+export const BANNER_SEED = [
+  {
+    key: "Pack of 4",
+    desktop: "brand/promo-pack-of-4.jpg",
+    mobile: "brand/mobile-offer-pack-of-4.jpg",
+    mobile_fit: "cover",
+    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
+    headline: "The Pack of 4",
+    highlight: "Buy 1 Get 1 Free",
+    subtext:
+      "Four signature 20ml eau de parfums in a keepsake gift box — add two and pay just ₹999 for both. The perfect Raksha Bandhan gift.",
+    cta_label: "Shop the Pack of 4",
+    cta_href: "/product/pack-of-4-gift-set",
+  },
+  {
+    key: "Collector's promo",
+    desktop: "brand/promo-collectors-trilogy.jpg",
+    mobile: "brand/mobile-offer-collectors.jpg",
+    mobile_fit: "contain",
+    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
+    headline: "Collector's Edition",
+    highlight: "Buy 2 Get 1 Free",
+    subtext:
+      "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
+    cta_label: "Explore the Trilogy",
+    cta_href: "/shop?category=Collector's Edition",
+  },
+  {
+    key: "Celebrity",
+    desktop: "brand/banner-1.jpg",
+    mobile: "brand/mobile-banner-celebrity-full.jpg",
+    mobile_fit: "contain",
+    eyebrow: "Red-Carpet Ready",
+    headline: "Celebrity",
+    highlight: "Eau de Parfum",
+    subtext: "",
+    cta_label: "Shop Celebrity",
+    cta_href: "/product/celebrity",
+  },
+  {
+    key: "Attar collection",
+    desktop: "brand/banner-2.jpg",
+    mobile: "brand/mobile-banner-attar-full.jpg",
+    mobile_fit: "contain",
+    eyebrow: "The Full Line",
+    headline: "The Attar",
+    highlight: "Collection",
+    subtext: "",
+    cta_label: "Shop the Attar Collection",
+    cta_href: "/shop?category=Attar",
+  },
+  {
+    // No mobile counterpart — the mobile fallback list only carried four slides, so
+    // this one falls back to its desktop artwork on phones.
+    key: "Collector's Edition",
+    desktop: "brand/banner-4-collectors.jpg",
+    mobile: null,
+    mobile_fit: "cover",
+    eyebrow: "Three Stories. One Legacy of Fragrance.",
+    headline: "The Collector's",
+    highlight: "Edition",
+    subtext: "",
+    cta_label: "Explore the Trilogy",
+    cta_href: "/shop?category=Collector's Edition",
+  },
+];
+
+/** Homepage "Shop by Collection" tile artwork, from src/pages/Index.tsx. */
+export const COLLECTION_IMAGES = {
+  Perfume: "product-gallery-3/Dubai Fame/100 ml/16.jpg",
+  Attar: "collection-attars.jpg",
+  "Gift Set": "products/giftset-signature-quad.jpg",
+};
+
+
 if (process.argv.includes("--push")) {
   const { createClient } = await import("@supabase/supabase-js");
 
@@ -394,6 +479,53 @@ if (process.argv.includes("--push")) {
     { onConflict: "key" }
   )).error);
   console.log(`  ✓ settings     ${Object.keys(settings).length}`);
+
+  /* banners — seeded only when the table is empty, so a re-run cannot resurrect a
+     banner the admin deleted or overwrite one they edited. */
+  const { count: bannerCount, error: bErr } = await db
+    .from("banners").select("id", { count: "exact", head: true });
+  die("banners check", bErr);
+
+  if (!bannerCount) {
+    const rows = BANNER_SEED.map((b, i) => ({
+      source: "repo",
+      storage_key: b.desktop,
+      mobile_source: b.mobile ? "repo" : null,
+      mobile_storage_key: b.mobile,
+      mobile_fit: b.mobile_fit,
+      eyebrow: b.eyebrow,
+      headline: b.headline,
+      highlight: b.highlight,
+      subtext: b.subtext,
+      cta_label: b.cta_label,
+      cta_href: b.cta_href,
+      position: i,
+      active: true,
+    }));
+    const { error } = await db.from("banners").insert(rows);
+    if (error && /highlight/i.test(error.message || "")) {
+      console.error("\n✗ banners: the `highlight` column is missing.");
+      console.error("  Run migration-banner-highlight.sql in the Supabase SQL editor, then re-run.");
+      process.exit(1);
+    }
+    die("banners", error);
+    console.log(`  ✓ banners       ${rows.length}`);
+  } else {
+    console.log(`  · banners       skipped (${bannerCount} already present)`);
+  }
+
+  /* collection tile artwork — only fills rows that still have no image. */
+  let tiles = 0;
+  for (const [key, storageKey] of Object.entries(COLLECTION_IMAGES)) {
+    const { data: existing } = await db
+      .from("collections").select("id, storage_key, url").eq("key", key).maybeSingle();
+    if (!existing || existing.storage_key || existing.url) continue;
+    const { error } = await db
+      .from("collections").update({ source: "repo", storage_key: storageKey }).eq("key", key);
+    die("collection image", error);
+    tiles++;
+  }
+  console.log(`  ✓ tile images   ${tiles}`);
 
   console.log("\nDone. Reload the site — it now reads from the database.");
 }

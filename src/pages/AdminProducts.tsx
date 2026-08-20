@@ -37,6 +37,10 @@ const BLANK = {
   reviews_count: 0,
 };
 
+/** A photo chosen before the product exists. Held in the editor until the create call
+ *  returns an id, then attached. */
+export type StagedImage = { source: "repo" | "cloudinary"; storageKey?: string; url?: string };
+
 const previewUrl = (img: AdminImage) =>
   resolveImage({ source: img.source, storageKey: img.storage_key, url: img.url });
 
@@ -48,6 +52,7 @@ export default function AdminProducts() {
   const [query, setQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [editing, setEditing] = useState<Record<string, any> | null>(null);
+  const [staged, setStaged] = useState<StagedImage[]>([]);
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
@@ -123,13 +128,37 @@ export default function AdminProducts() {
 
       if (editing.__isNew) {
         const { product } = await adminApi.createProduct(payload);
-        toast.success(`${product.name} created`);
+
+        // Photos were chosen before the product had an id, so attach them now. Done
+        // sequentially: position is assigned server-side from the current count, and
+        // parallel calls would race for the same slot and scramble the gallery order.
+        let attached = 0;
+        for (const img of staged) {
+          try {
+            await adminApi.attachImage({
+              product_id: product.id,
+              source: img.source,
+              storage_key: img.storageKey,
+              url: img.url,
+            });
+            attached++;
+          } catch (err: any) {
+            // The product itself is already saved, so report and keep the rest.
+            toast.error(`Photo ${attached + 1} could not be attached: ${err.message}`);
+          }
+        }
+        toast.success(
+          attached
+            ? `${product.name} created with ${attached} photo${attached === 1 ? "" : "s"}`
+            : `${product.name} created`
+        );
       } else {
         const { id, ...fields } = payload;
         await adminApi.updateProduct(id, fields);
         toast.success("Saved");
       }
       setEditing(null);
+      setStaged([]);
       load();
     } catch (err: any) {
       toast.error(err.message || "Save failed");
@@ -274,7 +303,9 @@ export default function AdminProducts() {
         <ProductEditor
           value={editing}
           onChange={setEditing}
-          onClose={() => setEditing(null)}
+          staged={staged}
+          setStaged={setStaged}
+          onClose={() => { setEditing(null); setStaged([]); }}
           onSave={save}
           saving={saving}
           images={editing.id ? imagesFor(editing.id) : []}
@@ -287,8 +318,19 @@ export default function AdminProducts() {
 
 /* ── editor ────────────────────────────────────────────────────────────────── */
 
+/**
+ * Product editor.
+ *
+ * Creating a product asks for four things — name, category, price, photos — and nothing
+ * else. Everything the storefront can live without starts collapsed behind "More
+ * details", because the previous version asked for twelve fields up front and made
+ * adding a product feel like filing a return.
+ *
+ * Photos can be chosen while creating. They are held locally until the product exists
+ * (an image row needs a product_id) and attach immediately afterwards.
+ */
 function ProductEditor({
-  value, onChange, onClose, onSave, saving, images, onImagesChanged,
+  value, onChange, onClose, onSave, saving, images, onImagesChanged, staged, setStaged,
 }: {
   value: Record<string, any>;
   onChange: (v: Record<string, any>) => void;
@@ -297,105 +339,120 @@ function ProductEditor({
   saving: boolean;
   images: AdminImage[];
   onImagesChanged: () => void;
+  staged: StagedImage[];
+  setStaged: (s: StagedImage[]) => void;
 }) {
   const set = (field: string, v: any) => onChange({ ...value, [field]: v });
   const isNew = Boolean(value.__isNew);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Slug follows the name while creating, so it is one less thing to think about. Once
+  // a product exists its slug is a live URL, so it stops auto-following.
+  const setName = (name: string) => {
+    if (!isNew) { set("name", name); return; }
+    onChange({
+      ...value,
+      name,
+      slug: name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+    });
+  };
+
+  const ready = Boolean(String(value.name ?? "").trim() && String(value.price ?? "").trim());
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-background/85 backdrop-blur-sm overflow-y-auto">
       <div className="min-h-full flex items-start justify-center p-4 py-10">
-        <div className="w-full max-w-3xl luxury-card p-5 sm:p-8 space-y-6">
+        <div className="w-full max-w-2xl luxury-card p-5 sm:p-7 space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-[10px] tracking-[0.4em] uppercase text-primary">
-                {isNew ? "Create" : "Edit"}
+                {isNew ? "New product" : "Edit"}
               </p>
-              <h2 className="font-display text-2xl text-ivory mt-1">
-                {value.name || "New product"}
-              </h2>
+              <h2 className="font-display text-2xl text-ivory mt-1">{value.name || "Untitled"}</h2>
             </div>
             <button onClick={onClose} className="text-muted-foreground hover:text-ivory">
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <Section title="Basics">
-            <Field label="Name">
-              <Input value={value.name ?? ""} onChange={(e) => set("name", e.target.value)} />
-            </Field>
-            <Field label="URL slug" hint="Lowercase, hyphens only. Changing this breaks existing links.">
+          {/* ── the four things that actually matter ───────────────────────── */}
+          <div className="space-y-3">
+            <Field label="Product name">
               <Input
-                value={value.slug ?? ""}
-                onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+                value={value.name ?? ""}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Royal Oud"
+                autoFocus={isNew}
               />
             </Field>
-            <Field label="Tagline">
-              <Input value={value.tagline ?? ""} onChange={(e) => set("tagline", e.target.value)} />
-            </Field>
-            <Field label="Category">
-              <select
-                value={value.category ?? "Perfume"}
-                onChange={(e) => set("category", e.target.value)}
-                className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
-              >
-                {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </Field>
-            <Field label="Gender">
-              <select
-                value={value.gender ?? "Unisex"}
-                onChange={(e) => set("gender", e.target.value)}
-                className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
-              >
-                {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </Field>
-            <Field label="Badge" hint="Shown on the shop card. Leave blank for none.">
-              <Input value={value.badge ?? ""} onChange={(e) => set("badge", e.target.value)} placeholder="Bestseller" />
-            </Field>
-          </Section>
 
-          <Section title="Pricing">
-            <Field label="Price (₹)">
-              <Input
-                type="number" inputMode="decimal" min="0"
-                value={value.price ?? ""}
-                onChange={(e) => set("price", e.target.value)}
-              />
-            </Field>
-            <Field label="Compare-at / MRP (₹)" hint="Struck through next to the price.">
-              <Input
-                type="number" inputMode="decimal" min="0"
-                value={value.compare_at ?? ""}
-                onChange={(e) => set("compare_at", e.target.value)}
-              />
-            </Field>
-            <Field label="Sizes" hint="Comma separated, in display order — e.g. 20ml, 50ml, 100ml">
-              <Input
-                value={(value.volumes ?? []).join(", ")}
-                onChange={(e) =>
-                  set("volumes", e.target.value.split(",").map((s) => s.trim()).filter(Boolean))
-                }
-              />
-            </Field>
-            <Field label="Featured size" hint="Which size the shop card prices and pictures.">
-              <Input
-                value={value.featured_volume ?? ""}
-                onChange={(e) => set("featured_volume", e.target.value)}
-                placeholder="100ml"
-              />
-            </Field>
-            <div className="sm:col-span-2">
-              <PerSizePricing
-                volumes={value.volumes ?? []}
-                value={value.price_by_volume ?? {}}
-                onChange={(v) => set("price_by_volume", v)}
-              />
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Field label="Category">
+                <select
+                  value={value.category ?? "Perfume"}
+                  onChange={(e) => set("category", e.target.value)}
+                  className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
+                >
+                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </Field>
+              <Field label="Price (₹)">
+                <Input
+                  type="number" inputMode="decimal" min="0"
+                  value={value.price ?? ""}
+                  onChange={(e) => set("price", e.target.value)}
+                  placeholder="499"
+                />
+              </Field>
             </div>
-          </Section>
 
-          <Section title="Copy">
-            <div className="sm:col-span-2">
+            <SizePicker
+              category={value.category ?? "Perfume"}
+              volumes={value.volumes ?? []}
+              onChange={(v) => set("volumes", v)}
+            />
+          </div>
+
+          {/* ── photos, available while creating ───────────────────────────── */}
+          {isNew
+            ? <StagedImagePicker staged={staged} setStaged={setStaged} />
+            : <ImageManager productId={value.id} images={images} onChanged={onImagesChanged} />}
+
+          {/* ── everything else ────────────────────────────────────────────── */}
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="w-full flex items-center justify-between border-t border-border pt-4 text-left"
+          >
+            <span className="text-[10px] tracking-luxe uppercase text-primary">More details</span>
+            <span className="text-xs text-muted-foreground">
+              {showAdvanced ? "Hide" : "Optional — tagline, description, badges, per-size pricing"}
+            </span>
+          </button>
+
+          {showAdvanced && (
+            <div className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-3">
+                <Field label="Tagline">
+                  <Input value={value.tagline ?? ""} onChange={(e) => set("tagline", e.target.value)} placeholder="A short line under the name" />
+                </Field>
+                <Field label="MRP (₹)" hint="Struck through next to the price.">
+                  <Input type="number" min="0" value={value.compare_at ?? ""} onChange={(e) => set("compare_at", e.target.value)} />
+                </Field>
+                <Field label="Gender">
+                  <select
+                    value={value.gender ?? "Unisex"}
+                    onChange={(e) => set("gender", e.target.value)}
+                    className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
+                  >
+                    {GENDERS.map((g) => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                </Field>
+                <Field label="Badge" hint="Corner label on the shop card.">
+                  <Input value={value.badge ?? ""} onChange={(e) => set("badge", e.target.value)} placeholder="Bestseller" />
+                </Field>
+              </div>
+
               <Field label="Description">
                 <textarea
                   rows={3}
@@ -404,52 +461,90 @@ function ProductEditor({
                   className="w-full rounded-sm border border-border bg-background px-3 py-2 text-sm text-ivory"
                 />
               </Field>
-            </div>
-            <div className="sm:col-span-2">
+
               <Field label="Ingredients">
                 <Input value={value.ingredients ?? ""} onChange={(e) => set("ingredients", e.target.value)} />
               </Field>
-            </div>
-          </Section>
 
-          <Section title="Merchandising">
-            <div className="sm:col-span-2 flex flex-wrap gap-2">
-              {([
-                ["best_seller", "Bestseller"],
-                ["new_arrival", "New Arrival"],
-                ["trending", "Trending"],
-                ["amazon_choice", "Amazon's Choice"],
-              ] as const).map(([field, label]) => (
-                <button
-                  key={field}
-                  onClick={() => set(field, !value[field])}
-                  className={cn(
-                    "px-3 py-2 rounded-sm border text-xs transition-colors",
-                    value[field]
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border text-muted-foreground hover:text-ivory"
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </Section>
+              <Field
+                label="URL slug"
+                hint={isNew ? "Filled in from the name." : "Changing this breaks existing links to the product."}
+              >
+                <Input
+                  value={value.slug ?? ""}
+                  onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+                />
+              </Field>
 
-          {isNew ? (
-            <p className="text-xs text-muted-foreground border-t border-border pt-4">
-              Photos can be added once the product is created.
-            </p>
-          ) : (
-            <ImageManager productId={value.id} images={images} onChanged={onImagesChanged} />
+              <div>
+                <p className="text-[10px] tracking-luxe uppercase text-primary mb-2">Show on</p>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    ["best_seller", "Bestsellers"],
+                    ["new_arrival", "New Arrivals"],
+                    ["trending", "Trending"],
+                    ["amazon_choice", "Amazon's Choice"],
+                  ] as const).map(([field, label]) => (
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() => set(field, !value[field])}
+                      className={cn(
+                        "px-3 py-2 rounded-sm border text-xs transition-colors",
+                        value[field]
+                          ? "border-primary bg-primary/15 text-primary"
+                          : "border-border text-muted-foreground hover:text-ivory"
+                      )}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {(value.volumes ?? []).length > 0 && (
+                <PerSizePricing
+                  volumes={value.volumes ?? []}
+                  value={value.price_by_volume ?? {}}
+                  onChange={(v) => set("price_by_volume", v)}
+                />
+              )}
+
+              {(value.volumes ?? []).length > 1 && (
+                <Field label="Featured size" hint="Which size the shop card prices and pictures.">
+                  <div className="flex flex-wrap gap-2">
+                    {(value.volumes ?? []).map((v: string) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => set("featured_volume", value.featured_volume === v ? "" : v)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-sm border text-xs",
+                          value.featured_volume === v
+                            ? "border-primary bg-primary/15 text-primary"
+                            : "border-border text-muted-foreground hover:text-ivory"
+                        )}
+                      >
+                        {v}
+                      </button>
+                    ))}
+                  </div>
+                </Field>
+              )}
+            </div>
           )}
 
-          <div className="flex items-center justify-end gap-3 border-t border-border pt-5">
-            <Button variant="ghostGold" onClick={onClose}>Cancel</Button>
-            <Button variant="luxury" onClick={onSave} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {isNew ? "Create product" : "Save changes"}
-            </Button>
+          <div className="flex items-center justify-between gap-3 border-t border-border pt-5">
+            <p className="text-[11px] text-muted-foreground">
+              {ready ? "" : "Name and price are required."}
+            </p>
+            <div className="flex gap-3">
+              <Button variant="ghostGold" onClick={onClose}>Cancel</Button>
+              <Button variant="luxury" onClick={onSave} disabled={saving || !ready}>
+                {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                {isNew ? "Create product" : "Save changes"}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -457,7 +552,188 @@ function ProductEditor({
   );
 }
 
-/* ── per-size pricing ──────────────────────────────────────────────────────── */
+/** Common bottle sizes as toggles. This was a comma-separated text box, which meant
+ *  remembering the exact spelling ("50ml" vs "50 ml") for per-size pricing to line up. */
+function SizePicker({
+  category, volumes, onChange,
+}: {
+  category: string;
+  volumes: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [custom, setCustom] = useState("");
+  // Attars sell in one small bottle, perfumes in a standard ladder. Offering the right
+  // presets first is most of what makes this faster than typing.
+  const presets = category === "Attar" ? ["10ml", "12ml", "25ml"] : ["20ml", "50ml", "100ml"];
+  const options = [...new Set([...presets, ...volumes])];
+
+  const toggle = (size: string) =>
+    onChange(volumes.includes(size) ? volumes.filter((v) => v !== size) : [...volumes, size]);
+
+  const addCustom = () => {
+    const v = custom.trim();
+    if (!v || volumes.includes(v)) { setCustom(""); return; }
+    onChange([...volumes, v]);
+    setCustom("");
+  };
+
+  return (
+    <div className="space-y-2">
+      <span className="text-xs text-muted-foreground">Sizes</span>
+      <div className="flex flex-wrap gap-2">
+        {options.map((size) => (
+          <button
+            key={size}
+            type="button"
+            onClick={() => toggle(size)}
+            className={cn(
+              "px-3 py-1.5 rounded-sm border text-xs transition-colors",
+              volumes.includes(size)
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border text-muted-foreground hover:text-ivory"
+            )}
+          >
+            {size}
+          </button>
+        ))}
+        <div className="flex items-center gap-1">
+          <input
+            value={custom}
+            onChange={(e) => setCustom(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustom(); } }}
+            placeholder="Other…"
+            className="w-20 rounded-sm border border-border bg-background px-2 py-1.5 text-xs text-ivory"
+          />
+          {custom.trim() && (
+            <button type="button" onClick={addCustom} className="text-primary text-xs px-1">Add</button>
+          )}
+        </div>
+      </div>
+      <p className="text-[10px] text-muted-foreground/70">
+        {volumes.length
+          ? `Selected: ${volumes.join(", ")}`
+          : "Leave empty if this product is sold in one size only."}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Photo picker for a product that does not exist yet.
+ *
+ * An image row needs a product_id, which only exists after the create call — so these
+ * are held here and attached the moment the product is saved. The Cloudinary upload
+ * itself happens now, so a slow connection is paid for while the form is still open
+ * rather than at the point of saving.
+ */
+function StagedImagePicker({
+  staged, setStaged,
+}: {
+  staged: StagedImage[];
+  setStaged: (s: StagedImage[]) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [q, setQ] = useState("");
+
+  const matches = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    return (needle ? repoImageKeys.filter((k) => k.toLowerCase().includes(needle)) : repoImageKeys).slice(0, 40);
+  }, [q]);
+
+  const upload = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setBusy(true);
+    try {
+      const added: StagedImage[] = [];
+      for (const file of Array.from(files)) {
+        const url = await adminApi.uploadImage(file);
+        added.push({ source: "cloudinary", url });
+      }
+      setStaged([...staged, ...added]);
+      toast.success(`${added.length} photo${added.length === 1 ? "" : "s"} ready`);
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="border-t border-border pt-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p className="text-[10px] tracking-luxe uppercase text-primary">Photos</p>
+          <p className="text-[10px] text-muted-foreground/70">First one becomes the main image.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline-gold" size="sm" onClick={() => setPicking((v) => !v)} disabled={busy}>
+            {picking ? "Close" : "Pick existing"}
+          </Button>
+          <label>
+            <Button variant="luxury" size="sm" disabled={busy} asChild>
+              <span className="cursor-pointer">
+                {busy ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 mr-1.5" />}
+                Upload
+              </span>
+            </Button>
+            <input type="file" accept="image/*" multiple hidden onChange={(e) => { upload(e.target.files); e.target.value = ""; }} />
+          </label>
+        </div>
+      </div>
+
+      {staged.length > 0 && (
+        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+          {staged.map((img, i) => (
+            <div key={i} className="relative group rounded-sm overflow-hidden border border-border">
+              <img
+                src={resolveImage({ source: img.source, storageKey: img.storageKey, url: img.url })}
+                alt=""
+                className="w-full aspect-square object-cover"
+              />
+              {i === 0 && (
+                <span className="absolute top-1 left-1 text-[8px] uppercase px-1 py-0.5 rounded-sm bg-gradient-gold text-primary-foreground">
+                  Main
+                </span>
+              )}
+              <button
+                onClick={() => setStaged(staged.filter((_, j) => j !== i))}
+                className="absolute inset-x-0 bottom-0 bg-background/85 py-1 opacity-0 group-hover:opacity-100 text-destructive"
+              >
+                <Trash2 className="w-3 h-3 mx-auto" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {picking && (
+        <div className="space-y-2 border border-border rounded-sm p-3">
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search photos already on the site…" autoFocus />
+          <div className="grid grid-cols-5 sm:grid-cols-8 gap-2 max-h-48 overflow-y-auto">
+            {matches.map((key) => (
+              <button
+                key={key}
+                title={key}
+                onClick={() => setStaged([...staged, { source: "repo", storageKey: key }])}
+                className="rounded-sm overflow-hidden border border-border hover:border-primary"
+              >
+                <img src={resolveImage({ source: "repo", storageKey: key })} alt="" loading="lazy" className="w-full aspect-square object-cover" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!staged.length && !picking && (
+        <p className="text-xs text-muted-foreground">
+          No photos yet — a product without one shows a blank tile in the shop.
+        </p>
+      )}
+    </div>
+  );
+}
+
 
 function PerSizePricing({
   volumes, value, onChange,

@@ -172,6 +172,7 @@ function BannersTab() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm text-ivory truncate">{b.headline || <em className="text-muted-foreground">No headline</em>}</p>
+              {b.highlight && <p className="text-[11px] text-gold italic truncate">{b.highlight}</p>}
               <p className="text-[11px] text-muted-foreground truncate">{b.subtext || "—"}</p>
               {b.cta_label && (
                 <p className="text-[10px] text-primary mt-0.5">{b.cta_label} → {b.cta_href}</p>
@@ -236,6 +237,7 @@ function BannerEditor({ value, onChange, onClose, onSaved }: any) {
 
   return (
     <Modal title={value.__isNew ? "New banner" : "Edit banner"} onClose={onClose}>
+      <BannerPreview value={value} />
       <ImageField
         label="Desktop image"
         hint="Wide artwork. The headline and subtext below are drawn over it in HTML."
@@ -301,9 +303,14 @@ function BannerEditor({ value, onChange, onClose, onSaved }: any) {
       <Labelled label="Eyebrow" hint="Small text above the headline. Desktop only.">
         <Input value={value.eyebrow ?? ""} onChange={(e) => set("eyebrow", e.target.value)} />
       </Labelled>
-      <Labelled label="Headline" hint="Desktop only — mobile artwork carries its own. Also used as the mobile image's alt text.">
-        <Input value={value.headline ?? ""} onChange={(e) => set("headline", e.target.value)} />
-      </Labelled>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Labelled label="Headline" hint="Desktop only. Also the mobile image's alt text.">
+          <Input value={value.headline ?? ""} onChange={(e) => set("headline", e.target.value)} />
+        </Labelled>
+        <Labelled label="Second line" hint="Shown under the headline in italic gold — e.g. Buy 1 Get 1 Free.">
+          <Input value={value.highlight ?? ""} onChange={(e) => set("highlight", e.target.value)} />
+        </Labelled>
+      </div>
       <Labelled label="Subtext" hint="Desktop only.">
         <textarea
           rows={2}
@@ -736,6 +743,80 @@ function ImageField({ label, hint, source, storageKey, url, onChange }: any) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * Miniature of how the banner will actually render, desktop and mobile side by side.
+ *
+ * The two are genuinely different layouts, not one image at two sizes: desktop draws the
+ * eyebrow/headline/second line over wide artwork in HTML, while mobile shows tall artwork
+ * with its copy already baked in and only a button on top. Without seeing both, it is not
+ * obvious why the text fields appear to do nothing on a phone.
+ */
+function BannerPreview({ value }: { value: any }) {
+  const hasDesktop = Boolean(value.storage_key || value.url);
+  const hasMobile = Boolean(value.mobile_storage_key || value.mobile_url);
+
+  const desktopSrc = resolveImage({ source: value.source, storageKey: value.storage_key, url: value.url });
+  const mobileSrc = hasMobile
+    ? resolveImage({ source: value.mobile_source, storageKey: value.mobile_storage_key, url: value.mobile_url })
+    : desktopSrc;
+
+  return (
+    <div className="space-y-2">
+      <p className="text-[10px] tracking-luxe uppercase text-primary">Preview</p>
+      <div className="flex gap-3">
+        {/* Desktop */}
+        <div className="flex-1 min-w-0">
+          <div className="relative aspect-[16/7] rounded-sm overflow-hidden bg-deep-brown border border-border">
+            {hasDesktop && <img src={desktopSrc} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+            <div className="absolute inset-0 bg-gradient-to-r from-background/85 to-transparent" />
+            <div className="absolute inset-0 flex flex-col justify-center px-3">
+              {value.eyebrow && (
+                <p className="text-[6px] tracking-[0.3em] uppercase text-primary truncate">{value.eyebrow}</p>
+              )}
+              <p className="font-display text-[13px] text-ivory leading-tight truncate">
+                {value.headline || "Headline"}
+              </p>
+              {value.highlight && (
+                <p className="font-serif italic text-[11px] text-gold leading-tight truncate">{value.highlight}</p>
+              )}
+              {value.cta_label && (
+                <span className="mt-1 inline-block w-fit bg-gradient-gold text-primary-foreground text-[6px] px-1.5 py-0.5 rounded-sm">
+                  {value.cta_label}
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1 text-center">Desktop</p>
+        </div>
+
+        {/* Mobile */}
+        <div className="w-[74px] shrink-0">
+          <div className="relative aspect-[9/16] rounded-sm overflow-hidden bg-deep-brown border border-border">
+            {(hasMobile || hasDesktop) && (
+              <img
+                src={mobileSrc}
+                alt=""
+                className={cn(
+                  "absolute inset-0 w-full h-full",
+                  value.mobile_fit === "contain" ? "object-contain" : "object-cover"
+                )}
+              />
+            )}
+            {value.cta_label && (
+              <span className="absolute bottom-1 left-1/2 -translate-x-1/2 border border-primary text-primary text-[5px] px-1 py-0.5 rounded-sm bg-background/70 whitespace-nowrap">
+                {value.cta_label}
+              </span>
+            )}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-1 text-center">
+            {hasMobile ? "Mobile" : "Mobile (desktop art)"}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

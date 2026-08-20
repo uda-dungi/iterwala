@@ -134,6 +134,9 @@ create table if not exists public.banners (
 
   eyebrow      text,
   headline     text,
+  -- Second line, rendered under the headline in italic gold ("Buy 1 Get 1 Free").
+  -- Desktop only — mobile artwork carries its own copy.
+  highlight    text,
   subtext      text,
   cta_label    text,
   cta_href     text,
@@ -147,6 +150,7 @@ create table if not exists public.banners (
 -- Existing installs: `create table if not exists` above will not add a column to a
 -- table that already exists, so bring mobile_fit in explicitly.
 alter table public.banners add column if not exists mobile_fit text default 'cover';
+alter table public.banners add column if not exists highlight  text;
 do $$
 begin
   if not exists (

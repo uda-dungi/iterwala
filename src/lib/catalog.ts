@@ -41,6 +41,7 @@ export type Banner = {
   mobileFit: "cover" | "contain";
   eyebrow?: string;
   headline?: string;
+  highlight?: string;
   subtext?: string;
   ctaLabel?: string;
   ctaHref?: string;
@@ -211,6 +212,7 @@ export async function fetchCatalog(): Promise<Catalog | null> {
         mobileFit: b.mobile_fit === "contain" ? "contain" : "cover",
         eyebrow: b.eyebrow ?? undefined,
         headline: b.headline ?? undefined,
+        highlight: b.highlight ?? undefined,
         subtext: b.subtext ?? undefined,
         ctaLabel: b.cta_label ?? undefined,
         ctaHref: b.cta_href ?? undefined,
