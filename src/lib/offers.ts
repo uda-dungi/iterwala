@@ -13,9 +13,10 @@ export const FRIENDSHIP_SALE_ACTIVE = true;
 export const PACK_OF_4_ID = "g-pack-of-4";
 export const PACK_OF_4_PAIR_PRICE = 999;
 
-/** Pack of 8 (Discovery / Octet) — true Buy 1 Get 1: a pair costs the price of one box. */
+/** Pack of 8 (Discovery / Octet) — every pair of boxes costs PACK_OF_8_PAIR_PRICE,
+ *  the same pair price as Pack of 4 (both boxes list at 699). */
 export const PACK_OF_8_ID = "g-discovery";
-export const PACK_OF_8_PAIR_PRICE = 699;
+export const PACK_OF_8_PAIR_PRICE = 999;
 
 /** Gift boxes sold on pair pricing: 1 box = full price, every 2 boxes = `pairPrice`.
  *  Driven off a table rather than repeated per product so adding the next pack is one

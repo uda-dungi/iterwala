@@ -14,7 +14,7 @@ export const PACK_OF_4_ID = "g-pack-of-4";
 export const PACK_OF_4_PAIR_PRICE = 999;
 
 export const PACK_OF_8_ID = "g-discovery";
-export const PACK_OF_8_PAIR_PRICE = 699;
+export const PACK_OF_8_PAIR_PRICE = 999;
 
 type PairPack = { id: string; pairPrice: number; name: string; code: string };
 const PAIR_PRICE_PACKS: PairPack[] = [
