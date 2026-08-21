@@ -94,12 +94,15 @@ export const facebookLink = `https://www.facebook.com/${site.facebookHandle}`;
 /**
  * Delivery promise shown on the product page, next to Add to Cart.
  *
- * Confirmed with Jatin (Aug 2026) as 6 business days end to end — order placed to
- * doorstep, processing included. The Shipping Policy page (src/pages/Policy.tsx) is
- * worded to match; keep the two in agreement, since a promise here the policy doesn't
- * back is what shoppers screenshot when an order runs late.
+ * 3–4 business days end to end — order placed to doorstep, processing included
+ * (revised down from 6, Aug 2026).
+ *
+ * The Shipping Policy page (src/pages/Policy.tsx) is worded to match; keep the two in
+ * agreement, since a promise here the policy doesn't back is what shoppers screenshot
+ * when an order runs late. Processing alone is quoted there as 1–2 business days, so
+ * this number can never go below that.
  */
-export const DELIVERY_ESTIMATE = "Delivered within 6 business days";
+export const DELIVERY_ESTIMATE = "Delivered in 3–4 business days";
 
 /** Year the brand started selling online — used in the trust line on the Collector's
  *  Edition story page. A public claim, so keep it accurate. */

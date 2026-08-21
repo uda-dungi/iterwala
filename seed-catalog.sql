@@ -3619,7 +3619,7 @@ where not exists (select 1 from public.announcements);
 -- ── settings ───────────────────────────────────────────────────────────────
 insert into public.site_settings (key, value) values ('new_launch_slugs', '["rooh-chandan","jannat-firdaus","amber","shahi-gulab","aura","poetry","wanted","rebel"]'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = now();
-insert into public.site_settings (key, value) values ('delivery_estimate', '"Delivered within 6 business days"'::jsonb)
+insert into public.site_settings (key, value) values ('delivery_estimate', '"Delivered in 3–4 business days"'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = now();
 insert into public.site_settings (key, value) values ('trading_since', '2020'::jsonb)
 on conflict (key) do update set value = excluded.value, updated_at = now();

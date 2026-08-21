@@ -254,7 +254,7 @@ lines.push("");
 lines.push("-- ── settings ───────────────────────────────────────────────────────────────");
 const settings = {
   new_launch_slugs: [...(NEW_LAUNCH_SLUGS || [])],
-  delivery_estimate: "Delivered within 6 business days",
+  delivery_estimate: "Delivered in 3–4 business days",
   trading_since: 2020,
 };
 for (const [key, value] of Object.entries(settings)) {
