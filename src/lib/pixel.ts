@@ -68,21 +68,85 @@ const IDENTITY_KEY = "itr_identity";
 /** Meta attributes clicks for 90 days — match the cookie lifetime to that window. */
 const COOKIE_DAYS = 90;
 
-function readCookie(name: string): string | undefined {
-  if (typeof document === "undefined") return undefined;
+/** Meta's documented _fbc format: `fb.<subdomainIndex>.<creationMs>.<fbclid>`. */
+const FBC_FORMAT = /^fb\.\d+\.(\d+)\..+$/;
+
+/** EVERY value the jar holds for `name`, not just the first.
+ *
+ *  Plural on purpose. The jar can legitimately hold two `_fbc` cookies at once — one
+ *  host-only (what this file used to write) and one scoped to the registrable domain
+ *  (what fbevents.js writes) — and `document.cookie` exposes no domain or creation
+ *  date to tell them apart. Returning the first match meant a months-old click id
+ *  could shadow the one from the ad the shopper *just* clicked, so every event went
+ *  to Meta attributed to the wrong click. The caller picks; see pickSignalCookie. */
+function readCookies(name: string): string[] {
+  if (typeof document === "undefined") return [];
+  const out: string[] = [];
   for (const part of document.cookie.split(";")) {
     const idx = part.indexOf("=");
     if (idx === -1) continue;
-    if (part.slice(0, idx).trim() === name) return decodeURIComponent(part.slice(idx + 1).trim());
+    if (part.slice(0, idx).trim() !== name) continue;
+    const raw = part.slice(idx + 1).trim();
+    if (raw) out.push(decodeURIComponent(raw));
   }
-  return undefined;
+  return out;
+}
+
+/* The widest domain this browser will actually accept a cookie for, with `www.`
+ * stripped — so what we write is the SAME cookie fbevents.js writes (it scopes to the
+ * registrable domain) rather than a second host-only copy shadowing it.
+ *
+ * Probed by writing and reading back rather than assumed: a Domain attribute is
+ * silently rejected for IP literals, single-label hosts and (in some browsers)
+ * localhost, and a silently-rejected cookie means no fbc at all on that visit — worse
+ * than the host-only cookie it replaced. Resolved once and cached for the page. */
+let cookieDomain: string | null | undefined;
+const DOMAIN_PROBE = "itr_cd";
+
+function resolveCookieDomain(): string | null {
+  if (cookieDomain !== undefined) return cookieDomain;
+  cookieDomain = null;
+  try {
+    const host = window.location.hostname;
+    // Bare hostname with at least two labels, and not an IPv4 literal.
+    if (!host.includes(".") || /^[\d.]+$/.test(host) || !/^[a-z0-9.-]+$/i.test(host)) return cookieDomain;
+    const candidate = host.replace(/^www\./i, "");
+    document.cookie = `${DOMAIN_PROBE}=1; Domain=.${candidate}; Path=/; SameSite=Lax`;
+    if (readCookies(DOMAIN_PROBE).length) {
+      cookieDomain = `.${candidate}`;
+      document.cookie = `${DOMAIN_PROBE}=; Domain=.${candidate}; Path=/; Max-Age=0; SameSite=Lax`;
+    }
+  } catch {
+    /* cookies disabled — host-only write below will no-op too, storage tiers cover it */
+  }
+  return cookieDomain;
 }
 
 function writeCookie(name: string, value: string) {
   if (typeof document === "undefined") return;
   const maxAge = COOKIE_DAYS * 24 * 60 * 60;
   const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}`;
+  const domain = resolveCookieDomain();
+  document.cookie =
+    `${name}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; SameSite=Lax${secure}` +
+    (domain ? `; Domain=${domain}` : "");
+}
+
+/** Resolves the duplicate-cookie case: for _fbc the freshest well-formed click wins
+ *  (that is the click Meta attributes the conversion to), for _fbp any value will do. */
+function pickSignalCookie(name: string, key: SignalKey): string | undefined {
+  const values = readCookies(name);
+  if (values.length < 2 || key === "fbp") return values[0];
+  let best: string | undefined;
+  let bestAt = -1;
+  for (const v of values) {
+    const at = Number(FBC_FORMAT.exec(v)?.[1] ?? -1);
+    if (at > bestAt) {
+      bestAt = at;
+      best = v;
+    }
+  }
+  return best ?? values[0];
 }
 
 /* Cookies are the format Meta's own script reads, but they are the least durable place to
@@ -127,7 +191,7 @@ function persistSignal(cookieName: string, backupKey: string, key: SignalKey, va
 /** Cookie first, then the localStorage mirror, then memory. A value recovered from a
  *  lower tier is written back up so Meta's own script picks it up again on this page. */
 function readSignal(cookieName: string, backupKey: string, key: SignalKey): string | undefined {
-  const fromCookie = readCookie(cookieName);
+  const fromCookie = pickSignalCookie(cookieName, key);
   if (fromCookie) {
     memory[key] = fromCookie;
     backupSignal(backupKey, fromCookie);
@@ -303,6 +367,10 @@ export function initPixel() {
   const eventID = genEventId();
   window.fbq?.("track", "PageView", {}, { eventID });
   sendServerEvent("PageView", eventID);
+
+  // Anything that failed to reach the relay earlier (or on the previous page) goes out
+  // now — after this PageView, so a recovery burst never delays the live event.
+  flushRelayQueue();
 }
 
 /** Fire a standard Meta event. `eventID` lets the server-side Conversions API
@@ -315,10 +383,96 @@ function track(event: string, params?: Record<string, unknown>, eventID?: string
 const genEventId = () =>
   typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
+/* ─────────────── Relay delivery ───────────────
+ *
+ * AddToCart's server copy was reaching Meta for far fewer shoppers than the browser
+ * Pixel fired it for — that ratio is exactly what Meta reports as server "coverage".
+ * Three separate ways a relay POST was being lost, all handled below:
+ *
+ *  1. navigator.sendBeacon() RETURNS FALSE when the browser declines to queue the
+ *     request — its beacon queue is size-bounded and some browsers refuse outright
+ *     during an unload. The return value was ignored, so those events vanished
+ *     silently. AddToCart is the worst-hit event because it is the one most often
+ *     followed by an immediate navigation: "Buy now" calls addToCart() and then
+ *     hard-navigates to /checkout in the same tick.
+ *  2. Content blockers match request paths, and "/api/track/event" trips the generic
+ *     tracker rules on the common lists. A relay whose whole job is recovering the
+ *     conversions the Pixel lost to blockers must not be blocked by those same lists,
+ *     so the POST goes to a route that reads like nothing in particular.
+ *
+ *     This has to be the PRIMARY route, not a fallback: a blocker cancels the request
+ *     in the network layer, where sendBeacon has already returned true and fetch
+ *     resolves or rejects out of our reach. There is no reliable signal to fall back
+ *     ON, so the first attempt is the one that has to survive. /api/track/event stays
+ *     live behind it — bundles cached in browsers from before this change still POST
+ *     there, and it doubles as the second attempt below.
+ *  3. Nothing survived a failure. A lost event stayed lost even though the shopper
+ *     almost always loads another page moments later — failures now park in
+ *     localStorage and flush on the next page view.
+ */
+const RELAY_PRIMARY = "/api/e";
+const RELAY_FALLBACK = "/api/track/event";
+const RELAY_QUEUE_KEY = "itr_relay_q";
+/** Small on purpose — this is a recovery buffer, not an outbox. */
+const RELAY_QUEUE_MAX = 20;
+
+function queueRelay(body: string) {
+  try {
+    const q: string[] = JSON.parse(localStorage.getItem(RELAY_QUEUE_KEY) || "[]");
+    localStorage.setItem(RELAY_QUEUE_KEY, JSON.stringify([...q, body].slice(-RELAY_QUEUE_MAX)));
+  } catch {
+    /* storage blocked — this one event is genuinely unrecoverable */
+  }
+}
+
+/** One delivery attempt. Attempt 0 is the primary route (beacon, then keepalive fetch);
+ *  attempt 1 retries on the second route; after that the body is parked for the next
+ *  page view. */
+function deliverRelay(body: string, attempt: 0 | 1 = 0) {
+  const url = attempt === 0 ? RELAY_PRIMARY : RELAY_FALLBACK;
+  // sendBeacon is still preferred: it is the only transport guaranteed to outlive the
+  // page that queued it. It just has to be checked rather than trusted.
+  if (attempt === 0 && navigator.sendBeacon?.(url, new Blob([body], { type: "application/json" }))) return;
+  fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true })
+    .then((r) => {
+      if (!r.ok) throw new Error(String(r.status));
+    })
+    .catch(() => {
+      if (attempt === 0) deliverRelay(body, 1);
+      else queueRelay(body);
+    });
+}
+
+/** Re-sends events that failed earlier in the session or on a previous page.
+ *
+ *  Each queued body carries its ORIGINAL eventId and eventTime, so Meta still de-dupes
+ *  the recovered copy against the browser Pixel fire it belongs to and timestamps it
+ *  when the shopper actually acted — not when we managed to get it through. */
+function flushRelayQueue() {
+  let queued: string[] = [];
+  try {
+    queued = JSON.parse(localStorage.getItem(RELAY_QUEUE_KEY) || "[]");
+    if (!queued.length) return;
+    // Cleared before resending — a body that fails again re-queues itself below.
+    localStorage.removeItem(RELAY_QUEUE_KEY);
+  } catch {
+    return;
+  }
+  // Meta rejects events older than 7 days, so stop carrying them forever.
+  const cutoff = Math.floor(Date.now() / 1000) - 6 * 24 * 60 * 60;
+  for (const body of queued) {
+    try {
+      if (Number(JSON.parse(body)?.eventTime) >= cutoff) deliverRelay(body);
+    } catch {
+      /* unparseable leftover — drop it */
+    }
+  }
+}
+
 /** POSTs the same event to our own backend (api/track/event.ts), which forwards it to
- *  Meta's Conversions API from the server. Uses sendBeacon when available so the call
- *  survives the page unloading right after (a route change, a redirect to PayU) — a
- *  plain fetch can get cancelled mid-flight when the page it belongs to goes away. */
+ *  Meta's Conversions API from the server. Delivery is handled by deliverRelay above —
+ *  beacon first so the call survives the page unloading right after (a route change, a
+ *  redirect to PayU), with the fallbacks that keep coverage up when it doesn't. */
 function sendServerEvent(eventName: string, eventId: string, customData?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
@@ -329,6 +483,10 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
     const body = JSON.stringify({
       eventName,
       eventId,
+      // Stamped here, not on the server. A queued retry can land minutes later, and an
+      // event Meta timestamps at delivery instead of at the action stops lining up with
+      // the browser Pixel copy it is supposed to de-dupe against.
+      eventTime: Math.floor(Date.now() / 1000),
       eventSourceUrl: window.location.href,
       customData,
       // Sent explicitly rather than left to the request's Cookie header: sendBeacon fires
@@ -339,11 +497,7 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
       email: identity.email,
       phone: identity.phone,
     });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon("/api/track/event", new Blob([body], { type: "application/json" }));
-    } else {
-      fetch("/api/track/event", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
-    }
+    deliverRelay(body);
   } catch {
     /* best-effort only — a tracking hiccup must never break the page */
   }

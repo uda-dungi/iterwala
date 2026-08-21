@@ -207,10 +207,12 @@ Why split at all: the server must never trust a client-sent price. Why mirror: i
 
 Cart-level promotions with no code needed:
 
-- **Pair pricing** — every 2 units of product X cost a fixed bundle price.
+- **Pair pricing** — every 2 units of product X cost a fixed bundle price. Driven off the `PAIR_PRICE_PACKS` table, so adding the next pack is one row rather than another copy of the same arithmetic in three functions.
 - **Buy N get cheapest free** — across a mix-and-match group of product IDs.
 
 Each returns `OfferLine { code, label, amount }` so the cart can itemise. A single `FRIENDSHIP_SALE_ACTIVE` flag kills all of it (flip in **both** files).
+
+⚠ **Count boxes across every cart line, not per line.** A cart line is product **+ variant**, so one product with variants (Pack of 8 ships two lineups, Pack of 4 five) spreads over several lines — "Variant 1 ×1 + Variant 2 ×1" is two boxes on two lines. Matching a single line with `lines.find()` scored that as one box and silently withheld an offer the shopper had already earned. Expand each line into one entry per unit, then pair off the dearest first so a mixed-price cart discounts in the shopper's favour.
 
 `offerNudge` returns copy like *"Add one more to get Buy 1 Get 1"* when a cart is one unit short.
 
@@ -273,6 +275,7 @@ api/
 ├── checkout/initiate.ts      POST — validate, persist, return PayU fields
 ├── payu/callback.ts          POST — verify hash, finalise, email, CAPI Purchase
 ├── coupon/validate.ts        POST — authoritative coupon check once email known
+├── e.ts                      POST — the relay's live address (re-exports track/event)
 ├── track/event.ts            POST — relay browser events to Meta CAPI
 ├── admin/orders.ts           GET  — order list (admin-gated)
 ├── admin/invoice.ts          GET  — GST invoice PDF
@@ -324,9 +327,17 @@ Hard-won details worth keeping:
 - **`fbq("set", "autoConfig", false, pixelId)` before `init`.** Meta's automatic event detection fires its *own* untagged ViewContent/PageView copies which can't be matched to the CAPI copy, so Meta counts both. This dropped event-ID coverage to ~26%.
 - `autoConfig:false` also disables automatic advanced matching, so pass `em`/`ph`/`external_id` explicitly in `fbq("init", …)`. fbevents.js hashes them in-browser.
 - **Write `_fbp`/`_fbc` yourself** before anything fires. fbevents.js loads async and is what normally writes them, so the first PageView on a fresh visit otherwise sends neither. `_fbc` never exists at all when the script is blocked — exactly the traffic CAPI exists to recover.
+- **Scope the cookie to the registrable domain** (`Domain=.example.com`, `www.` stripped), which is where fbevents.js writes it. A host-only copy does not replace Meta's — it sits *beside* it, and `document.cookie` exposes no domain to tell them apart, so a months-old click id can shadow the fresh one. Probe by writing and reading back: a `Domain` attribute is silently rejected on IP literals and single-label hosts, and a rejected cookie means no `fbc` at all.
+- **Read every `_fbc` in the jar, not the first.** When there are several, the one with the newest creation timestamp wins.
+- **Server-set `HttpOnly` mirrors (`_itr_fbc`/`_itr_fbp`) are what make `fbc` last.** Safari's ITP caps *script-written* cookies at 7 days and evicts script-writable storage (localStorage backups included) after a week idle — so coverage decayed with time-since-click on exactly the iOS traffic CAPI is for. A cookie set in a response header escapes that cap; Meta attributes clicks for 90 days, so match that.
+- **Rebuild `fbc` from the `fbclid` on `event_source_url`** when the browser supplies none, and prefer it over a stored cookie carrying a *different* click id — the click on the event's own URL is by definition the one that produced the visit. Costs nothing (the URL is already in the payload) and recovers every landing-page event from a browser that cannot store anything.
+- **Drop a malformed `fbc` instead of forwarding it.** Meta discards anything that isn't exactly `fb.<subdomainIndex>.<creationMs>.<fbclid>`, so a mangled value is worth no more than none — it just hides the problem by looking present on our side.
 - **Capture the buyer's IP/UA at checkout, not in the payment callback.** The callback is a server-to-server POST from the payment provider; using its IP attributes every sale to the provider.
 - Hash `external_id` server-side for consistency with `em`/`ph`.
-- Relay via `navigator.sendBeacon` so the call survives the page unloading on redirect.
+- Relay via `navigator.sendBeacon` so the call survives the page unloading on redirect — but **check its return value**. It returns `false` when the browser declines to queue (bounded queue, some unloads), and ignoring that silently drops the event. Worst on `AddToCart`, the event most often followed by an immediate navigation ("Buy now" adds and hard-navigates in the same tick). Fall back to `fetch(…, { keepalive: true })`.
+- **Don't name the relay endpoint anything a blocklist matches.** `/api/track/event` trips the generic tracker rules, which blocks the very traffic a server relay exists to recover. This has to be the *primary* path, not a fallback: a blocker cancels in the network layer, where `sendBeacon` has already returned `true` — there is no signal to retry on.
+- **Park failed relay POSTs in localStorage and flush on the next page view**, carrying the original `eventId` *and* `eventTime`. Without the original timestamp Meta stamps the recovered copy at delivery and it stops lining up with the browser Pixel fire it should de-dupe against. Drop anything older than 7 days — Meta rejects those outright.
+- **Retry a CAPI send once on 429/5xx or a network error**, but not on other 4xx (that's our own bad payload and will fail identically). A dropped send surfaces as missing coverage, not as an error anyone notices.
 - Purchase is deduped against a `localStorage` log so a refresh on `/order/success` can't double-count.
 
 ---
