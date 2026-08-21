@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Loader2, Database, Mail, Package, ShieldCheck, FileDown, Truck } from "lucide-react";
+import { Loader2, Database, Mail, Package, ShieldCheck, FileDown, Truck, Banknote } from "lucide-react";
 import { useAuth } from "@/store/auth";
 import { formatINR } from "@/store/shop";
 import { Button } from "@/components/ui/button";
@@ -31,6 +31,9 @@ type OrderRow = {
   tracking_url: string | null;
   dispatched_at: string | null;
   shipped_email_sent_at: string | null;
+  payment_method: string | null;
+  shiprocket_order_id: string | null;
+  shiprocket_shipment_id: string | null;
 };
 
 export default function AdminOrders() {
@@ -42,6 +45,9 @@ export default function AdminOrders() {
   // False until migration-order-tracking.sql has been run; the API reports it so the
   // dispatch UI can explain itself rather than failing on save.
   const [dispatchReady, setDispatchReady] = useState(true);
+  // Same idea for migration-cod-shiprocket.sql — false means payment_method/shiprocket
+  // columns aren't there yet, so every order looks like a prepaid PayU order until it runs.
+  const [codReady, setCodReady] = useState(true);
 
   const fetchOrders = useMemo(
     () => async () => {
@@ -65,6 +71,7 @@ export default function AdminOrders() {
         } else {
           setOrders(data.orders || []);
           setDispatchReady(data.dispatchReady !== false);
+          setCodReady(data.codReady !== false);
         }
       } catch (err) {
         console.error(err);
@@ -162,6 +169,15 @@ export default function AdminOrders() {
         </div>
       )}
 
+      {!codReady && (
+        <div className="luxury-card p-4 mb-6 border border-primary/40 text-sm text-muted-foreground">
+          <span className="text-primary">Cash on Delivery columns aren't set up yet.</span>{" "}
+          Run <code className="text-ivory">migration-cod-shiprocket.sql</code> in the Supabase SQL
+          editor — until then, COD orders below will show as regular Prepaid orders and won't be
+          dispatchable through the panel below.
+        </div>
+      )}
+
       {orders?.length === 0 ? (
         <div className="luxury-card p-8 text-center text-muted-foreground">No orders found.</div>
       ) : (
@@ -175,9 +191,10 @@ export default function AdminOrders() {
                   {order.invoice_no && (
                     <p className="text-xs text-primary mt-1">Invoice: {order.invoice_no}</p>
                   )}
-                  {/* A tax invoice only exists for a completed sale, so the button is
-                      hidden entirely on pending/failed orders rather than erroring. */}
-                  {order.status === "paid" && (
+                  {/* A tax invoice/label only exists for a confirmed sale: paid for PayU
+                      orders, or any Cash on Delivery order (which has no separate payment
+                      -confirmation step — see api/checkout/cod.ts and api/admin/label.ts). */}
+                  {(order.status === "paid" || order.payment_method === "cod") && (
                     <div className="flex flex-wrap gap-2 mt-3">
                       <Button
                         variant="outline-gold"
@@ -203,13 +220,17 @@ export default function AdminOrders() {
                       </Button>
                     </div>
                   )}
-                  {order.status === "paid" && dispatchReady && <DispatchPanel order={order} token={session?.access_token} onSaved={fetchOrders} />}
+                  {(order.status === "paid" || order.payment_method === "cod") && dispatchReady && <DispatchPanel order={order} token={session?.access_token} onSaved={fetchOrders} />}
                 </div>
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                   <Stat icon={Database} label="Amount" value={formatINR(order.total)} />
                   <Stat icon={Package} label="Status" value={order.status} />
                   <Stat icon={Mail} label="Email" value={order.email} />
-                  <Stat icon={ShieldCheck} label="Mode" value={order.payu_mode || "N/A"} />
+                  <Stat
+                    icon={order.payment_method === "cod" ? Banknote : ShieldCheck}
+                    label="Payment"
+                    value={order.payment_method === "cod" ? "Cash on Delivery" : (order.payu_mode || "Prepaid")}
+                  />
                 </div>
               </div>
 

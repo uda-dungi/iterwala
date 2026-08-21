@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
-import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles, Smartphone, CreditCard, Building2, Wallet } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles, Smartphone, CreditCard, Building2, Wallet, Banknote } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor, imageAltFor } from "@/data/products";
 import { trackInitiateCheckout, setPixelIdentity, getPixelSignals } from "@/lib/pixel";
@@ -25,10 +25,12 @@ const emptyForm: FormState = {
 };
 
 export default function Checkout() {
+  const navigate = useNavigate();
   const { cart, subtotal, offerDiscount, offers, clearCart, coupon, setCoupon, couponDiscount } = useShop();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [gift, setGift] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [codSubmitting, setCodSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   // Mirror the server's math (api/checkout/initiate): shipping is judged on the
@@ -147,7 +149,7 @@ export default function Checkout() {
       // the cart is cleared and PayU has redirected the browser back to us.
       sessionStorage.setItem(
         "itr_last_order",
-        JSON.stringify({ txnid: data.fields.txnid, items: payload.items, total, email: form.email })
+        JSON.stringify({ txnid: data.fields.txnid, items: payload.items, total, email: form.email, paymentMethod: "payu" })
       );
 
       // Build & auto-submit a hidden form to PayU's hosted payment page.
@@ -176,6 +178,66 @@ export default function Checkout() {
       console.error(err);
       toast.error("Network error — please check your connection and try again.");
       setSubmitting(false);
+    }
+  };
+
+  // Cash on Delivery — same contact/address fields as the PayU flow, but posts to its own
+  // endpoint (api/checkout/cod.ts) and never leaves the site: there's no external gateway
+  // to redirect to, so this navigates straight to /order/success on success.
+  const submitCod = async () => {
+    if (submitting || codSubmitting) return;
+    // The button is type="button" (not the form's submit) so it can't accidentally
+    // trigger the PayU handler above — which means the browser's native required-field
+    // validation UI needs triggering by hand instead of firing automatically on submit.
+    if (formRef.current && !formRef.current.reportValidity()) return;
+    setCodSubmitting(true);
+
+    setPixelIdentity({ email: form.email, phone: form.phone });
+
+    try {
+      const payload = {
+        customer: { firstName: form.firstName, lastName: form.lastName, email: form.email, phone: form.phone },
+        address: { line1: form.address, city: form.city, state: form.state, pin: form.pin, country: form.country },
+        items: cart.map(({ product, qty, volume }) => ({ id: product.id, volume, name: `${product.name} (${volume})`, price: priceFor(product, volume).price, qty })),
+        amounts: { subtotal, shipping, gift, total },
+        coupon,
+        ...getPixelSignals(),
+      };
+
+      const res = await fetch("/api/checkout/cod", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const rawResponse = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawResponse);
+      } catch {
+        console.error("checkout: expected JSON from /api/checkout/cod, got:", rawResponse.slice(0, 200));
+        toast.error("Order service is unavailable right now. Please try again in a moment.");
+        setCodSubmitting(false);
+        return;
+      }
+
+      if (!res.ok || !data?.txnid) {
+        toast.error(data?.error || "Couldn't place your order. Please try again.");
+        setCodSubmitting(false);
+        return;
+      }
+
+      sessionStorage.setItem(
+        "itr_last_order",
+        JSON.stringify({ txnid: data.txnid, items: payload.items, total: data.total ?? total, email: form.email, paymentMethod: "cod" })
+      );
+
+      clearCart();
+      navigate(`/order/success?txnid=${encodeURIComponent(data.txnid)}`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error — please check your connection and try again.");
+      setCodSubmitting(false);
     }
   };
 
@@ -233,16 +295,15 @@ export default function Checkout() {
             </div>
           </Section>
 
-          {/* Prepaid-only is the single biggest surprise at this step (we don't offer COD),
-              so the accepted methods are spelled out as visible chips rather than one line
-              of fine print a shopper skims past on the way to the pay button. */}
+          {/* Payment methods are spelled out as visible chips rather than one line of
+              fine print a shopper skims past on the way to the pay button. */}
           <Section title="03 · Payment">
             <div className="luxury-card p-5 space-y-4 border-primary/40">
               <div className="flex items-center gap-4">
                 <Lock className="w-5 h-5 text-primary shrink-0" />
                 <div>
-                  <p className="font-serif text-lg text-ivory">Prepaid Payment Only · Secured by PayU</p>
-                  <p className="text-xs text-muted-foreground">Cash on Delivery is not available. Pick your method on the next screen.</p>
+                  <p className="font-serif text-lg text-ivory">Pay Online · Secured by PayU</p>
+                  <p className="text-xs text-muted-foreground">Or choose Cash on Delivery below — pay when your order arrives.</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -317,12 +378,26 @@ export default function Checkout() {
               <p className="text-[11px] text-destructive">{couponBlocked}</p>
             )}
           </div>
-          <Button type="submit" variant="luxury" size="xl" className="w-full" disabled={submitting}>
+          <Button type="submit" variant="luxury" size="xl" className="w-full" disabled={submitting || codSubmitting}>
             {submitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Lock className="w-4 h-4 mr-2" />}
             {submitting ? "Redirecting to PayU…" : `Pay ${formatINR(total)} via PayU`}
           </Button>
           <p className="text-[11px] text-muted-foreground text-center -mt-1">
-            Prepaid only · UPI, Cards, Netbanking & Wallets accepted
+            UPI, Cards, Netbanking & Wallets accepted
+          </p>
+          <Button
+            type="button"
+            variant="outline-gold"
+            size="xl"
+            className="w-full tracking-normal text-[10px] sm:text-xs px-3 sm:px-6 gap-1.5"
+            disabled={submitting || codSubmitting}
+            onClick={submitCod}
+          >
+            {codSubmitting ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Banknote className="w-4 h-4 shrink-0" />}
+            {codSubmitting ? "Placing your order…" : "Order with Cash on Delivery"}
+          </Button>
+          <p className="text-[11px] text-muted-foreground text-center -mt-1">
+            Pay when your order arrives
           </p>
           <div className="grid grid-cols-3 gap-2 pt-4 border-t border-border text-center">
             <Mini Icon={ShieldCheck} t="Secure" />

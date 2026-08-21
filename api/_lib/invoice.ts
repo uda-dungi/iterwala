@@ -35,6 +35,7 @@ export type InvoiceOrder = {
   gift_wrap?: boolean | null;
   total: number;
   payu_txn_id?: string | null;
+  payment_method?: string | null;
 };
 
 export type SellerDetails = { brand: string; address: string; gstin: string; email: string; phone: string };
@@ -140,6 +141,7 @@ export function generateInvoicePdf(order: InvoiceOrder, seller: SellerDetails): 
         .text(`Invoice Date: ${dateStr}`, { width: 200, align: "right" })
         .text(`Order Ref: ${order.txnid}`, { width: 200, align: "right" });
       if (order.payu_txn_id) doc.text(`Payment Ref: ${order.payu_txn_id}`, { width: 200, align: "right" });
+      doc.text(`Payment Mode: ${order.payment_method === "cod" ? "Cash on Delivery" : "Prepaid"}`, { width: 200, align: "right" });
 
       let y = 128;
       doc.moveTo(L, y).lineTo(R, y).lineWidth(1).strokeColor(GOLD).stroke();

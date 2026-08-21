@@ -8,17 +8,23 @@ import type { InvoiceOrder, SellerDetails } from "./invoice.js";
  * prints fine on A4: most viewers centre it on the sheet, so a plain office printer works
  * without a label printer.
  *
- * Deliberately carries NO prices or tax detail — a label is read by couriers and handlers,
- * not the buyer's accountant, and printing order values on the outside of a parcel invites
- * theft. Money detail lives on the GST tax invoice (api/_lib/invoice.ts) instead.
+ * Deliberately carries NO prices or tax detail beyond the one figure a courier actually
+ * needs to do their job — a label is read by couriers and handlers, not the buyer's
+ * accountant, and printing a full price/tax breakdown on the outside of a parcel invites
+ * theft. Full money detail lives on the GST tax invoice (api/_lib/invoice.ts) instead.
  *
- * The "PREPAID" banner is not decoration: this is a prepaid-only store
- * (site.codAvailable === false), so a courier must never collect cash on delivery.
+ * The banner is not decoration: it tells the courier whether to collect cash. A prepaid
+ * order gets "PREPAID - DO NOT COLLECT CASH"; a Cash on Delivery order (order.payment_method
+ * === "cod") gets the exact amount to collect instead — the one number that's unavoidable
+ * to omit for a COD parcel, industry-standard on every COD shipping label.
  */
 
 const PT = 72; // points per inch
 const W = 4 * PT;
 const H = 6 * PT;
+
+// PDF's standard Helvetica has no rupee glyph — "Rs." instead of ₹, matching invoice.ts.
+const money = (n: number) => `Rs. ${Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 
 export function generateShippingLabelPdf(order: InvoiceOrder, seller: SellerDetails): Promise<Buffer> {
   return new Promise((resolve, reject) => {
@@ -82,11 +88,15 @@ export function generateShippingLabelPdf(order: InvoiceOrder, seller: SellerDeta
       doc.moveTo(M, y).lineTo(W - M, y).lineWidth(0.8).strokeColor(DARK).stroke();
       y += 10;
 
-      // ── PREPAID banner ───────────────────────────────────────────────────
+      // ── PREPAID / COD banner ─────────────────────────────────────────────
+      const isCod = order.payment_method === "cod";
+      const bannerText = isCod
+        ? `COD - COLLECT ${money(order.total)}`
+        : "PREPAID - DO NOT COLLECT CASH";
       const bannerH = 26;
       doc.rect(M, y, CW, bannerH).fill(DARK);
-      doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(11)
-        .text("PREPAID - DO NOT COLLECT CASH", M, y + 8, { width: CW, align: "center" });
+      doc.fillColor("#FFFFFF").font("Helvetica-Bold").fontSize(isCod ? 10 : 11)
+        .text(bannerText, M, y + 8, { width: CW, align: "center" });
       y += bannerH + 12;
 
       // ── Order details ────────────────────────────────────────────────────

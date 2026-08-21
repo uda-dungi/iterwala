@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Mail } from "lucide-react";
+import { CheckCircle2, Mail, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatINR } from "@/store/shop";
 import { site } from "@/config/site";
 import { trackPurchase } from "@/lib/pixel";
 
-type LastOrder = { txnid: string; items: { id: string; name: string; price: number; qty: number }[]; total: number; email: string };
+type LastOrder = { txnid: string; items: { id: string; name: string; price: number; qty: number }[]; total: number; email: string; paymentMethod?: "payu" | "cod" };
 
 export default function OrderSuccess() {
   const [params] = useSearchParams();
@@ -39,6 +39,15 @@ export default function OrderSuccess() {
       <h1 className="font-display text-3xl sm:text-5xl text-ivory">Thank You</h1>
       <p className="text-sm sm:text-base text-muted-foreground mt-3 font-serif italic">Your fragrance is on its way.</p>
 
+      {order?.paymentMethod === "cod" && (
+        <div className="luxury-card p-4 mt-6 flex items-center justify-center gap-2 border-primary/40 bg-primary/10">
+          <Banknote className="w-4 h-4 text-primary shrink-0" />
+          <p className="text-sm text-ivory">
+            Your order is confirmed! Pay <span className="text-primary font-semibold">{formatINR(order.total)}</span> when it arrives.
+          </p>
+        </div>
+      )}
+
       {txnid && <p className="text-xs text-muted-foreground mt-6">Order reference: <span className="text-primary">{txnid}</span></p>}
 
       {order && (
@@ -51,7 +60,8 @@ export default function OrderSuccess() {
           ))}
           <div className="gold-divider" />
           <div className="flex justify-between font-serif text-lg text-ivory">
-            <span>Total Paid</span><span className="text-gold">{formatINR(order.total)}</span>
+            <span>{order.paymentMethod === "cod" ? "Pay on Delivery" : "Total Paid"}</span>
+            <span className="text-gold">{formatINR(order.total)}</span>
           </div>
         </div>
       )}

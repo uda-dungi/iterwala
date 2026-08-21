@@ -74,7 +74,7 @@ export default async function handler(req: any, res: any) {
 
     const { data: order, error: readErr } = await admin
       .from("orders")
-      .select("txnid, email, name, phone, address, items, subtotal, shipping, gift_wrap, total, status, created_at, invoice_no, invoice_date, payu_txn_id, shipped_email_sent_at")
+      .select("txnid, email, name, phone, address, items, subtotal, shipping, gift_wrap, total, status, created_at, invoice_no, invoice_date, payu_txn_id, shipped_email_sent_at, payment_method")
       .eq("txnid", txnid)
       .maybeSingle();
 
@@ -82,7 +82,7 @@ export default async function handler(req: any, res: any) {
       // Distinguish "migration not run" from "no such order" — otherwise this reports a
       // missing order for one that is sitting right there in the dashboard.
       res.status(503).json({
-        error: "Tracking isn't set up yet — run migration-order-tracking.sql in Supabase, then try again.",
+        error: "Tracking isn't fully set up yet — run migration-order-tracking.sql and migration-cod-shiprocket.sql in Supabase, then try again.",
       });
       return;
     }
@@ -91,9 +91,11 @@ export default async function handler(req: any, res: any) {
       return;
     }
     // Dispatching something that was never paid for would send a shipping confirmation
-    // for an order that does not exist commercially.
-    if (order.status !== "paid") {
-      res.status(409).json({ error: `Only paid orders can be dispatched (this one is "${order.status}").` });
+    // for an order that does not exist commercially. Cash on Delivery orders have no
+    // separate payment-confirmation step (api/checkout/cod.ts) — they're dispatchable
+    // the moment they're placed, so they aren't held to the `status === "paid"` rule.
+    if (order.status !== "paid" && order.payment_method !== "cod") {
+      res.status(409).json({ error: `Only paid or Cash on Delivery orders can be dispatched (this one is "${order.status}").` });
       return;
     }
 
@@ -158,30 +160,35 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  // The dispatch columns arrive with migration-order-tracking.sql. Selecting them
-  // before that migration has run makes Postgres reject the whole query, which would
-  // take the entire orders dashboard down — not just the tracking feature — for anyone
-  // who deploys the code before running the SQL. So try the full projection, and fall
-  // back to the base one if those columns aren't there yet.
+  // The dispatch and COD columns arrive with migration-order-tracking.sql and
+  // migration-cod-shiprocket.sql respectively. Selecting them before those migrations
+  // have run makes Postgres reject the whole query, which would take the entire orders
+  // dashboard down — not just the newer features — for anyone who deploys the code
+  // before running the SQL. So try the full projection, and fall back to the base one
+  // if either migration's columns aren't there yet.
   const BASE_COLUMNS =
     "id, txnid, created_at, updated_at, user_id, email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id, payu_mode, invoice_no, invoice_date";
   const DISPATCH_COLUMNS = "tracking_id, carrier, tracking_url, dispatched_at, shipped_email_sent_at";
+  const COD_COLUMNS = "payment_method, shiprocket_order_id, shiprocket_shipment_id";
 
   let { data, error } = await admin
     .from("orders")
-    .select(`${BASE_COLUMNS}, ${DISPATCH_COLUMNS}`)
+    .select(`${BASE_COLUMNS}, ${DISPATCH_COLUMNS}, ${COD_COLUMNS}`)
     .order("created_at", { ascending: false });
 
   let dispatchReady = !error;
+  let codReady = !error;
   if (error && /does not exist|schema cache/i.test(error.message || "")) {
     console.warn(
-      "api/admin/orders: dispatch columns missing — run migration-order-tracking.sql. Serving orders without tracking."
+      "api/admin/orders: dispatch and/or COD columns missing — run migration-order-tracking.sql and " +
+      "migration-cod-shiprocket.sql. Serving orders without tracking/COD."
     );
     ({ data, error } = await admin
       .from("orders")
       .select(BASE_COLUMNS)
       .order("created_at", { ascending: false }));
     dispatchReady = false;
+    codReady = false;
   }
 
   if (error) {
@@ -193,7 +200,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  res.status(200).json({ orders: data || [], dispatchReady });
+  res.status(200).json({ orders: data || [], dispatchReady, codReady });
 }
 
 function safeJson(raw: string): Record<string, any> {

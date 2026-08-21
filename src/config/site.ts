@@ -80,8 +80,10 @@ export const site = {
   // ── Commerce rules ──
   freeShippingThreshold: 499,
   currency: "₹",
-  /** Prepaid-only storefront — Cash on Delivery is intentionally not offered. */
-  codAvailable: false,
+  /** Cash on Delivery is offered alongside prepaid PayU checkout (src/pages/Checkout.tsx,
+   *  api/checkout/cod.ts). Not read anywhere else in the app — it exists as a single flag
+   *  to flip if COD is ever paused again. */
+  codAvailable: true,
 };
 
 /** Pre-built wa.me link with an optional pre-filled message. */

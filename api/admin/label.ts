@@ -52,7 +52,7 @@ export default async function handler(req: any, res: any) {
   try {
     const { data: order, error } = await admin
       .from("orders")
-      .select("txnid, invoice_no, created_at, email, phone, name, address, items, total, status")
+      .select("txnid, invoice_no, created_at, email, phone, name, address, items, total, status, payment_method")
       .eq("txnid", txnid)
       .maybeSingle();
 
@@ -60,9 +60,12 @@ export default async function handler(req: any, res: any) {
       res.status(404).json({ error: "Order not found." });
       return;
     }
-    // Prepaid-only store: nothing ships until the payment actually cleared, so a label
-    // for an unpaid order would only ever be printed by mistake.
-    if (order.status !== "paid") {
+    // Prepaid orders only ship once payment actually cleared — a label for an unpaid one
+    // would only ever be printed by mistake. Cash on Delivery orders have no separate
+    // payment-confirmation step (api/checkout/cod.ts), so they're ready to ship the
+    // moment they're placed regardless of `status`.
+    const isCod = order.payment_method === "cod";
+    if (!isCod && order.status !== "paid") {
       res.status(409).json({ error: `Shipping label is only available for paid orders (this one is "${order.status}").` });
       return;
     }

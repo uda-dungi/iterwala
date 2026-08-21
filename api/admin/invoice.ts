@@ -57,7 +57,7 @@ export default async function handler(req: any, res: any) {
   try {
     const { data: order, error } = await admin
       .from("orders")
-      .select("txnid, invoice_no, invoice_date, created_at, email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id")
+      .select("txnid, invoice_no, invoice_date, created_at, email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id, payment_method")
       .eq("txnid", txnid)
       .maybeSingle();
 
@@ -65,9 +65,12 @@ export default async function handler(req: any, res: any) {
       res.status(404).json({ error: "Order not found." });
       return;
     }
-    // A tax invoice records a completed sale — refuse to issue one for an order that was
-    // never actually paid, which would put a bogus entry in the GST sequence.
-    if (order.status !== "paid") {
+    // A tax invoice records a completed sale — refuse to issue one for a PayU order that
+    // was never actually paid, which would put a bogus entry in the GST sequence. Cash on
+    // Delivery orders are confirmed sales the moment they're placed (api/checkout/cod.ts
+    // assigns their invoice number immediately), so they aren't gated on `status`.
+    const isCod = order.payment_method === "cod";
+    if (!isCod && order.status !== "paid") {
       res.status(409).json({ error: `Invoice is only available for paid orders (this one is "${order.status}").` });
       return;
     }
