@@ -7,10 +7,8 @@ import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/store/catalog";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
-import banner3 from "@/assets/brand/banner-4-collectors.jpg";
 import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
-import mobileBannerMain from "@/assets/brand/mobile-offer-collectors.jpg";
 import mobileBannerPack4 from "@/assets/brand/mobile-offer-pack-of-4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity-full.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar-full.jpg";
@@ -72,14 +70,6 @@ const fallbackSlides: Slide[] = [
     copy: "Firdaus, Tulsi, Ruh-Kewra, Mogra Gold, Inayat and more — pure, alcohol-free attars hand-distilled in Kannauj for a scent that lasts all day.",
     cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" },
   },
-  {
-    image: banner3,
-    eyebrow: "Three Stories. One Legacy of Fragrance.",
-    title: "The Collector's",
-    highlight: "Edition",
-    copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy, crafted for those who collect meaning as much as scent.",
-    cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" },
-  },
 ];
 
 // Mobile gets its own swipeable banner set — each image already has its title/copy
@@ -97,7 +87,6 @@ const fallbackMobileSlides: MobileSlide[] = [
   // on desktop (see the `slides` array above). The image file itself wasn't deleted.
   { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
-  { image: mobileBannerMain, alt: "The Collector's Edition — Shabd, Kahani & Ehsaas", fit: "contain", cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" } },// side and cut their baked-in text, so these letterbox instead.
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
   
