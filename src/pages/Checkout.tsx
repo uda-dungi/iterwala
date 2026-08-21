@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import { site } from "@/config/site";
 
 const GIFT_FEE = 49;
+// Cash on Delivery adds a flat handling fee — PayU's total is unaffected, this only
+// applies to the amount actually placed/charged via api/checkout/cod.ts.
+const COD_FEE = 49;
 
 type FormState = {
   email: string; phone: string;
@@ -43,6 +46,9 @@ export default function Checkout() {
   const [couponBlocked, setCouponBlocked] = useState<string | null>(null);
   const appliedCoupon = couponBlocked ? 0 : couponDiscount;
   const total = Math.max(0, discountedSubtotal - appliedCoupon) + shipping + (gift ? GIFT_FEE : 0);
+  // Only the Cash on Delivery button's own total includes this — the shared Order
+  // Summary total above stays what PayU actually charges.
+  const codTotal = total + COD_FEE;
 
   // Meta InitiateCheckout — fires once when the shopper reaches checkout with a
   // non-empty bag (Meta's definition: entering the checkout flow, not completing it).
@@ -390,16 +396,21 @@ export default function Checkout() {
             <span className="text-[10px] tracking-luxe uppercase text-muted-foreground shrink-0">— Or —</span>
             <div className="h-px flex-1 bg-border" />
           </div>
+          {/* Only the Cash on Delivery total (button below) includes this fee — the
+              shared Order Summary total above is what PayU actually charges. */}
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>Cash on Delivery Fee</span><span>+{formatINR(COD_FEE)}</span>
+          </div>
           <Button
             type="button"
             variant="outline-gold"
             size="xl"
-            className="w-full tracking-normal text-[10px] sm:text-xs px-3 sm:px-6 gap-1.5"
+            className="w-full h-auto py-3 whitespace-normal tracking-normal text-[10px] sm:text-xs px-3 sm:px-6 gap-1.5"
             disabled={submitting || codSubmitting}
             onClick={submitCod}
           >
             {codSubmitting ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Banknote className="w-4 h-4 shrink-0" />}
-            {codSubmitting ? "Placing your order…" : "Order with Cash on Delivery"}
+            {codSubmitting ? "Placing your order…" : `Order with Cash on Delivery — ${formatINR(codTotal)}`}
           </Button>
           <p className="text-[11px] text-muted-foreground text-center -mt-1">
             Pay when your order arrives at your doorstep

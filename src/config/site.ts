@@ -118,4 +118,5 @@ export const announcements = [
   "Amazon's Choice Products Available",
   "100% Money-Back Guarantee",
   "WhatsApp Support — We reply fast",
+  "✦ Cash on Delivery Now Available ✦",
 ];

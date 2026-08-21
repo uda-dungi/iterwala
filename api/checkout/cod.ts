@@ -9,6 +9,11 @@ import { generateInvoicePdf, getSellerDetails, getAdminNotifyEmail, type Invoice
 import { generateShippingLabelPdf } from "../_lib/shippingLabel.js";
 import { createShiprocketOrder } from "../_lib/shiprocket.js";
 
+// Flat Cash on Delivery handling fee, added on top of what PayU checkout would charge
+// for the same cart — never trusted from the client (src/pages/Checkout.tsx mirrors
+// this constant for display only; this is what actually gets charged/recorded).
+const COD_FEE = 49;
+
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
   if (typeof rawBody === "string") {
@@ -105,7 +110,7 @@ export default async function handler(req: any, res: any) {
       if (!usedAlready) couponDiscount = couponCheck.discount;
     }
 
-    const total = Math.max(0, discountedSubtotal - couponDiscount) + shipping + (gift ? GIFT_WRAP_FEE : 0);
+    const total = Math.max(0, discountedSubtotal - couponDiscount) + shipping + (gift ? GIFT_WRAP_FEE : 0) + COD_FEE;
     if (!total || total <= 0) {
       res.status(400).json({ error: "Invalid order total." });
       return;
