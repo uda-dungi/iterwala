@@ -385,6 +385,11 @@ export default function Checkout() {
           <p className="text-[11px] text-muted-foreground text-center -mt-1">
             UPI, Cards, Netbanking & Wallets accepted
           </p>
+          <div className="flex items-center gap-3" role="separator" aria-label="or">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-[10px] tracking-luxe uppercase text-muted-foreground shrink-0">— Or —</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
           <Button
             type="button"
             variant="outline-gold"
@@ -397,7 +402,7 @@ export default function Checkout() {
             {codSubmitting ? "Placing your order…" : "Order with Cash on Delivery"}
           </Button>
           <p className="text-[11px] text-muted-foreground text-center -mt-1">
-            Pay when your order arrives
+            Pay when your order arrives at your doorstep
           </p>
           <div className="grid grid-cols-3 gap-2 pt-4 border-t border-border text-center">
             <Mini Icon={ShieldCheck} t="Secure" />
