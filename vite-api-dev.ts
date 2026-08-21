@@ -17,6 +17,30 @@ import { loadEnv } from "vite";
 
 const API_DIR = "api";
 
+/**
+ * Literal (non-regex) /api/* -> /api/* rewrites from vercel.json, e.g. /api/e ->
+ * /api/track/event — a path that exists in production only via a rewrite, with no
+ * matching file on disk, would otherwise 404 here even though Vercel serves it fine.
+ * Only exact-string sources are honoured; vercel.json's other rewrite (the SPA
+ * catch-all) is a regex and isn't relevant to /api routing anyway.
+ */
+function loadApiRewrites(root: string): Map<string, string> {
+  const map = new Map<string, string>();
+  try {
+    const raw = fs.readFileSync(path.join(root, "vercel.json"), "utf8");
+    const config = JSON.parse(raw);
+    for (const r of config.rewrites ?? []) {
+      if (typeof r.source === "string" && typeof r.destination === "string" &&
+          r.source.startsWith("/api/") && r.destination.startsWith("/api/")) {
+        map.set(r.source, r.destination);
+      }
+    }
+  } catch {
+    // vercel.json missing or unparsable — dev server still works, just without rewrites.
+  }
+  return map;
+}
+
 /** Map a URL path to a handler file, mirroring Vercel's filesystem routing. */
 function resolveHandlerFile(root: string, urlPath: string): string | null {
   // "/api/checkout/initiate" -> "checkout/initiate"
@@ -91,11 +115,14 @@ export function apiDevServer(mode: string): Plugin {
     },
 
     configureServer(server: ViteDevServer) {
+      const apiRewrites = loadApiRewrites(server.config.root);
+
       server.middlewares.use(async (req: any, res: any, next: any) => {
         const url = req.url || "";
         if (!url.startsWith("/api/") && url !== "/api") return next();
 
-        const [pathname, search = ""] = url.split("?");
+        const [rawPathname, search = ""] = url.split("?");
+        const pathname = apiRewrites.get(rawPathname) ?? rawPathname;
         const file = resolveHandlerFile(server.config.root, pathname);
         if (!file) {
           res.statusCode = 404;
