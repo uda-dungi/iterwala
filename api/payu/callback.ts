@@ -4,6 +4,7 @@ import { sendOrderConfirmationEmail, sendAdminOrderNotification } from "../_lib/
 import { generateInvoicePdf, getSellerDetails, getAdminNotifyEmail, type InvoiceOrder } from "../_lib/invoice.js";
 import { generateShippingLabelPdf } from "../_lib/shippingLabel.js";
 import { sendCapiEvent } from "../_lib/metaCapi.js";
+import { createShiprocketOrder } from "../_lib/shiprocket.js";
 
 function parseRequestBody(rawBody: any) {
   if (!rawBody) return {};
@@ -95,6 +96,29 @@ export default async function handler(req: any, res: any) {
         }
 
         if (paid && updated?.email) {
+          // Best-effort — a failed/unconfigured Shiprocket call must never block the
+          // customer's redirect (see api/_lib/shiprocket.ts). Stored on the row when it
+          // works, same as the COD path in api/checkout/cod.ts.
+          const shiprocket = await createShiprocketOrder({
+            txnid,
+            createdAt: updated.created_at,
+            customerName: updated.name ?? "",
+            email: updated.email,
+            phone: updated.phone ?? "",
+            address: updated.address,
+            items: Array.isArray(updated.items) ? updated.items : [],
+            subtotal: Number(updated.subtotal) || 0,
+            total: Number(updated.total) || 0,
+            paymentMethod: "payu",
+          });
+          if (shiprocket.orderId || shiprocket.shipmentId) {
+            const { error: shiprocketUpdateError } = await admin
+              .from("orders")
+              .update({ shiprocket_order_id: shiprocket.orderId, shiprocket_shipment_id: shiprocket.shipmentId })
+              .eq("txnid", txnid);
+            if (shiprocketUpdateError) console.error("payu/callback: failed to store shiprocket ids", shiprocketUpdateError.message);
+          }
+
           await sendOrderConfirmationEmail({
             email: updated.email,
             name: updated.name ?? undefined,
