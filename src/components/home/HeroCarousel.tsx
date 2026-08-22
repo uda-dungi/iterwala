@@ -12,6 +12,9 @@ import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
 import mobileBannerPack4 from "@/assets/brand/mobile-offer-pack-of-4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity-full.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar-full.jpg";
+import rakhiOfferMobile from "@/assets/brand/rakhi-offer-mobile.jpg";
+import rakhiPack8Mobile from "@/assets/brand/rakhi-pack8-mobile.jpg";
+import rakhiPack8Pc from "@/assets/brand/rakhi-pack8-pc.jpg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -38,6 +41,14 @@ type Slide = {
 const fallbackSlides: Slide[] = [
   // Raksha Bandhan Sale promo banners — placed first so the live offers show on load.
   // (Aug 2026 redesign: new banners with the current ₹999 Pack of 4 price baked in.)
+  {
+    image: rakhiPack8Pc,
+    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
+    title: "The Pack of 8",
+    highlight: "Gift Set",
+    copy: "Eight signature 8ml fragrances in one keepsake box — pick your favourite lineup and gift a whole wardrobe of scents this Raksha Bandhan.",
+    cta: { label: "Shop Now", to: "/shop" },
+  },
   {
     image: promoPack4,
     eyebrow: "This Rakhi, Kuch Special Ho Jaye",
@@ -86,6 +97,8 @@ const fallbackMobileSlides: MobileSlide[] = [
   // "Buy 2 Get 1 Free") was removed from this mobile list per request — it still shows
   // on desktop (see the `slides` array above). The image file itself wasn't deleted.
   { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
+  { image: rakhiOfferMobile, alt: "Raksha Bandhan Sale — Shabd", fit: "cover", cta: { label: "Shop Shabd", to: "/product/shabd" } },
+  { image: rakhiPack8Mobile, alt: "Raksha Bandhan Sale — Pack of 8 Gift Set", fit: "cover", cta: { label: "Shop the Pack of 8", to: "/product/pack-of-8-gift-set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
