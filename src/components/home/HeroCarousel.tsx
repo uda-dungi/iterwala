@@ -98,7 +98,7 @@ const fallbackMobileSlides: MobileSlide[] = [
   // on desktop (see the `slides` array above). The image file itself wasn't deleted.
   { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
   { image: rakhiOfferMobile, alt: "Raksha Bandhan Sale — Shabd", fit: "cover", cta: { label: "Shop Shabd", to: "/product/shabd" } },
-  { image: rakhiPack8Mobile, alt: "Raksha Bandhan Sale — Pack of 8 Gift Set", fit: "cover", cta: { label: "Shop the Pack of 8", to: "/product/pack-of-8-gift-set" } },
+  { image: rakhiPack8Mobile, alt: "Raksha Bandhan Sale — Pack of 8 Gift Set", fit: "cover", cta: { label: "Shop the Pack of 8", to: "/product/discovery-set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
