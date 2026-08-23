@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2, Share2, Check, Globe, Rabbit, PackageCheck } from "lucide-react";
-import { galleryFor, listingVolume, volumesFor, priceFor, contentFor, imageAltFor } from "@/data/products";
+import { ChevronRight, Heart, Minus, Plus, ShieldCheck, Sparkles, Star, Truck, Leaf, Award, CheckCircle2, Share2, Check, Globe, Rabbit, PackageCheck, Play } from "lucide-react";
+import { galleryFor, listingVolume, volumesFor, priceFor, contentFor, imageAltFor, isVideoUrl, type Product } from "@/data/products";
+import { GalleryVideo } from "@/components/shop/GalleryVideo";
 import { useCatalog } from "@/store/catalog";
 import { seedReviewsFor } from "@/data/reviews";
 import { offerForProduct } from "@/lib/offers";
@@ -49,6 +50,10 @@ function breakdownFor(rating: number): Record<number, number> {
   return pct;
 }
 
+/** How long each photo holds before the gallery moves on. Long enough to actually
+ *  look at a bottle, short enough that a shopper who never swipes still sees the set. */
+const GALLERY_ADVANCE_MS = 4000;
+
 export default function ProductDetail() {
   const { slug = "" } = useParams();
   const { products, getProduct } = useCatalog();
@@ -57,6 +62,7 @@ export default function ProductDetail() {
   const [qty, setQty] = useState(1);
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(true);
   const [volume, setVolume] = useState("");
   const [api, setApi] = useState<CarouselApi>();
   const [reviewFormOpen, setReviewFormOpen] = useState(false);
@@ -96,9 +102,13 @@ export default function ProductDetail() {
   useEffect(() => {
     if (!api) return;
     const onSelect = () => setActive(api.selectedScrollSnap());
+    // "select" also fires for our own scrollTo, so it cannot tell us who moved the
+    // carousel. "pointerUp" only fires for a hand on the slide — that is the shopper.
+    const onPointerUp = () => setAutoAdvance(false);
     api.on("select", onSelect);
+    api.on("pointerUp", onPointerUp);
     onSelect();
-    return () => { api.off("select", onSelect); };
+    return () => { api.off("select", onSelect); api.off("pointerUp", onPointerUp); };
   }, [api]);
 
   // When the selected size has its own gallery (per galleryByVolume), reset back to
@@ -110,12 +120,42 @@ export default function ProductDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [volume]);
 
+  // Derived above the early return below, because the rotation effect depends on it
+  // and hooks have to run on every render — the redirect render included.
+  const selectedVol = product ? volume || listingVolume(product) : "";
+  const gallery = product ? galleryFor(product, selectedVol) : [];
+  const activeSrc = gallery[active] ?? gallery[0];
+  const activeIsVideo = !!activeSrc && isVideoUrl(activeSrc);
+
+  /** Move the gallery, keeping the mobile carousel and the desktop thumbnail strip —
+   *  which track the current slide separately — pointed at the same one. */
+  const goTo = (i: number) => { setActive(i); api?.scrollTo(i); };
+
+  /** A deliberate move ends the rotation for the rest of the visit. A gallery that keeps
+   *  sliding out from under someone studying one photo is worse than one that stops. */
+  const takeOver = (i: number) => { setAutoAdvance(false); goTo(i); };
+
+  /** A finished clip hands the rotation back, rather than parking the gallery on a
+   *  still frame of the last video frame. */
+  const advanceAfterVideo = () => {
+    if (autoAdvance && gallery.length > 1) goTo((active + 1) % gallery.length);
+  };
+
+  // Rotate the gallery. The video slide is skipped on purpose: it paces itself and hands
+  // back through onEnded, so the rotation can never cut a clip off part-way.
+  useEffect(() => {
+    if (!autoAdvance || gallery.length < 2 || activeIsVideo) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setTimeout(() => goTo((active + 1) % gallery.length), GALLERY_ADVANCE_MS);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, activeIsVideo, autoAdvance, gallery.length, api]);
+
   if (!product) return <Navigate to="/shop" />;
   const wished = wishlist.includes(product.id);
   const vols = volumesFor(product);
-  const selectedVol = volume || listingVolume(product);
+  const faqs = faqsFor(product, vols);
   const { price: unitPrice, compareAt: unitCompareAt } = priceFor(product, selectedVol);
-  const gallery = galleryFor(product, selectedVol);
   const content = contentFor(product, selectedVol);
   const productOffer = offerForProduct(product.id);
   const related = products.filter(p => p.id !== product.id && p.category === product.category).slice(0, 4);
@@ -164,7 +204,11 @@ export default function ProductDetail() {
                 {gallery.map((g, i) => (
                   <CarouselItem key={i}>
                     <div className="relative aspect-square bg-deep-brown">
-                      <img src={g} alt={imageAltFor(product)} className="w-full h-full object-contain" loading={i === 0 ? "eager" : "lazy"} />
+                      {isVideoUrl(g) ? (
+                        <GalleryVideo src={g} poster={gallery[0]} title={product.name} className="w-full h-full object-contain" onEnded={advanceAfterVideo} />
+                      ) : (
+                        <img src={g} alt={imageAltFor(product)} className="w-full h-full object-contain" loading={i === 0 ? "eager" : "lazy"} />
+                      )}
                     </div>
                   </CarouselItem>
                 ))}
@@ -187,7 +231,7 @@ export default function ProductDetail() {
                 {gallery.map((_, i) => (
                   <button
                     key={i}
-                    onClick={() => api?.scrollTo(i)}
+                    onClick={() => takeOver(i)}
                     aria-label={`Go to image ${i + 1}`}
                     className={cn("h-1.5 rounded-full transition-all", active === i ? "w-6 bg-primary" : "w-1.5 bg-border")}
                   />
@@ -200,14 +244,23 @@ export default function ProductDetail() {
           <div className="hidden lg:block space-y-4" key={selectedVol}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6 }}
-              className="relative aspect-square overflow-hidden rounded-sm border border-border bg-deep-brown cursor-zoom-in"
-              onClick={() => setZoom(z => !z)}
+              className={cn(
+                "relative aspect-square overflow-hidden rounded-sm border border-border bg-deep-brown",
+                // Click-to-zoom would swallow every press aimed at the video's play,
+                // scrub and fullscreen controls, so it is off while a video is showing.
+                activeIsVideo ? "cursor-default" : "cursor-zoom-in"
+              )}
+              onClick={activeIsVideo ? undefined : () => { setAutoAdvance(false); setZoom(z => !z); }}
             >
-              <img
-                src={gallery[active] ?? gallery[0]}
-                alt={imageAltFor(product)}
-                className={cn("w-full h-full object-contain transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
-              />
+              {activeIsVideo ? (
+                <GalleryVideo src={activeSrc} poster={gallery[0]} title={product.name} className="w-full h-full object-contain" onEnded={advanceAfterVideo} />
+              ) : (
+                <img
+                  src={activeSrc}
+                  alt={imageAltFor(product)}
+                  className={cn("w-full h-full object-contain transition-transform duration-700", zoom ? "scale-150" : "scale-100")}
+                />
+              )}
               {product.badge && (
                 <span className="absolute top-5 left-5 text-[10px] tracking-luxe uppercase px-3 py-1 bg-gradient-gold text-primary-foreground font-semibold">
                   {product.badge}
@@ -216,10 +269,19 @@ export default function ProductDetail() {
             </motion.div>
             <div className="grid grid-cols-4 gap-3">
               {gallery.map((g, i) => (
-                <button key={i} onClick={() => setActive(i)}
+                <button key={i} onClick={() => takeOver(i)}
                   className={cn("aspect-square overflow-hidden border rounded-sm transition-all",
                     active === i ? "border-primary shadow-gold" : "border-border hover:border-primary/50")}>
-                  <img src={g} alt={imageAltFor(product)} className="w-full h-full object-contain" />
+                  {isVideoUrl(g) ? (
+                    <span className="relative block w-full h-full">
+                      <img src={gallery[0]} alt={imageAltFor(product)} className="w-full h-full object-contain" />
+                      <span className="absolute inset-0 flex items-center justify-center bg-background/45">
+                        <Play className="w-5 h-5 text-primary fill-primary" />
+                      </span>
+                    </span>
+                  ) : (
+                    <img src={g} alt={imageAltFor(product)} className="w-full h-full object-contain" />
+                  )}
                 </button>
               ))}
             </div>
@@ -712,6 +774,29 @@ export default function ProductDetail() {
         </div>
       </section>
 
+      {/* FAQ — deliberately the last thing on the page. A shopper who has read the notes,
+          the reviews and the related bottles and still has not added to cart is usually
+          held up by one specific worry, and these are the ones support actually gets. */}
+      <section className="container pb-10 md:pb-16">
+        <div className="text-center mb-6 md:mb-12">
+          <p className="text-[10px] tracking-[0.5em] uppercase text-primary">Curious?</p>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-ivory mt-2">Frequently Asked</h2>
+          <div className="gold-divider w-24 mx-auto mt-4" />
+        </div>
+        <div className="max-w-3xl mx-auto">
+          <Accordion type="single" collapsible className="w-full">
+            {faqs.map((f, i) => (
+              <AccordionItem key={i} value={`faq-${i}`} className="border-border">
+                <AccordionTrigger className="text-left font-serif text-base sm:text-lg text-ivory hover:text-primary py-5">
+                  {f.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground leading-relaxed">{f.a}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
       <StickyMobileCTA
         product={product}
         price={unitPrice}
@@ -720,6 +805,89 @@ export default function ProductDetail() {
       />
     </div>
   );
+}
+
+type Faq = { q: string; a: ReactNode };
+
+/**
+ * The product page's FAQ, built from the product's own data rather than one fixed list.
+ *
+ * Longevity, the sizes actually on sale, and whether this is an oil attar or an alcohol
+ * spray all differ across the catalogue. A shopper who catches a single wrong answer
+ * stops believing the rest of the page, so anything that varies per bottle is read off
+ * the product instead of written into the copy — and any field the database leaves empty
+ * drops its question rather than rendering a sentence with a hole in it.
+ *
+ * Delivery and returns answers repeat the wording of the assurance rows further up the
+ * page and of /shipping and /returns verbatim. Two different answers to "can I return
+ * this?" on one site is worse than not answering at all.
+ */
+function faqsFor(product: Product, vols: string[]): Faq[] {
+  const isAttar = product.category === "Attar";
+  const sizes = vols.filter(Boolean);
+  const sizeList =
+    sizes.length > 1 ? `${sizes.slice(0, -1).join(", ")} and ${sizes[sizes.length - 1]}` : sizes[0];
+
+  const faqs: (Faq | null)[] = [
+    product.longevity
+      ? {
+          q: `How long does ${product.name} last?`,
+          a: `Around ${product.longevity} on skin${
+            product.projection ? `, with ${product.projection.toLowerCase()} projection` : ""
+          }. ${
+            isAttar
+              ? "Attars are oil-based, so they sit close to the skin and bloom with body heat rather than filling a room."
+              : "Longevity shifts with skin type, weather and where you spray — pulse points and fabric hold a fragrance longest."
+          }`,
+        }
+      : null,
+    sizes.length > 1
+      ? {
+          q: "Which size should I buy?",
+          a: `${product.name} comes in ${sizeList}. The smaller bottle is the low-risk way to live with a fragrance for a few weeks before committing; the larger one works out noticeably cheaper per ml. It is the same composition in every size — only the bottle changes.`,
+        }
+      : null,
+    {
+      q: isAttar ? "What is an attar, and how is it different from a perfume?" : "How is this different from an attar?",
+      a: isAttar
+        ? "An attar is a concentrated, alcohol-free fragrance oil in the Kannauj tradition. With no alcohol to flash off, it opens quietly, wears close to the skin and outlasts a spray by hours."
+        : `${product.name} is an alcohol-based spray built on premium fragrance oils. It opens brighter and projects further than an oil attar, and settles into its heart notes within the first half hour.`,
+    },
+    {
+      q: "Is it original?",
+      a: "Yes. Every bottle ships directly from Itrawala rather than through a reseller, so what reaches you is exactly what left us, sealed.",
+    },
+    {
+      q: "When will it arrive, and what does delivery cost?",
+      a: (
+        <>
+          {DELIVERY_ESTIMATE}. Shipping is free on all prepaid orders across India, with no delivery charge at
+          checkout. We currently ship within India only.{" "}
+          <Link to="/shipping" className="text-primary underline underline-offset-2">
+            Shipping policy
+          </Link>
+        </>
+      ),
+    },
+    {
+      q: "What if it arrives damaged or it is the wrong item?",
+      a: (
+        <>
+          We will replace or refund it. Share unboxing photos or a video within 48 hours of delivery and we will
+          take it from there — the item needs to be unused, unopened and in its original packaging.{" "}
+          <Link to="/returns" className="text-primary underline underline-offset-2">
+            Returns policy
+          </Link>
+        </>
+      ),
+    },
+    {
+      q: "How should I store it?",
+      a: "Somewhere cool and dark, out of direct sunlight — and out of the bathroom, where heat and humidity break a composition down faster than anything else. Stored properly, a sealed bottle keeps for years.",
+    },
+  ];
+
+  return faqs.filter((f): f is Faq => f !== null);
 }
 
 function NoteRow({ label, items }: { label: string; items: string[] }) {

@@ -39,6 +39,29 @@ const SNAPSHOT: Catalog = {
   origin: "snapshot",
 };
 
+/** Bundled product videos, by slug.
+ *
+ * These clips are repo assets (src/assets/*.mp4) that Vite hashes into the bundle, so
+ * they have no database column and rowToProduct() cannot carry them across — exactly the
+ * silent vanish the contract note at the top of src/lib/catalog.ts warns about. Without
+ * this re-attach the gallery's video slide paints from the snapshot and then disappears
+ * the instant live rows arrive, which reads as "the video never worked at all".
+ *
+ * Keyed by slug, the stable human-set identifier the snapshot and the seed agree on;
+ * ids are free to differ between them.
+ */
+const SNAPSHOT_VIDEO_BY_SLUG = new Map<string, string>(
+  snapshotProducts.filter((p) => p.video).map((p) => [p.slug, p.video as string]),
+);
+
+/** A live row plus its bundled video. A row that already carries one keeps it, and every
+ *  other product is returned by identity, so this costs nothing on the snapshot path. */
+const withSnapshotVideo = (p: Product): Product => {
+  if (p.video) return p;
+  const video = SNAPSHOT_VIDEO_BY_SLUG.get(p.slug);
+  return video ? { ...p, video } : p;
+};
+
 type CatalogCtx = Catalog & {
   getProduct: (slug: string) => Product | undefined;
   productById: (id: string) => Product | undefined;
@@ -72,6 +95,8 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
     // announcement bar just because that table is still empty.
     const merged: Catalog = {
       ...catalog,
+      // Live rows carry no video column — re-attach the bundled clips (see above).
+      products: catalog.products.map(withSnapshotVideo),
       collections: catalog.collections.length ? catalog.collections : SNAPSHOT.collections,
       newLaunchSlugs: catalog.newLaunchSlugs.length ? catalog.newLaunchSlugs : SNAPSHOT.newLaunchSlugs,
     };

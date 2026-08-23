@@ -4,6 +4,29 @@ const modules = import.meta.glob("../assets/products/*.jpg", { eager: true, impo
 const PLACEHOLDER_IMG =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
+/** Product videos, loaded the same way as the photos above. Kept to a flat glob of
+ *  src/assets/*.mp4 — the reels under assets/reels/ are homepage decoration and are
+ *  imported directly by Index.tsx, so they deliberately stay out of this map. */
+const videoModules = import.meta.glob("../assets/*.mp4", { eager: true, import: "default" }) as Record<string, string>;
+
+/** Built URL for a product video. Same forgiving contract as img() below: a missing
+ *  file warns rather than throwing, because this also runs at module-evaluation time. */
+const vid = (name: string): string | undefined => {
+  const hit = Object.entries(videoModules).find(([k]) => k.endsWith(`/${name}.mp4`));
+  if (!hit) {
+    console.warn(`[products] Missing product video: ${name}.mp4 — omitting from the gallery.`);
+    return undefined;
+  }
+  return hit[1];
+};
+
+/** True for a gallery entry that is a video rather than a photo.
+ *
+ *  A gallery is a flat string[] shared by a dozen call sites, so the file extension —
+ *  which Vite preserves in the hashed output name — is the type tag. Cheaper than
+ *  widening the type everywhere for one product in eight. */
+export const isVideoUrl = (url: string): boolean => /\.(mp4|webm|mov)(\?|$)/i.test(url);
+
 const img = (name: string): string => {
   const hit = Object.entries(modules).find(([k]) => k.endsWith(`/${name}.jpg`));
   // This runs at module-evaluation time, so throwing here would white-screen every
@@ -375,6 +398,15 @@ export type Product = {
    *  50ml vs 100ml), map each volume to its own gallery here. ProductDetail falls
    *  back to `gallery` for any volume not listed. */
   galleryByVolume?: Record<string, string[]>;
+  /** Product video, spliced into the gallery by galleryFor() as the SECOND entry.
+   *
+   *  Held as its own field rather than pasted into the gallery arrays because a
+   *  product with galleryByVolume has one array per size, and the video belongs to the
+   *  product, not to a bottle size — listing it here shows it under every variant
+   *  without repeating it in each. Index 0 is deliberately left to a real photo: it is
+   *  what imageFor(), the catalogue mapper and the related-product cards all use as the
+   *  thumbnail, and none of those can render a video. */
+  video?: string;
   /** Size printed on the primary bottle photo(s). Shop cards and the product-page
    *  default selection use this so price matches the bottle shown. When omitted,
    *  the first entry in `volume` is used (usually 50ml). */
@@ -475,6 +507,7 @@ export const products: Product[] = [
     featuredVolume: "50ml",
     image: img("celebrity-50ml-lifestyle-1"),
     gallery: [img("celebrity-50ml-lifestyle-1"), img("celebrity-50ml-lifestyle-2"), img("celebrity-50ml-studio-3"), ...productGallery3ImagesFor("Celebrity/50 ml")],
+    video: vid("celebrity-perfume"),
     galleryByVolume: {
       "20ml": [img("celebrity-20ml-lifestyle-1"), img("celebrity-20ml-lifestyle-2"), img("celebrity-20ml-lifestyle-3"), img("celebrity-20ml-studio-1"), img("celebrity-20ml-studio-2")],
       // The last two are square (1080²) re-crops from the Aug 2026 Drive export, replacing
@@ -588,6 +621,7 @@ export const products: Product[] = [
     featuredVolume: "50ml",
     image: img("touch-50ml-lifestyle-1"),
     gallery: [img("touch-50ml-lifestyle-1"), img("touch-50ml-lifestyle-2"), img("touch-50ml-lifestyle-4"), img("touch-50ml-lifestyle-5"), img("touch-50ml-lifestyle-3")],
+    video: vid("touch-perfume"),
     galleryByVolume: {
       // lifestyle-2 has a bright cream/light backdrop (vs the dark backgrounds of the rest) — kept last.
       "20ml": [img("touch-20ml-studio-1"), img("touch-20ml-studio-2"), img("touch-20ml-lifestyle-1"), img("touch-20ml-lifestyle-3"), img("touch-20ml-lifestyle-2")],
@@ -872,6 +906,7 @@ export const products: Product[] = [
       img("attar-inayat-gallery-4"),
       img("attar-inayat-gallery-5"),
     ],
+    video: vid("inayat-attar"),
     notes: { top: ["Saffron"], heart: ["Rose", "Oud"], base: ["Amber", "Sandalwood", "Musk"] },
     longevity: "12+ hours", projection: "Moderate",
     occasions: ["Festive", "Special Occasions", "Evening"], moods: ["Opulent", "Elegant"],
@@ -914,6 +949,7 @@ export const products: Product[] = [
     // kept later in the gallery; the two darker mockups lead.
     image: img("discovery-set-2"),
     gallery: [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
+    video: vid("pack-of-8"),
     galleryByVolume: {
       "Variant 1": [img("discovery-set-2"), img("discovery-set-3"), img("discovery-set-1"), img("giftset-discovery")],
       "Variant 2": packGalleryFor("Pack of 8/variant 1"),
@@ -1437,6 +1473,7 @@ export const products: Product[] = [
     id: "ce-shabd", slug: "shabd", name: "Shabd", tagline: "The first word of every story",
     price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
     image: img("collector-shabd-1"), gallery: [img("collector-shabd-1"), img("collector-shabd-2"), img("collector-shabd-3"), img("collector-shabd-4"), img("collector-shabd-5"), img("collector-shabd-6"), img("collector-shabd-7")],
+    video: vid("collectors-edition"),
     notes: { top: ["Bergamot", "Black Pepper"], heart: ["Saffron", "Aged Oud"], base: ["Amber", "Musk", "Sandalwood"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Bold", "Timeless"],
@@ -1487,6 +1524,7 @@ export const products: Product[] = [
     id: "ce-kahani", slug: "kahani", name: "Kahani", tagline: "A story worth keeping",
     price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
     image: img("collector-kahani-6"), gallery: [img("collector-kahani-6"), img("collector-kahani-2"), img("collector-kahani-4"), img("collector-kahani-1"), img("collector-kahani-3"), img("collector-kahani-5"), img("collector-kahani-7")],
+    video: vid("collectors-edition"),
     notes: { top: ["Cardamom", "Pink Pepper"], heart: ["Rose", "Leather"], base: ["Vanilla", "Amber", "Oud"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Warm", "Narrative"],
@@ -1498,6 +1536,7 @@ export const products: Product[] = [
     id: "ce-ehsaas", slug: "ehsaas", name: "Ehsaas", tagline: "A feeling that stays",
     price: 1999, compareAt: 2999, category: "Collector's Edition", gender: "Unisex", volume: ["100ml"],
     image: img("collector-ehsaas-1"), gallery: [img("collector-ehsaas-1"), img("collector-ehsaas-2"), img("collector-ehsaas-3"), img("collector-ehsaas-4"), img("collector-ehsaas-5"), img("collector-ehsaas-6")],
+    video: vid("collectors-edition"),
     notes: { top: ["Bergamot", "Saffron"], heart: ["Jasmine", "Oud"], base: ["Musk", "Sandalwood", "Amber"] },
     longevity: "10-12 hours", projection: "Strong",
     occasions: ["Gifting", "Weddings", "Anniversaries", "Festive"], moods: ["Sensual", "Intimate"],
@@ -1613,6 +1652,7 @@ export const products: Product[] = [
     // in the gallery, still viewable but not the default.
     image: img("chemistry-100ml-lifestyle-2"),
     gallery: [img("chemistry-100ml-lifestyle-2"), img("chemistry-100ml-studio-2"), img("chemistry-100ml-studio-1"), img("chemistry-100ml-lifestyle-3"), img("chemistry-100ml-lifestyle-1")],
+    video: vid("chemistry-perfume"),
     galleryByVolume: {
       "20ml": [img("chemistry-20ml-lifestyle-4"), img("chemistry-20ml-lifestyle-5"), img("chemistry-20ml-lifestyle-2"), img("chemistry-20ml-lifestyle-3"), img("chemistry-20ml-studio-2"), img("chemistry-20ml-studio-1"), img("chemistry-20ml-lifestyle-1")],
       "50ml": [img("chemistry-50ml-lifestyle-1"), img("chemistry-50ml-lifestyle-2"), img("chemistry-50ml-studio-2"), img("chemistry-50ml-studio-1"), img("chemistry-50ml-lifestyle-3"), img("chemistry-50ml-lifestyle-4")],
@@ -1901,8 +1941,12 @@ export const listingVolume = (p: Product) => {
   return withPhoto ?? vols[0];
 };
 
-export const galleryFor = (p: Product, volume?: string) =>
-  p.galleryByVolume?.[volume ?? ""] ?? p.gallery;
+export const galleryFor = (p: Product, volume?: string): string[] => {
+  const photos = p.galleryByVolume?.[volume ?? ""] ?? p.gallery;
+  if (!p.video || !photos?.length) return photos;
+  // Second, never first — see the `video` field's note on why index 0 stays a photo.
+  return [photos[0], p.video, ...photos.slice(1)];
+};
 
 export const imageFor = (p: Product, volume?: string) =>
   galleryFor(p, volume)?.[0] ?? p.image;
