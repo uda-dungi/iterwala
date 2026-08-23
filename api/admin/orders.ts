@@ -168,7 +168,7 @@ export default async function handler(req: any, res: any) {
   // if either migration's columns aren't there yet.
   const BASE_COLUMNS =
     "id, txnid, created_at, updated_at, user_id, email, phone, name, address, items, subtotal, shipping, gift_wrap, total, status, payu_txn_id, payu_mode, invoice_no, invoice_date";
-  const DISPATCH_COLUMNS = "tracking_id, carrier, tracking_url, dispatched_at, shipped_email_sent_at";
+  const DISPATCH_COLUMNS = "tracking_id, carrier, tracking_url, dispatched_at, admin_notified_at, shipped_email_sent_at";
   const COD_COLUMNS = "payment_method, shiprocket_order_id, shiprocket_shipment_id";
 
   let { data, error } = await admin
