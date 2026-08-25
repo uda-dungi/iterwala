@@ -8,6 +8,7 @@ import { resolveImage, repoImageKeys } from "@/lib/imageSource";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatINR } from "@/store/shop";
+import { VIDEO_HIDDEN } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -301,6 +302,9 @@ export default function AdminProducts() {
 
       {editing && (
         <ProductEditor
+          // Remounts per product, so the notes editor's local text state cannot carry
+          // one bottle's pyramid over to the next.
+          key={editing.id ?? "new"}
           value={editing}
           onChange={setEditing}
           staged={staged}
@@ -416,7 +420,12 @@ function ProductEditor({
           {/* ── photos, available while creating ───────────────────────────── */}
           {isNew
             ? <StagedImagePicker staged={staged} setStaged={setStaged} />
-            : <ImageManager productId={value.id} images={images} onChanged={onImagesChanged} />}
+            : <ImageManager
+                productId={value.id}
+                images={images}
+                volumes={value.volumes ?? []}
+                onChanged={onImagesChanged}
+              />}
 
           {/* ── everything else ────────────────────────────────────────────── */}
           <button
@@ -531,6 +540,16 @@ function ProductEditor({
                   </div>
                 </Field>
               )}
+
+              <NotesEditor
+                value={value.notes}
+                onChange={(next) => set("notes", next)}
+              />
+
+              <VideoManager
+                value={value.video_url}
+                onChange={(next) => set("video_url", next)}
+              />
             </div>
           )}
 
@@ -783,15 +802,45 @@ function PerSizePricing({
 
 /* ── images ────────────────────────────────────────────────────────────────── */
 
+/** The "belongs to the product as a whole" bucket — stored as a null volume, but given
+ *  a name here so it can be a tab like any size. */
+const GENERAL = "__general__";
+
 function ImageManager({
-  productId, images, onChanged,
+  productId, images, volumes, onChanged,
 }: {
   productId: string;
   images: AdminImage[];
+  volumes: string[];
   onChanged: () => void;
 }) {
   const [busy, setBusy] = useState(false);
   const [picking, setPicking] = useState(false);
+  const [tab, setTab] = useState<string>("all");
+
+  /** Every bucket that either holds photos or could take them. A size the product no
+   *  longer sells still gets a tab while it holds images — otherwise those photos would
+   *  be invisible here and impossible to delete. */
+  const tabs = useMemo(() => {
+    const ordered = [GENERAL, ...volumes.filter(Boolean)];
+    for (const img of images) {
+      const key = img.volume ?? GENERAL;
+      if (!ordered.includes(key)) ordered.push(key);
+    }
+    return ordered;
+  }, [images, volumes]);
+
+  const countIn = (key: string) => images.filter((i) => (i.volume ?? GENERAL) === key).length;
+
+  const visible = useMemo(
+    () => (tab === "all" ? images : images.filter((i) => (i.volume ?? GENERAL) === tab)),
+    [images, tab]
+  );
+
+  /** The size a newly added photo is filed under. On "All" this is deliberately null
+   *  rather than a guess — filing under the wrong size is the mistake these tabs exist
+   *  to prevent. */
+  const targetVolume = tab === "all" || tab === GENERAL ? null : tab;
 
   const upload = async (files: FileList | null) => {
     if (!files?.length) return;
@@ -799,9 +848,16 @@ function ImageManager({
     try {
       for (const file of Array.from(files)) {
         const url = await adminApi.uploadImage(file);
-        await adminApi.attachImage({ product_id: productId, source: "cloudinary", url });
+        await adminApi.attachImage({
+          product_id: productId, source: "cloudinary", url, volume: targetVolume,
+        });
       }
-      toast.success(`${files.length} image${files.length === 1 ? "" : "s"} added`);
+      const n = files.length;
+      toast.success(
+        targetVolume
+          ? n + " image" + (n === 1 ? "" : "s") + " added to " + targetVolume
+          : n + " image" + (n === 1 ? "" : "s") + " added"
+      );
       onChanged();
     } catch (err: any) {
       toast.error(err.message || "Upload failed");
@@ -810,20 +866,38 @@ function ImageManager({
     }
   };
 
-  /** Moving an image rewrites the whole list's positions in one call — the first
-   *  image is the product's hero, so a partial reorder would change which photo
-   *  fronts the product. */
+  /** Moving an image rewrites every position in one call — the first image is the
+   *  product's hero, so a partial reorder would change which photo fronts the product.
+   *  The swap is worked out in the filtered view the admin is actually looking at, then
+   *  applied to the full list so the other sizes keep their slots. */
   const move = async (index: number, delta: number) => {
-    const next = [...images];
     const target = index + delta;
-    if (target < 0 || target >= next.length) return;
-    [next[index], next[target]] = [next[target], next[index]];
+    if (target < 0 || target >= visible.length) return;
+    const next = [...images];
+    const a = next.findIndex((x) => x.id === visible[index].id);
+    const b = next.findIndex((x) => x.id === visible[target].id);
+    if (a < 0 || b < 0) return;
+    [next[a], next[b]] = [next[b], next[a]];
     setBusy(true);
     try {
       await adminApi.reorderImages(next.map((img, i) => ({ id: img.id, position: i })));
       onChanged();
     } catch (err: any) {
       toast.error(err.message || "Reorder failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Re-file a photo under a different size without re-uploading it — the usual repair
+   *  when a batch landed in the wrong bucket. */
+  const assign = async (img: AdminImage, volume: string | null) => {
+    setBusy(true);
+    try {
+      await adminApi.updateImage({ id: img.id, volume });
+      onChanged();
+    } catch (err: any) {
+      toast.error(err.message || "Failed");
     } finally {
       setBusy(false);
     }
@@ -840,6 +914,8 @@ function ImageManager({
       setBusy(false);
     }
   };
+
+  const tabLabel = (key: string) => (key === GENERAL ? "No size" : key);
 
   return (
     <div className="border-t border-border pt-5 space-y-3">
@@ -866,41 +942,99 @@ function ImageManager({
         </div>
       </div>
 
+      {/* One size at a time. A product with per-size galleries carries 20+ photos, and
+          picking the right one to delete out of a single flat grid is guesswork. */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => setTab("all")}
+          className={cn(
+            "px-2.5 py-1 rounded-sm border text-[11px] transition-colors",
+            tab === "all"
+              ? "border-primary bg-primary/15 text-primary"
+              : "border-border text-muted-foreground hover:text-ivory"
+          )}
+        >
+          All ({images.length})
+        </button>
+        {tabs.map((key) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setTab(key)}
+            className={cn(
+              "px-2.5 py-1 rounded-sm border text-[11px] transition-colors",
+              tab === key
+                ? "border-primary bg-primary/15 text-primary"
+                : "border-border text-muted-foreground hover:text-ivory"
+            )}
+          >
+            {tabLabel(key)} ({countIn(key)})
+          </button>
+        ))}
+      </div>
+
+      <p className="text-[10px] text-muted-foreground/70">
+        {tab === "all"
+          ? "Showing every photo. Pick a size to add or remove photos for just that bottle."
+          : targetVolume
+            ? "Uploads and picks on this tab are filed under " + targetVolume + "."
+            : "These photos have no size, and are used for any size that has none of its own."}
+      </p>
+
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-        {images.map((img, i) => (
+        {visible.map((img, i) => (
           <div key={img.id} className="relative group rounded-sm overflow-hidden border border-border">
             <img src={previewUrl(img)} alt="" className="w-full aspect-square object-cover" />
-            {i === 0 && (
+            {images[0]?.id === img.id && (
               <span className="absolute top-1 left-1 text-[8px] uppercase tracking-wide px-1 py-0.5 rounded-sm bg-gradient-gold text-primary-foreground">
                 Main
               </span>
             )}
-            {img.volume && (
+            {tab === "all" && (
               <span className="absolute bottom-1 left-1 text-[8px] px-1 py-0.5 rounded-sm bg-background/80 text-muted-foreground">
-                {img.volume}
+                {img.volume ?? "No size"}
               </span>
             )}
             <div className="absolute inset-x-0 bottom-0 flex justify-center gap-1 p-1 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button onClick={() => move(i, -1)} disabled={i === 0 || busy} className="p-1 disabled:opacity-30 hover:text-primary">
+              <button onClick={() => move(i, -1)} disabled={i === 0 || busy} title="Move earlier" className="p-1 disabled:opacity-30 hover:text-primary">
                 <ArrowUp className="w-3 h-3" />
               </button>
-              <button onClick={() => move(i, 1)} disabled={i === images.length - 1 || busy} className="p-1 disabled:opacity-30 hover:text-primary">
+              <button onClick={() => move(i, 1)} disabled={i === visible.length - 1 || busy} title="Move later" className="p-1 disabled:opacity-30 hover:text-primary">
                 <ArrowDown className="w-3 h-3" />
               </button>
-              <button onClick={() => detach(img)} disabled={busy} className="p-1 hover:text-destructive">
+              <button onClick={() => detach(img)} disabled={busy} title="Remove from product" className="p-1 hover:text-destructive">
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
+            {/* Re-file without re-uploading. Only worth showing when there is somewhere
+                else to file it to. */}
+            {tabs.length > 1 && (
+              <select
+                value={img.volume ?? GENERAL}
+                disabled={busy}
+                title="Move to a different size"
+                onChange={(e) => assign(img, e.target.value === GENERAL ? null : e.target.value)}
+                className="absolute top-1 right-1 max-w-[62%] rounded-sm border border-border bg-background/90 text-[9px] text-muted-foreground px-1 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100"
+              >
+                {tabs.map((key) => (
+                  <option key={key} value={key}>{tabLabel(key)}</option>
+                ))}
+              </select>
+            )}
           </div>
         ))}
-        {!images.length && (
-          <p className="col-span-full text-xs text-muted-foreground py-4">No photos yet.</p>
+        {!visible.length && (
+          <p className="col-span-full text-xs text-muted-foreground py-4">
+            {tab === "all" ? "No photos yet." : "No photos filed under " + tabLabel(tab) + " yet."}
+          </p>
         )}
       </div>
 
       {picking && (
         <RepoImagePicker
           productId={productId}
+          volume={targetVolume}
           onClose={() => setPicking(false)}
           onPicked={() => { setPicking(false); onChanged(); }}
         />
@@ -914,9 +1048,11 @@ function ImageManager({
  * Vercel's CDN, so reusing one costs nothing — worth offering before an upload.
  */
 function RepoImagePicker({
-  productId, onClose, onPicked,
+  productId, volume, onClose, onPicked,
 }: {
   productId: string;
+  /** Size the picked photo is filed under; null is the general gallery. */
+  volume: string | null;
   onClose: () => void;
   onPicked: () => void;
 }) {
@@ -932,8 +1068,8 @@ function RepoImagePicker({
   const attach = async (key: string) => {
     setBusy(true);
     try {
-      await adminApi.attachImage({ product_id: productId, source: "repo", storage_key: key });
-      toast.success("Photo added");
+      await adminApi.attachImage({ product_id: productId, source: "repo", storage_key: key, volume });
+      toast.success(volume ? `Photo added to ${volume}` : "Photo added");
       onPicked();
     } catch (err: any) {
       toast.error(err.message || "Failed");
@@ -980,6 +1116,176 @@ function RepoImagePicker({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Fragrance pyramid editor.
+ *
+ * `notes` is a jsonb column shaped { top: [], heart: [], base: [] }, which the product
+ * page renders as one "·"-joined line per tier. Comma-separated text is how a perfumer
+ * actually writes a pyramid, so the split happens here rather than asking an admin to
+ * hand-edit JSON.
+ *
+ * The typed text is held in local state instead of being derived back from the parsed
+ * array on every keystroke. Deriving it would delete the separator as it was typed:
+ * "Rose, " parses to ["Rose"], which joins back to "Rose", eating the comma mid-word.
+ */
+function NotesEditor({
+  value, onChange,
+}: {
+  value: { top?: string[]; heart?: string[]; base?: string[] } | null | undefined;
+  onChange: (next: { top: string[]; heart: string[]; base: string[] }) => void;
+}) {
+  const TIERS = [
+    ["top", "Top notes", "Bergamot, Pink Pepper"],
+    ["heart", "Heart notes", "Jasmine, Saffron"],
+    ["base", "Base notes", "Amber, Vanilla, Musk"],
+  ] as const;
+
+  const [text, setText] = useState(() => ({
+    top: (value?.top ?? []).join(", "),
+    heart: (value?.heart ?? []).join(", "),
+    base: (value?.base ?? []).join(", "),
+  }));
+
+  const parse = (s: string) => s.split(",").map((v) => v.trim()).filter(Boolean);
+
+  const edit = (tier: "top" | "heart" | "base", next: string) => {
+    const merged = { ...text, [tier]: next };
+    setText(merged);
+    // All three tiers go every time. The storefront reads all of them, and a key left
+    // out of the jsonb renders as an empty pyramid row rather than being skipped.
+    onChange({ top: parse(merged.top), heart: parse(merged.heart), base: parse(merged.base) });
+  };
+
+  return (
+    <div>
+      <p className="text-[10px] tracking-luxe uppercase text-primary mb-2">Fragrance pyramid</p>
+      <div className="grid sm:grid-cols-3 gap-3">
+        {TIERS.map(([key, label, placeholder]) => (
+          <Field key={key} label={label} hint="Separate notes with commas.">
+            <Input
+              value={text[key]}
+              onChange={(e) => edit(key, e.target.value)}
+              placeholder={placeholder}
+            />
+          </Field>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Product video — the clip that plays as the second slide of the gallery.
+ *
+ * Kept in products.video_url, which has three meaningful states:
+ *
+ *   a URL          an uploaded or pasted clip. Wins over everything.
+ *   empty / null   nothing chosen, so a clip bundled in the repo for this product still
+ *                  shows (see SNAPSHOT_VIDEO_BY_SLUG in src/store/catalog.tsx).
+ *   VIDEO_HIDDEN   "this product has no video". The only way to switch off a bundled
+ *                  clip — merely clearing the field would let it come straight back.
+ *
+ * Nothing here writes to the database on its own; it edits the row being edited, and
+ * Save changes commits it, the same as every other field in this form.
+ */
+function VideoManager({
+  value, onChange,
+}: {
+  value: string | null | undefined;
+  onChange: (next: string | null) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const hidden = value === VIDEO_HIDDEN;
+  const url = !hidden && value ? String(value) : "";
+
+  const upload = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    setBusy(true);
+    try {
+      onChange(await adminApi.uploadVideo(file));
+      toast.success("Video uploaded — press Save changes to publish it");
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <p className="text-[10px] tracking-luxe uppercase text-primary mb-2">Product video</p>
+
+      {url && (
+        <video
+          src={url}
+          controls
+          muted
+          playsInline
+          preload="metadata"
+          className="w-full max-w-xs aspect-square object-contain rounded-sm border border-border bg-deep-brown mb-2"
+        />
+      )}
+
+      <div className="flex flex-wrap items-center gap-2 mb-2">
+        <label>
+          <Button variant="luxury" size="sm" disabled={busy} asChild>
+            <span className="cursor-pointer">
+              {busy ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <ImagePlus className="w-3.5 h-3.5 mr-1.5" />}
+              {url ? "Replace video" : "Upload video"}
+            </span>
+          </Button>
+          <input
+            type="file" accept="video/mp4,video/webm,video/quicktime" hidden
+            onChange={(e) => { upload(e.target.files); e.target.value = ""; }}
+          />
+        </label>
+
+        {url && (
+          <Button variant="ghostGold" size="sm" disabled={busy} onClick={() => onChange(null)}>
+            <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+            Remove
+          </Button>
+        )}
+
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onChange(hidden ? null : VIDEO_HIDDEN)}
+          className={cn(
+            "px-3 py-1.5 rounded-sm border text-xs transition-colors",
+            hidden
+              ? "border-primary bg-primary/15 text-primary"
+              : "border-border text-muted-foreground hover:text-ivory"
+          )}
+        >
+          {hidden ? "Video hidden" : "Hide video"}
+        </button>
+      </div>
+
+      <Field
+        label="Video URL"
+        hint="Paste a direct .mp4/.webm link, or use Upload above. Leave empty to fall back to a clip bundled with the site."
+      >
+        <Input
+          value={url}
+          disabled={hidden}
+          onChange={(e) => onChange(e.target.value.trim() || null)}
+          placeholder="https://res.cloudinary.com/..."
+        />
+      </Field>
+
+      <p className="text-[10px] text-muted-foreground/70 mt-1">
+        {hidden
+          ? "No video will show on this product, even if the site ships one for it."
+          : url
+            ? "Plays muted as the second slide of the gallery."
+            : "Nothing set — if the site bundles a clip for this product, that one plays."}
+      </p>
     </div>
   );
 }

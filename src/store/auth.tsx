@@ -28,7 +28,13 @@ const NOT_CONFIGURED =
 function rememberForPixel(user: User | null) {
   const email = user?.email;
   const phone = user?.phone || (user?.user_metadata?.phone as string | undefined);
-  if (email || phone) setPixelIdentity({ email, phone });
+  // Supabase stores whatever the sign-up form or OAuth provider supplied; both spellings
+  // are common, and a full name is split so fn/ln line up with what checkout sends.
+  const meta = (user?.user_metadata ?? {}) as Record<string, any>;
+  const full = String(meta.full_name || meta.name || "").trim();
+  const firstName = String(meta.first_name || meta.given_name || full.split(/\s+/)[0] || "");
+  const lastName = String(meta.last_name || meta.family_name || full.split(/\s+/).slice(1).join(" ") || "");
+  if (email || phone) setPixelIdentity({ email, phone, firstName, lastName });
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

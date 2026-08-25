@@ -38,6 +38,20 @@ const sha256 = (v: string) => createHash("sha256").update(v).digest("hex");
 export const hashEmail = (email?: string): string | undefined =>
   email && email.trim() ? sha256(email.trim().toLowerCase()) : undefined;
 
+/** Meta normalises a name to lowercase with punctuation and whitespace removed, so
+ *  "O'Brien" and "obrien" hash alike. \p{L} keeps accented and non-Latin letters, which
+ *  a plain [^a-z] strip would delete outright — turning a real name into a hash of an
+ *  empty-ish string and quietly costing a match key instead of adding one.
+ *
+ *  src/lib/pixel.ts normalises identically before handing the same name to the browser
+ *  Pixel. If the two ever diverge, one person produces two different SHA-256 values and
+ *  Meta stops matching the browser and server copies to the same user — which is worse
+ *  than sending no name at all. */
+export const hashName = (name?: string): string | undefined => {
+  const v = name?.toLowerCase().replace(/[^\p{L}]/gu, "");
+  return v ? sha256(v) : undefined;
+};
+
 export const hashPhone = (phone?: string): string | undefined => {
   if (!phone) return undefined;
   // Digits only — matches the udf1 phone format already used for PayU (api/checkout/initiate.ts).
@@ -162,6 +176,9 @@ export function extractRequestSignals(req: any): {
 export type CapiUserData = {
   email?: string;
   phone?: string;
+  /** Advanced-matching name parts. Meta counts each as its own match key. */
+  firstName?: string;
+  lastName?: string;
   ip?: string;
   userAgent?: string;
   fbp?: string;
@@ -208,8 +225,12 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
   const user_data: Record<string, unknown> = {};
   const em = hashEmail(event.user.email);
   const ph = hashPhone(event.user.phone);
+  const fn = hashName(event.user.firstName);
+  const ln = hashName(event.user.lastName);
   if (em) user_data.em = [em];
   if (ph) user_data.ph = [ph];
+  if (fn) user_data.fn = [fn];
+  if (ln) user_data.ln = [ln];
   if (event.user.ip) user_data.client_ip_address = event.user.ip;
   if (event.user.userAgent) user_data.client_user_agent = event.user.userAgent;
   if (event.user.fbp) user_data.fbp = event.user.fbp;

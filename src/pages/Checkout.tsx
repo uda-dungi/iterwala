@@ -100,7 +100,10 @@ export default function Checkout() {
     // Remember who this is, so every later Meta event (including the PageViews on the
     // way back from PayU) carries hashed email/phone — the heaviest match signals there
     // are. Hashing happens server-side; nothing identifying reaches Meta in clear.
-    setPixelIdentity({ email: form.email, phone: form.phone });
+    setPixelIdentity({
+      email: form.email, phone: form.phone,
+      firstName: form.firstName, lastName: form.lastName,
+    });
 
     try {
       const payload = {
@@ -198,7 +201,10 @@ export default function Checkout() {
     if (formRef.current && !formRef.current.reportValidity()) return;
     setCodSubmitting(true);
 
-    setPixelIdentity({ email: form.email, phone: form.phone });
+    setPixelIdentity({
+      email: form.email, phone: form.phone,
+      firstName: form.firstName, lastName: form.lastName,
+    });
 
     try {
       const payload = {

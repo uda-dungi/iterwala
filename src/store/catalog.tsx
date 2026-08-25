@@ -20,7 +20,7 @@ import {
   NEW_LAUNCH_SLUGS,
   type Product,
 } from "@/data/products";
-import { fetchCatalog, type Catalog, type Collection, type Banner } from "@/lib/catalog";
+import { fetchCatalog, VIDEO_HIDDEN, type Catalog, type Collection, type Banner } from "@/lib/catalog";
 
 const SNAPSHOT: Catalog = {
   products: snapshotProducts,
@@ -58,6 +58,8 @@ const SNAPSHOT_VIDEO_BY_SLUG = new Map<string, string>(
  *  other product is returned by identity, so this costs nothing on the snapshot path. */
 const withSnapshotVideo = (p: Product): Product => {
   if (p.video) return p;
+  // An admin who switched the video off meant it, bundled clip or not.
+  if (p.videoUrl === VIDEO_HIDDEN) return p;
   const video = SNAPSHOT_VIDEO_BY_SLUG.get(p.slug);
   return video ? { ...p, video } : p;
 };

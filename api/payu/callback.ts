@@ -180,6 +180,9 @@ export default async function handler(req: any, res: any) {
           // Meta de-dupes the two into one conversion. This is the copy that still
           // lands when the shopper's browser blocks the direct call to Facebook.
           const items = Array.isArray(updated.items) ? updated.items : [];
+          // Orders store one `name` column (api/checkout/initiate.ts joins the two
+          // fields), so it is split back apart here for Meta's fn/ln match keys.
+          const nameParts = String(updated.name || "").trim().split(/\s+/).filter(Boolean);
           await sendCapiEvent({
             eventName: "Purchase",
             eventId: txnid,
@@ -191,6 +194,8 @@ export default async function handler(req: any, res: any) {
             user: {
               email: updated.email,
               phone: updated.phone ?? undefined,
+              firstName: nameParts[0],
+              lastName: nameParts.length > 1 ? nameParts.slice(1).join(" ") : undefined,
               ip: updated.client_ip ?? undefined,
               userAgent: updated.client_ua ?? undefined,
               fbp: updated.fbp ?? undefined,

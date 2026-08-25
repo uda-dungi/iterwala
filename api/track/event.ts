@@ -82,6 +82,8 @@ export default async function handler(req: any, res: any) {
           externalId: str(body.externalId),
           email: str(body.email),
           phone: str(body.phone),
+          firstName: str(body.firstName),
+          lastName: str(body.lastName),
         },
         customData: body.customData && typeof body.customData === "object" ? body.customData : undefined,
       });

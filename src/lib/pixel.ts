@@ -267,7 +267,13 @@ export function getPixelSignals(): { fbp?: string; fbc?: string; externalId?: st
   };
 }
 
-type Identity = { email?: string; phone?: string };
+type Identity = { email?: string; phone?: string; firstName?: string; lastName?: string };
+
+/** Same normalisation as hashName() in api/_lib/metaCapi.ts — see the note there on why
+ *  the two must stay identical. fbevents.js hashes whatever it is handed, so the value
+ *  passed here has to already match what the server hashes for the same person. */
+const normaliseName = (name?: string): string | undefined =>
+  name?.toLowerCase().replace(/[^\p{L}]/gu, "") || undefined;
 
 /** Remembers who this visitor is so later events (PageView, AddToCart, …) can carry
  *  hashed em/ph — by far the heaviest-weighted match signals. Called from checkout when
@@ -304,10 +310,14 @@ function applyAdvancedMatching(identity: Identity) {
   if (typeof window === "undefined" || !isPixelConfigured() || !window.fbq) return;
   const em = identity.email?.trim().toLowerCase();
   const ph = identity.phone?.replace(/\D/g, "");
+  const fn = normaliseName(identity.firstName);
+  const ln = normaliseName(identity.lastName);
   const externalId = getExternalId();
   window.fbq("init", site.metaPixelId, {
     ...(em ? { em } : {}),
     ...(ph ? { ph } : {}),
+    ...(fn ? { fn } : {}),
+    ...(ln ? { ln } : {}),
     ...(externalId ? { external_id: externalId } : {}),
   });
 }
@@ -496,6 +506,8 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
       externalId: getExternalId(),
       email: identity.email,
       phone: identity.phone,
+      firstName: identity.firstName,
+      lastName: identity.lastName,
     });
     deliverRelay(body);
   } catch {

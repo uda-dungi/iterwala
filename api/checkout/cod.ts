@@ -229,6 +229,8 @@ export default async function handler(req: any, res: any) {
       user: {
         email,
         phone,
+        firstName: customer?.firstName ? String(customer.firstName) : undefined,
+        lastName: customer?.lastName ? String(customer.lastName) : undefined,
         ip: signals.ip || undefined,
         userAgent: signals.userAgent || undefined,
         fbp: body.fbp || signals.fbp || undefined,

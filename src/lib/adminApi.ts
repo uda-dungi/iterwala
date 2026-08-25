@@ -105,6 +105,65 @@ export const adminApi = {
       body: JSON.stringify({ id }),
     }),
 
+  /** Edits one attached image in place — used to re-file a photo under a different
+   *  size without re-uploading it. */
+  updateImage: (fields: { id: string; volume?: string | null; alt?: string; position?: number }) =>
+    request<{ image: AdminImage }>("/api/admin/images", {
+      method: "PATCH",
+      body: JSON.stringify(fields),
+    }),
+
+  /**
+   * The product video, through the same signed direct-upload path as uploadImage but
+   * against Cloudinary's video endpoint. A video posted to /image/upload is rejected
+   * outright, and the signature is scoped to one endpoint, so this cannot share the
+   * image signature.
+   *
+   * No transformation is signed for video: the image ceiling (c_limit,w_2000) would
+   * force a re-encode of every upload, which Cloudinary bills for and which would
+   * silently degrade a clip shot in portrait.
+   */
+  uploadVideo: async (file: File): Promise<string> => {
+    if (!/^video\/(mp4|webm|quicktime)$/.test(file.type)) {
+      throw new Error("Only MP4, WebM or MOV videos can be uploaded.");
+    }
+    const MAX_BYTES = 100 * 1024 * 1024;
+    if (file.size > MAX_BYTES) {
+      throw new Error(`That video is ${(file.size / 1e6).toFixed(1)}MB. Maximum is 100MB.`);
+    }
+
+    const sig = await request<{
+      cloudName: string;
+      apiKey: string;
+      timestamp: number;
+      folder: string;
+      allowedFormats: string;
+      signature: string;
+      uploadUrl: string;
+    }>("/api/admin/images?action=sign", {
+      method: "POST",
+      body: JSON.stringify({ kind: "video" }),
+    });
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("api_key", sig.apiKey);
+    form.append("timestamp", String(sig.timestamp));
+    form.append("folder", sig.folder);
+    form.append("allowed_formats", sig.allowedFormats);
+    form.append("signature", sig.signature);
+
+    const res = await fetch(sig.uploadUrl, { method: "POST", body: form });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Upload failed: ${text.slice(0, 200)}`);
+    }
+    const body = await res.json();
+    if (!body.secure_url) throw new Error("Upload succeeded but returned no URL");
+    return body.secure_url as string;
+  },
+
+
   /**
    * Uploads straight to Cloudinary using a short-lived signature from our server.
    * The file never passes through the serverless function, which would cap it at

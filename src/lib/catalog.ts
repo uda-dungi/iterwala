@@ -25,6 +25,12 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import type { Product } from "@/data/products";
 import { resolveImage, type ImageRef, PLACEHOLDER_IMG } from "@/lib/imageSource";
 
+/** products.video_url set to this means "this product has no video", as opposed to an
+ *  empty column, which means "nothing chosen — use the clip bundled for this product if
+ *  the site ships one". Without the distinction there is no way to switch a bundled clip
+ *  off from the admin. */
+export const VIDEO_HIDDEN = "none";
+
 export type Collection = {
   key: string;
   title: string;
@@ -148,6 +154,9 @@ export function rowToProduct(row: ProductRow, images: ImageRow[]): Product {
     amazonChoice: row.amazon_choice || undefined,
     amazonUrl: row.amazon_url ?? undefined,
     videoUrl: row.video_url ?? undefined,
+    // What the gallery actually renders. An admin-set clip wins; anything else leaves
+    // this empty so the bundled fallback in src/store/catalog.tsx can fill it in.
+    video: row.video_url && row.video_url !== VIDEO_HIDDEN ? String(row.video_url) : undefined,
 
     specs: row.specs ?? undefined,
     highlights: row.highlights ?? undefined,

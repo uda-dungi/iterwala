@@ -20,10 +20,15 @@ import { requireAdmin, writeAudit, allowMethods, parseBody } from "../_lib/admin
  * See src/lib/imageSource.ts for how each resolves.
  */
 
-const CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "";
-const API_KEY = process.env.CLOUDINARY_API_KEY || "";
-const API_SECRET = process.env.CLOUDINARY_API_SECRET || "";
-const UPLOAD_FOLDER = process.env.CLOUDINARY_FOLDER || "products";
+// Trimmed, and not optionally. The signature is a SHA1 over the params plus the
+// secret, so a single trailing newline — which is what a copy-paste into a dashboard
+// env var usually carries — produces a valid-looking signature that Cloudinary rejects
+// as "Invalid Signature", while echoing back a string-to-sign that matches ours
+// exactly. That combination is close to undiagnosable from the error alone.
+const CLOUD_NAME = (process.env.CLOUDINARY_CLOUD_NAME || "").trim();
+const API_KEY = (process.env.CLOUDINARY_API_KEY || "").trim();
+const API_SECRET = (process.env.CLOUDINARY_API_SECRET || "").trim();
+const UPLOAD_FOLDER = (process.env.CLOUDINARY_FOLDER || "products").trim();
 
 const isCloudinaryConfigured = () => Boolean(CLOUD_NAME && API_KEY && API_SECRET);
 
@@ -62,6 +67,7 @@ export default async function handler(req: any, res: any) {
       }
 
       const timestamp = Math.floor(Date.now() / 1000);
+      const isVideo = String(req.query?.kind || body.kind || "") === "video";
 
       // Everything here is covered by the signature, so the browser cannot widen it:
       // Cloudinary rejects the upload if any signed parameter is altered in transit.
@@ -71,12 +77,21 @@ export default async function handler(req: any, res: any) {
       //                     and get them served from a domain we allow in our CSP.
       //   transformation  — normalises on arrival to at most 2000px and strips EXIF,
       //                     which also removes GPS coordinates from phone photos.
-      const params: Record<string, string | number> = {
-        allowed_formats: "jpg,jpeg,png,webp,avif",
-        folder: UPLOAD_FOLDER,
-        timestamp,
-        transformation: "c_limit,w_2000,h_2000,q_auto",
-      };
+      //
+      // Video signs no transformation at all: the image ceiling would force a re-encode
+      // of every clip, which is billed and which quietly degrades portrait footage.
+      const params: Record<string, string | number> = isVideo
+        ? {
+            allowed_formats: "mp4,webm,mov",
+            folder: UPLOAD_FOLDER,
+            timestamp,
+          }
+        : {
+            allowed_formats: "jpg,jpeg,png,webp,avif",
+            folder: UPLOAD_FOLDER,
+            timestamp,
+            transformation: "c_limit,w_2000,h_2000,q_auto",
+          };
       const signature = signParams(params);
 
       res.status(200).json({
@@ -85,11 +100,12 @@ export default async function handler(req: any, res: any) {
         timestamp,
         folder: UPLOAD_FOLDER,
         allowedFormats: params.allowed_formats,
-        transformation: params.transformation,
+        transformation: params.transformation ?? "",
         signature,
-        // Pinned to the image endpoint — /raw/upload or /video/upload would accept
-        // things this signature is not meant to authorise.
-        uploadUrl: `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        // Pinned to one endpoint — /raw/upload would accept things this signature is
+        // not meant to authorise, and a signature is only valid for the endpoint it
+        // was minted for.
+        uploadUrl: `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${isVideo ? "video" : "image"}/upload`,
       });
       return;
     }
