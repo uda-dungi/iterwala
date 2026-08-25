@@ -50,6 +50,30 @@ export type AdminImage = {
   position: number;
 };
 
+/**
+ * Turns a Cloudinary upload rejection into something an admin can act on.
+ *
+ * "Invalid Signature" is the one worth translating. Cloudinary echoes back a
+ * string-to-sign that matches ours exactly, so the raw error reads like a bug in the
+ * upload code when it is really the API secret not belonging to the API key. Left
+ * untranslated it sends whoever sees it looking in entirely the wrong place — run
+ * scripts/check-cloudinary.mjs to confirm which credential is wrong.
+ */
+async function uploadFailure(res: Response): Promise<Error> {
+  const text = await res.text().catch(() => "");
+  if (/invalid signature/i.test(text)) {
+    return new Error(
+      "Cloudinary rejected the upload signature. The CLOUDINARY_API_SECRET on the server " +
+        "does not match CLOUDINARY_API_KEY. Re-copy both from Cloudinary → Settings → API Keys " +
+        "into Vercel, then redeploy."
+    );
+  }
+  if (res.status === 401 || res.status === 403) {
+    return new Error("Cloudinary refused the upload (not authorised). Check the API key and secret on the server.");
+  }
+  return new Error(`Upload failed: ${text.slice(0, 200)}`);
+}
+
 export const adminApi = {
   listProducts: () =>
     request<{ products: AdminProduct[]; images: AdminImage[] }>("/api/admin/products"),
@@ -154,10 +178,7 @@ export const adminApi = {
     form.append("signature", sig.signature);
 
     const res = await fetch(sig.uploadUrl, { method: "POST", body: form });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Upload failed: ${text.slice(0, 200)}`);
-    }
+    if (!res.ok) throw await uploadFailure(res);
     const body = await res.json();
     if (!body.secure_url) throw new Error("Upload succeeded but returned no URL");
     return body.secure_url as string;
@@ -203,10 +224,7 @@ export const adminApi = {
     form.append("signature", sig.signature);
 
     const res = await fetch(sig.uploadUrl, { method: "POST", body: form });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`Upload failed: ${text.slice(0, 200)}`);
-    }
+    if (!res.ok) throw await uploadFailure(res);
     const body = await res.json();
     if (!body.secure_url) throw new Error("Upload succeeded but returned no URL");
     return body.secure_url as string;
