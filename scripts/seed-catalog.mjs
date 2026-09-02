@@ -236,7 +236,7 @@ lines.push("-- ── announcements ──────────────�
 lines.push("-- Seeded only when the table is empty, so a re-run can't resurrect lines the");
 lines.push("-- admin has since deleted.");
 const ANNOUNCEMENTS = [
-  "✦ Raksha Bandhan Sale is Live Now ✦",
+  "✦ Janmashtami Special Sale is Live Now ✦",
   "New Here? Get 15% Off with Code WELCOME15",
   "Free Shipping",
   "Amazon's Choice Products Available",

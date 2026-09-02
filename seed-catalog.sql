@@ -3607,7 +3607,7 @@ on conflict (key) do update set
 -- admin has since deleted.
 insert into public.announcements (text, position, active)
 select * from (values
-  ('✦ Raksha Bandhan Sale is Live Now ✦', 0, true),
+  ('✦ Janmashtami Special Sale is Live Now ✦', 0, true),
   ('New Here? Get 15% Off with Code WELCOME15', 1, true),
   ('Free Shipping', 2, true),
   ('Amazon''s Choice Products Available', 3, true),

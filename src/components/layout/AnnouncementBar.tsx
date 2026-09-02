@@ -26,8 +26,8 @@ export function AnnouncementBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -12, opacity: 0 }}
           transition={{ duration: 0.4 }}
-          // whitespace-nowrap keeps a message on one line — the widest one ("Raksha
-          // Bandhan Sale is Live Now") was wrapping its trailing star onto a second row.
+          // whitespace-nowrap keeps a message on one line — the widest one ("Janmashtami
+          // Special Sale is Live Now") was wrapping its trailing star onto a second row.
           // Mobile also drops to the narrower default tracking so it fits at 360px.
           className="text-[11px] md:text-xs tracking-normal md:tracking-luxe uppercase font-medium px-3 md:px-4 text-center whitespace-nowrap"
         >
