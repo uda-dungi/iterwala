@@ -7,14 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/store/catalog";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
-import promoCollectors from "@/assets/brand/promo-collectors-trilogy.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
-import mobileBannerPack4 from "@/assets/brand/mobile-offer-pack-of-4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity-full.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar-full.jpg";
-import rakhiOfferMobile from "@/assets/brand/rakhi-offer-mobile.jpg";
-import rakhiPack8Mobile from "@/assets/brand/rakhi-pack8-mobile.jpg";
-import rakhiPack8Pc from "@/assets/brand/rakhi-pack8-pc.jpg";
+import janmaDivinePc from "@/assets/brand/janma-divine-pc.jpg.jpeg";
+import janmaCollectorsPc from "@/assets/brand/janma-collectors-pc.jpg.jpeg";
+import janmaPackPc from "@/assets/brand/janma-pack-pc.jpg.jpeg";
+import janmaCollectorsMobile from "@/assets/brand/janma-collectors-mobile.jpg.jpeg";
+import janmaPack48Mobile from "@/assets/brand/janma-pack48-mobile.jpg.jpeg";
+import janmaPackMobile from "@/assets/brand/janma-pack-mobile.jpg.jpeg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -39,31 +40,39 @@ type Slide = {
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
 const fallbackSlides: Slide[] = [
-  // Raksha Bandhan Sale promo banners — placed first so the live offers show on load.
-  // (Aug 2026 redesign: new banners with the current ₹999 Pack of 4 price baked in.)
+  // Janmashtami Sale promo banners — placed first so the live offers show on load.
+  // (Sep 2026: swapped in for the Raksha Bandhan set once that sale wrapped.)
   {
-    image: rakhiPack8Pc,
-    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
-    title: "The Pack of 8",
-    highlight: "Gift Set",
-    copy: "Eight signature 8ml fragrances in one keepsake box — pick your favourite lineup and gift a whole wardrobe of scents this Raksha Bandhan.",
-    cta: { label: "Shop Now", to: "/shop" },
+    image: janmaDivinePc,
+    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
+    title: "The Divine",
+    highlight: "Collection",
+    copy: "Pure, alcohol-free attars hand-distilled in Kannauj — a fragrance offering as timeless as the celebration itself.",
+    cta: { label: "Shop Divine Collection", to: "/shop?category=Attar" },
   },
   {
-    image: promoPack4,
-    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
-    title: "The Pack of 4",
-    highlight: "Buy 1 Get 1 Free",
-    copy: "Four signature 20ml eau de parfums in a keepsake gift box — add two and pay just ₹999 for both. The perfect Raksha Bandhan gift.",
-    cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" },
-  },
-  {
-    image: promoCollectors,
-    eyebrow: "This Rakhi, Kuch Special Ho Jaye",
+    image: janmaCollectorsPc,
+    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
     title: "Collector's Edition",
     highlight: "Buy 2 Get 1 Free",
     copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
-    cta: { label: "Explore the Trilogy", to: "/shop?category=Collector's Edition" },
+    cta: { label: "Shop Trilogy", to: "/product/shabd" },
+  },
+  {
+    image: janmaPackPc,
+    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
+    title: "Gift Sets",
+    highlight: "For the Whole Family",
+    copy: "Curated multi-fragrance gift sets, boxed and ready to give — the easiest way to share the celebration.",
+    cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" },
+  },
+  {
+    image: promoPack4,
+    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
+    title: "The Pack of 4",
+    highlight: "Buy 1 Get 1 Free",
+    copy: "Four signature 20ml eau de parfums in a keepsake gift box — add two and pay just ₹999 for both. The perfect Janmashtami gift.",
+    cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" },
   },
   {
     image: banner1,
@@ -89,16 +98,14 @@ const fallbackSlides: Slide[] = [
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
 const fallbackMobileSlides: MobileSlide[] = [
-  // Raksha Bandhan Sale banner — shot at 9:16, exactly the carousel's aspect below, so
+  // Janmashtami Sale banners — shot at 9:16, exactly the carousel's aspect below, so
   // object-cover shows it edge to edge with nothing cropped. The offer headline and
   // price sit near the top of the artwork, which is precisely what a shorter frame used
   // to cut off.
-  // Note: the matching Collector's Edition offer banner (mobile-offer-collectors.jpg,
-  // "Buy 2 Get 1 Free") was removed from this mobile list per request — it still shows
-  // on desktop (see the `slides` array above). The image file itself wasn't deleted.
-  { image: rakhiOfferMobile, alt: "Raksha Bandhan Sale — Shabd", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
-  { image: mobileBannerPack4, alt: "Raksha Bandhan Sale — Pack of 4, Buy 1 Get 1 at ₹999", fit: "cover", cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" } },
-  { image: rakhiPack8Mobile, alt: "Raksha Bandhan Sale — Pack of 8 Gift Set", fit: "cover", cta: { label: "Shop the Pack of 8", to: "/product/discovery-set" } },
+  // (Sep 2026: swapped in for the Raksha Bandhan mobile set once that sale wrapped.)
+  { image: janmaCollectorsMobile, alt: "Janmashtami Sale — Shabd", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
+  { image: janmaPack48Mobile, alt: "Janmashtami Sale — Gift Sets", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
+  { image: janmaPackMobile, alt: "Janmashtami Sale — Pack of 4 & 8", fit: "cover", cta: { label: "Shop Pack of 4 & 8", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },

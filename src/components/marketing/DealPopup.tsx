@@ -142,7 +142,7 @@ export function DealPopup() {
 
             {/* Deal side */}
             <div className="bg-deep-brown p-7 sm:p-9 text-center flex flex-col justify-center">
-              <h2 className="font-display text-2xl sm:text-3xl text-gold">Deal of the Day</h2>
+              <h2 className="font-display text-2xl sm:text-3xl text-gold">Janmashtami Special</h2>
               <p className="text-sm text-ivory mt-1.5">This offer expires in:</p>
 
               <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mt-5">

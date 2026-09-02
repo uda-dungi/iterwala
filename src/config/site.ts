@@ -112,7 +112,7 @@ export const TRADING_SINCE = 2020;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
-  "✦ Raksha Bandhan Sale is Live Now ✦",
+  "✦ Janmashtami Sale is Live Now ✦",
   `New Here? Get ${WELCOME_PERCENT}% Off with Code ${WELCOME_CODE}`,
   "Free Shipping",
   "Amazon's Choice Products Available",
