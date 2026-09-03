@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Filter, ShieldCheck, X } from "lucide-react";
-import { priceFor, listingVolume, type Product } from "@/data/products";
+import { priceFor, listingVolume, DIVINE_COLLECTION_CATEGORY, DIVINE_COLLECTION_SLUGS, type Product } from "@/data/products";
 import { useCatalog } from "@/store/catalog";
 import { TRADING_SINCE } from "@/config/site";
 import { ProductCard } from "@/components/shop/ProductCard";
@@ -13,7 +13,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const genders = ["Men", "Women", "Unisex"];
-const categories = ["Perfume", "Attar", "Gift Set", "New Launch", "Collector's Edition"];
+// "Divine Series" is a virtual category (see DIVINE_COLLECTION_SLUGS) — a curated slug
+// list rather than a `category` value, so its products stay Gift Sets too. It is listed
+// unconditionally; if the slug list is ever emptied, the grid below says "coming soon"
+// instead of the generic "adjust your filters", which would blame the shopper.
+const categories = [
+  "Perfume", "Attar", "Gift Set", "New Launch", "Collector's Edition", DIVINE_COLLECTION_CATEGORY,
+];
 const noteList = ["Oud", "Rose", "Saffron", "Amber", "Sandalwood", "Musk", "Vanilla", "Jasmine"];
 const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "Festive"];
 
@@ -105,6 +111,8 @@ export default function Shop() {
     const matchesCategory = (p: Product) => {
       if (!selectedCategory) return true;
       if (selectedCategory === "New Launch") return newLaunchSlugs.includes(p.slug);
+      // Same virtual-category treatment: curated slug list, not a `category` value.
+      if (selectedCategory === DIVINE_COLLECTION_CATEGORY) return DIVINE_COLLECTION_SLUGS.includes(p.slug);
       return p.category === selectedCategory;
     };
 
@@ -239,8 +247,20 @@ export default function Shop() {
 
           {filtered.length === 0 ? (
             <div className="text-center py-14 sm:py-24">
-              <p className="font-serif text-xl sm:text-2xl text-ivory">No fragrances found</p>
-              <p className="text-sm sm:text-base text-muted-foreground mt-2">Try adjusting your filters.</p>
+              {selectedCategory === DIVINE_COLLECTION_CATEGORY && DIVINE_COLLECTION_SLUGS.length === 0 ? (
+                <>
+                  <p className="font-serif text-xl sm:text-2xl text-ivory">The Divine Series is coming soon</p>
+                  <p className="text-sm sm:text-base text-muted-foreground mt-2">
+                    Our Janmashtami line-up is being curated. In the meantime, explore our{" "}
+                    <Link to="/shop?category=Attar" className="text-primary underline underline-offset-2">alcohol-free attars</Link>.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-serif text-xl sm:text-2xl text-ivory">No fragrances found</p>
+                  <p className="text-sm sm:text-base text-muted-foreground mt-2">Try adjusting your filters.</p>
+                </>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">

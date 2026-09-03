@@ -5,19 +5,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/store/catalog";
+import { DIVINE_COLLECTION_CATEGORY, DIVINE_COLLECTION_SLUGS } from "@/data/products";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
 import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity-full.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar-full.jpg";
-import janmaDivinePc from "@/assets/brand/janma-divine-pc.jpg.jpeg";
+// ⚠ Four of these Janmashtami filenames describe the WRONG artwork — "divine" is the
+// gift-set spray photo, "pack" is the attar-box photo, and the two mobile ones are
+// likewise crossed. Each import below is named for what the file actually SHOWS, so the
+// slides read correctly. Open the images before "correcting" any of these back to match
+// their filenames: the copy and CTAs were swapped on the live site because of this.
+import janmaGiftSetPc from "@/assets/brand/janma-divine-pc.jpg.jpeg";
+import janmaDivinePc from "@/assets/brand/janma-pack-pc.jpg.jpeg";
 import janmaCollectorsPc from "@/assets/brand/janma-collectors-pc.jpg.jpeg";
-import janmaPackPc from "@/assets/brand/janma-pack-pc.jpg.jpeg";
 import janmaCollectorsMobile from "@/assets/brand/janma-collectors-mobile.jpg.jpeg";
-import janmaPack48Mobile from "@/assets/brand/janma-pack48-mobile.jpg.jpeg";
-import janmaPackMobile from "@/assets/brand/janma-pack-mobile.jpg.jpeg";
+import janmaDivineMobile from "@/assets/brand/janma-pack48-mobile.jpg.jpeg";
+import janmaPack48Mobile from "@/assets/brand/janma-pack-mobile.jpg.jpeg";
 
 const AUTOPLAY_MS = 5000;
+
+/* Where the two "Shop Divine Series" buttons point.
+ *
+ * Now that DIVINE_COLLECTION_SLUGS lists the two sets, this resolves to the Divine
+ * Series grid. The Attar fallback stays as a guard: empty the slug list (to pull the
+ * series) and both buttons quietly revert to a real page instead of dropping festive
+ * ad traffic on a "No fragrances found" dead end. */
+const divineCollectionHref = DIVINE_COLLECTION_SLUGS.length
+  ? `/shop?category=${encodeURIComponent(DIVINE_COLLECTION_CATEGORY)}`
+  : "/shop?category=Attar";
 
 // Trust stats shown under the hero copy (inline on desktop) and as a bordered,
 // icon-led strip below the banner image on mobile — see the boxed stats block
@@ -48,7 +64,7 @@ const fallbackSlides: Slide[] = [
     title: "The Divine",
     highlight: "Collection",
     copy: "Pure, alcohol-free attars hand-distilled in Kannauj — a fragrance offering as timeless as the celebration itself.",
-    cta: { label: "Shop Divine Collection", to: "/shop?category=Attar" },
+    cta: { label: "Shop Divine Series", to: divineCollectionHref },
   },
   {
     image: janmaCollectorsPc,
@@ -59,7 +75,7 @@ const fallbackSlides: Slide[] = [
     cta: { label: "Shop Trilogy", to: "/product/shabd" },
   },
   {
-    image: janmaPackPc,
+    image: janmaGiftSetPc,
     eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
     title: "Gift Sets",
     highlight: "For the Whole Family",
@@ -103,9 +119,9 @@ const fallbackMobileSlides: MobileSlide[] = [
   // price sit near the top of the artwork, which is precisely what a shorter frame used
   // to cut off.
   // (Sep 2026: swapped in for the Raksha Bandhan mobile set once that sale wrapped.)
-  { image: janmaCollectorsMobile, alt: "Janmashtami Sale — Shabd", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
-  { image: janmaPack48Mobile, alt: "Janmashtami Sale — Gift Sets", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
-  { image: janmaPackMobile, alt: "Janmashtami Sale — Pack of 4 & 8", fit: "cover", cta: { label: "Shop Pack of 4 & 8", to: "/shop?category=Gift Set" } },
+  { image: janmaCollectorsMobile, alt: "Janmashtami Sale — Collector's Edition trilogy", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
+  { image: janmaDivineMobile, alt: "Janmashtami Sale — Divine Series Collection", fit: "cover", cta: { label: "Shop Divine Series", to: divineCollectionHref } },
+  { image: janmaPack48Mobile, alt: "Janmashtami Sale — Pack of 4 or Pack of 8, Buy 1 Get 1 Free", fit: "cover", cta: { label: "Shop Pack of 4 & 8", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },

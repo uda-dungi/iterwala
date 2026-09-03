@@ -69,6 +69,7 @@ export function Footer() {
               <li><Link to="/shop?category=Perfume" className="hover:text-ivory">Perfumes</Link></li>
               <li><Link to="/shop?category=Attar" className="hover:text-ivory">Attars</Link></li>
               <li><Link to="/shop?category=Gift Set" className="hover:text-ivory">Gift Sets</Link></li>
+              <li><Link to="/shop?category=Divine Series" className="hover:text-ivory">Divine Series</Link></li>
               <li><Link to="/wholesale" className="hover:text-ivory">Wholesale</Link></li>
               <li><Link to="/about" className="hover:text-ivory">About Us</Link></li>
             </ul>

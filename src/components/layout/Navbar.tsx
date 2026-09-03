@@ -33,6 +33,7 @@ const categoryMenu = [
   { to: "/shop?category=Attar", label: "Attars" },
   { to: "/shop?category=Gift Set", label: "Gift Sets" },
   { to: "/shop?category=Collector's Edition", label: "Collector's Edition" },
+  { to: "/shop?category=Divine Series", label: "Divine Series" },
 ];
 
 export function Navbar() {

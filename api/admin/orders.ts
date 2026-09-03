@@ -171,10 +171,19 @@ export default async function handler(req: any, res: any) {
   const DISPATCH_COLUMNS = "tracking_id, carrier, tracking_url, dispatched_at, admin_notified_at, shipped_email_sent_at";
   const COD_COLUMNS = "payment_method, shiprocket_order_id, shiprocket_shipment_id";
 
-  let { data, error } = await admin
+  // Declared up front rather than inferred from the first call on purpose. The client
+  // derives a row type from the select string, so `data` would be typed to the FULL
+  // projection — and the fallback below, whose entire job is to return fewer columns,
+  // then fails to assign to it. The rows are handed straight to res.json() a few lines
+  // down and never read field-by-field here, so the row type carries nothing worth
+  // keeping; what matters is that both projections fit the same variable.
+  let data: any[] | null;
+  let error: any;
+
+  ({ data, error } = await admin
     .from("orders")
     .select(`${BASE_COLUMNS}, ${DISPATCH_COLUMNS}, ${COD_COLUMNS}`)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false }));
 
   let dispatchReady = !error;
   let codReady = !error;

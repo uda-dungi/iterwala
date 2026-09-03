@@ -153,11 +153,12 @@ const newProductGalleryModules = import.meta.glob(
 // background — per the same "lead with the product itself" rule noted in GALLERY_ORDER,
 // the clean shot leads instead and the card sits later in the gallery).
 //
-// NOTE on "Guldasta": the 5 photos in that folder show a 4-bottle gift box whose bottles
-// are labeled "Shahi Chandan" and "Red Rose" — neither is a catalogue product, and
-// a-guldasta itself is sold as a single 10ml attar. Confirmed twice with Jatin that these
-// are the intended Guldasta photos, so they're wired in; revisit if the listing is meant
-// to become a gift set (the name does mean "bouquet").
+// RESOLVED (Sep 2026) — "Guldasta": this folder used to hold 5 photos of a 4-bottle gift
+// box labeled "Shahi Chandan" and "Red Rose", which are not catalogue products and are
+// not Guldasta (sold as a single 10ml attar). They were the Divine Series' artwork
+// filed under the wrong product. Real Guldasta bottle shots have now replaced them, and
+// the old five now live in src/assets/Divine Series/Divine Series Set/ as that product's
+// gallery — see divineSeriesImagesFor below.
 const NEW_GALLERY_ORDER: Record<string, string[]> = {
   "Celebrity Attar": ["168.jpg", "172.jpg", "169.jpg", "170.jpg"],
   "Chocoblast Attar": ["178.jpg", "179.jpg", "180.jpg", "181.jpg", "182.jpg"],
@@ -287,10 +288,9 @@ const packGalleryFor = (folder: string): string[] => {
 // sold in multiple volumes). Loaded the same way, via glob. (Originally dropped on disk
 // as "product gallery 2" with the raw, uncompressed exports — resized to 1080px and
 // mozjpeg-recompressed into this folder, ~56% smaller, before being wired in below.)
-// NOTE: the "Guldasta" folder in this batch was empty — still no real Guldasta photos to
-// wire in. The Guldasta folder in the *older* "new Product Gallery" batch isn't it either:
-// those 5 photos are actually labeled "Shahi Chandan" and "Red Rose" bottles (see the note
-// above NEW_GALLERY_ORDER), not Guldasta.
+// NOTE: the "Guldasta" folder in this batch was empty. That is still true, but no longer
+// a problem — the real Guldasta photos arrived Sep 2026 and live in the older
+// "new Product Gallery/Guldasta" folder (see the resolved note above NEW_GALLERY_ORDER).
 const productGallery2Modules = import.meta.glob(
   "../assets/product-gallery-2/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
   { eager: true, import: "default" }
@@ -484,6 +484,42 @@ export const NEW_LAUNCH_SLUGS = [
   "rooh-chandan", "jannat-firdaus", "amber", "shahi-gulab",
   "aura", "poetry", "wanted", "rebel",
 ] as const;
+
+/**
+ * "Divine Series" — the Janmashtami festive line-up (Sep 2026).
+ *
+ * A VIRTUAL category, exactly like "New Launch" above: no product carries it as its
+ * `category`, so both sets below stay Gift Sets everywhere else on the site while also
+ * appearing under Divine Series. Adding a slug here is all it takes to include another.
+ *
+ * Slugs, not ids — matches how NEW_LAUNCH_SLUGS and the Shop filter work.
+ */
+export const DIVINE_COLLECTION_CATEGORY = "Divine Series";
+export const DIVINE_COLLECTION_SLUGS: string[] = [
+  "premium-divine-series",
+  "divine-series-set",
+];
+
+/**
+ * Divine Series photography — src/assets/Divine Series/<product folder>/, filename order.
+ *
+ * The "Divine Series Set" shots were mis-filed as Guldasta's gallery for months (two code
+ * notes further up used to flag it): they show a 4-bottle box labeled "Shahi Chandan" and
+ * "Red Rose", while Guldasta is a single 10ml attar. Moved here Sep 2026 once the real
+ * Guldasta bottle shots arrived.
+ */
+const divineSeriesModules = import.meta.glob(
+  "../assets/Divine Series/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+  { eager: true, import: "default" }
+) as Record<string, string>;
+
+const divineSeriesImagesFor = (folder: string): string[] => {
+  const prefix = `../assets/Divine Series/${folder}/`;
+  return Object.keys(divineSeriesModules)
+    .filter((k) => k.startsWith(prefix))
+    .sort((a, b) => a.slice(prefix.length).localeCompare(b.slice(prefix.length), undefined, { numeric: true }))
+    .map((k) => divineSeriesModules[k]);
+};
 
 const PERFUME_VOL = ["50ml", "100ml"];
 // Eight perfumes also sell a 20ml travel size (per "New Price sheet .xlsx"). They already
@@ -972,6 +1008,42 @@ export const products: Product[] = [
     ingredients: "Eight premium fragrances in a luxury gift box.",
     description: "Choose from two curated 8-scent lineups — the Signature Discovery Set or the Secret Crush Octet — eight of our most-loved fragrances together in one beautiful gift box.",
     rating: 4.9, reviews: 142, badge: "Best Gift", bestSeller: true,
+  },
+  // ── Divine Series (Janmashtami, Sep 2026) ──────────────────────────────────
+  // Boxed attar sets. `category` is "Gift Set" because that is what they are; the
+  // Divine Series grouping is virtual (DIVINE_COLLECTION_SLUGS), so each appears under
+  // both without being duplicated.
+  //
+  // `compareAt` is deliberately omitted on both. No MRP was supplied, and every other
+  // product uses compareAt to render a struck-through "was" price — inventing one here
+  // would put a fabricated discount in front of shoppers. Add the real MRPs to switch
+  // the savings badge on.
+  {
+    id: "g-premium-divine-series", slug: "premium-divine-series", name: "Premium Divine Series",
+    tagline: "Eight premium attars, one gift box",
+    price: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: divineSeriesImagesFor("Premium Divine Series")[0] ?? PLACEHOLDER_IMG,
+    gallery: divineSeriesImagesFor("Premium Divine Series"),
+    notes: { top: ["Rose", "Lavender"], heart: ["Mogra", "Rajnigandha", "Lotus"], base: ["Oud", "Sandalwood"] },
+    longevity: "10+ hours", projection: "Moderate",
+    occasions: ["Gifting", "Festive", "Pooja"], moods: ["Pure", "Timeless"],
+    ingredients: "Eight alcohol-free premium attars in a luxury gift box.",
+    // The eight bottles are named on the box shot, and each is its own catalogue attar.
+    description: "Eight of our premium attars together in one gift box — Shahi Gulab, Royal Oud, Lavender, Mogra Gold, Rajnigandha, Shyam Shringar, Lotus and Rooh Chandan. Alcohol-free, traditionally crafted, and presented ready to give.",
+    rating: 4.8, reviews: 0, newArrival: true,
+  },
+  {
+    id: "g-divine-series-set", slug: "divine-series-set", name: "Divine Series Set",
+    tagline: "Shahi Chandan & Red Rose, boxed",
+    price: 999, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    image: divineSeriesImagesFor("Divine Series Set")[0] ?? PLACEHOLDER_IMG,
+    gallery: divineSeriesImagesFor("Divine Series Set"),
+    notes: { top: ["Rose"], heart: ["Red Rose", "Sandalwood"], base: ["Chandan", "Musk"] },
+    longevity: "10 hours", projection: "Intimate",
+    occasions: ["Gifting", "Festive", "Pooja"], moods: ["Joyful", "Pure"],
+    ingredients: "Four alcohol-free premium attars in a luxury gift box.",
+    description: "A four-bottle attar set — Shahi Chandan and Red Rose, two of each — in a signature Itrawala gift box. Alcohol-free and traditionally crafted, made for festive gifting.",
+    rating: 4.7, reviews: 0, newArrival: true,
   },
   {
     id: "g-aqua-duo", slug: "aqua-duo-gift-set", name: "Aqua Duo Gift Set", tagline: "Frozen Blue & Ocean Water",

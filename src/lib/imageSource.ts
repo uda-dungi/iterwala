@@ -29,6 +29,11 @@ const repoModules = import.meta.glob(
     "../assets/product-gallery-2/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
     "../assets/product-gallery-3/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
     "../assets/Pack of 4 and 8/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+    // Divine Series (Sep 2026) — one subfolder per product. Includes the Shahi Chandan /
+    // Red Rose gift-box shots that used to sit mis-filed under "new Product Gallery/
+    // Guldasta". Listed so they resolve by storageKey and appear in the admin's image
+    // picker; without this they are in the repo but unreachable from the database.
+    "../assets/Divine Series/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
   ],
   { eager: true, import: "default" }
 ) as Record<string, string>;
