@@ -56,9 +56,12 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
                 {offer.badge}
               </span>
             ) : (
-              showBadge && product.badge && (
+              // `trending` is an admin toggle that rendered nowhere — saving it did
+              // nothing at all. It shares the badge slot with the free-text `badge`,
+              // which wins when both are set so an explicit label is never overridden.
+              showBadge && (product.badge || product.trending) && (
                 <span className="text-[7px] sm:text-[10px] tracking-wide sm:tracking-luxe uppercase px-1.5 sm:px-3 py-0.5 sm:py-1 bg-gradient-gold text-primary-foreground font-semibold rounded-sm">
-                  {product.badge}
+                  {product.badge ?? "Trending"}
                 </span>
               )
             )}

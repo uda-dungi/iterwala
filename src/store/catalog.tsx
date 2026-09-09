@@ -21,6 +21,7 @@ import {
   type Product,
 } from "@/data/products";
 import { fetchCatalog, VIDEO_HIDDEN, type Catalog, type Collection, type Banner } from "@/lib/catalog";
+import { DELIVERY_ESTIMATE, TRADING_SINCE } from "@/config/site";
 
 const SNAPSHOT: Catalog = {
   products: snapshotProducts,
@@ -37,6 +38,18 @@ const SNAPSHOT: Catalog = {
   newLaunchSlugs: [...NEW_LAUNCH_SLUGS],
   settings: {},
   origin: "snapshot",
+};
+
+/** A settings value only counts when it is a non-empty string — a blank row must fall
+ *  through to the constant rather than rendering an empty delivery promise. */
+const asText = (v: unknown): string | undefined =>
+  typeof v === "string" && v.trim() ? v.trim() : undefined;
+
+/** Same for the year: reject anything that isn't a plausible 4-digit year, so a typo in
+ *  the admin cannot put "Trusted by online customers since 0" in front of shoppers. */
+const asYear = (v: unknown): number | undefined => {
+  const n = Number(v);
+  return Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : undefined;
 };
 
 /** Bundled product videos, by slug.
@@ -69,6 +82,14 @@ type CatalogCtx = Catalog & {
   productById: (id: string) => Product | undefined;
   amazonChoiceProducts: Product[];
   isLive: boolean;
+  /* ── Admin-editable copy ──────────────────────────────────────────────────
+   * Resolved here rather than read from src/config/site.ts at the call site.
+   * Both of these are editable in Admin → Content → Settings and both were
+   * being ignored: the site rendered the compiled constant, so an admin could
+   * save a new delivery promise, see it persist, and never see it appear. The
+   * database row wins; the constant is the fallback for an unseeded table. */
+  deliveryEstimate: string;
+  tradingSince: number;
 };
 
 const Ctx = createContext<CatalogCtx | null>(null);
@@ -112,6 +133,8 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
       productById: (id) => byId.get(id),
       amazonChoiceProducts: merged.products.filter((p) => p.amazonChoice),
       isLive: merged.origin === "database",
+      deliveryEstimate: asText(merged.settings?.delivery_estimate) ?? DELIVERY_ESTIMATE,
+      tradingSince: asYear(merged.settings?.trading_since) ?? TRADING_SINCE,
     };
   }, [data]);
 
@@ -132,6 +155,10 @@ export function useCatalog(): CatalogCtx {
       productById: (id) => byId.get(id),
       amazonChoiceProducts: SNAPSHOT.products.filter((p) => p.amazonChoice),
       isLive: false,
+      // No provider means no live settings either — the compiled constants are all
+      // there is, which is the same thing the snapshot represents everywhere else.
+      deliveryEstimate: DELIVERY_ESTIMATE,
+      tradingSince: TRADING_SINCE,
     };
   }
   return ctx;

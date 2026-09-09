@@ -23,7 +23,6 @@ import { recordView } from "@/store/recentlyViewed";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
-import { DELIVERY_ESTIMATE } from "@/config/site";
 
 /**
  * Star distribution for the reviews summary bars.
@@ -56,7 +55,7 @@ const GALLERY_ADVANCE_MS = 4000;
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
-  const { products, getProduct } = useCatalog();
+  const { products, getProduct, deliveryEstimate } = useCatalog();
   const product = getProduct(slug);
   const { addToCart, toggleWishlist, wishlist, setCartOpen } = useShop();
   const [qty, setQty] = useState(1);
@@ -154,7 +153,7 @@ export default function ProductDetail() {
   if (!product) return <Navigate to="/shop" />;
   const wished = wishlist.includes(product.id);
   const vols = volumesFor(product);
-  const faqs = faqsFor(product, vols);
+  const faqs = faqsFor(product, vols, deliveryEstimate);
   const { price: unitPrice, compareAt: unitCompareAt } = priceFor(product, selectedVol);
   const content = contentFor(product, selectedVol);
   const productOffer = offerForProduct(product.id);
@@ -439,7 +438,7 @@ export default function ProductDetail() {
             <div className="flex items-start gap-2.5 px-3 py-2.5">
               <Truck className="w-4 h-4 text-primary shrink-0 mt-0.5" strokeWidth={1.4} />
               <p className="text-xs sm:text-sm text-ivory leading-snug">
-                {DELIVERY_ESTIMATE}
+                {deliveryEstimate}
                 <Link to="/shipping" className="block text-[11px] text-muted-foreground hover:text-primary underline underline-offset-2 mt-0.5">
                   Free shipping across India · Shipping policy
                 </Link>
@@ -822,7 +821,7 @@ type Faq = { q: string; a: ReactNode };
  * page and of /shipping and /returns verbatim. Two different answers to "can I return
  * this?" on one site is worse than not answering at all.
  */
-function faqsFor(product: Product, vols: string[]): Faq[] {
+function faqsFor(product: Product, vols: string[], deliveryEstimate: string): Faq[] {
   const isAttar = product.category === "Attar";
   const sizes = vols.filter(Boolean);
   const sizeList =
@@ -861,7 +860,7 @@ function faqsFor(product: Product, vols: string[]): Faq[] {
       q: "When will it arrive, and what does delivery cost?",
       a: (
         <>
-          {DELIVERY_ESTIMATE}. Shipping is free on all prepaid orders across India, with no delivery charge at
+          {deliveryEstimate}. Shipping is free on all prepaid orders across India, with no delivery charge at
           checkout. We currently ship within India only.{" "}
           <Link to="/shipping" className="text-primary underline underline-offset-2">
             Shipping policy

@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { adminApi } from "@/lib/adminApi";
 import { resolveImage, repoImageKeys } from "@/lib/imageSource";
+import { DEFAULT_BANNERS } from "@/data/defaultBanners";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -140,6 +141,30 @@ function Spinner() {
 function BannersTab() {
   const { rows, loading, busy, load, move, remove, toggleActive } = useResource<any>("banners");
   const [editing, setEditing] = useState<any | null>(null);
+  const [importing, setImporting] = useState(false);
+
+  /** Copies the slides the site currently ships into the table.
+   *
+   *  Live banners REPLACE the built-in ones rather than adding to them, so creating a
+   *  single banner used to wipe the other three from the homepage without warning.
+   *  Starting from a full copy makes that replacement safe: what you see listed here is
+   *  exactly what the homepage shows, and editing one no longer costs you the rest. */
+  const importDefaults = async () => {
+    setImporting(true);
+    try {
+      // Sequential, not Promise.all — position is assigned from the current row count
+      // server-side, so parallel inserts would race for the same slot.
+      for (const b of DEFAULT_BANNERS) {
+        await adminApi.create("banners", { ...b, source: "repo", mobile_source: "repo", active: true });
+      }
+      toast.success(`Imported ${DEFAULT_BANNERS.length} banners`);
+      await load();
+    } catch (err: any) {
+      toast.error(err.message || "Import failed");
+    } finally {
+      setImporting(false);
+    }
+  };
 
   if (loading) return <Spinner />;
 
@@ -154,11 +179,23 @@ function BannersTab() {
         </Button>
       </div>
 
-      {!rows.length && (
-        <div className="luxury-card p-6 text-sm text-muted-foreground">
-          No banners yet. Until one is added, the homepage keeps using the hero images built
-          into the site — adding one here takes over.
+      {!rows.length ? (
+        <div className="luxury-card p-6 space-y-3">
+          <p className="text-sm text-ivory">The homepage is showing the {DEFAULT_BANNERS.length} hero banners built into the site.</p>
+          <p className="text-sm text-muted-foreground">
+            Banners added here <strong className="text-ivory">replace</strong> those built-in ones — they are not
+            added alongside. So creating one banner would leave the homepage with only that
+            banner. Import the current set first, then edit, reorder or delete freely.
+          </p>
+          <Button variant="luxury" size="sm" onClick={importDefaults} disabled={importing}>
+            {importing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
+            Import the {DEFAULT_BANNERS.length} built-in banners
+          </Button>
         </div>
+      ) : (
+        <p className="text-[11px] text-muted-foreground">
+          These have taken over from the built-in hero slides — the homepage now shows exactly this list.
+        </p>
       )}
 
       <div className="space-y-2">

@@ -1,6 +1,6 @@
 import { ShieldCheck } from "lucide-react";
 import { StoryImages } from "@/data/collectorStories";
-import { TRADING_SINCE } from "@/config/site";
+import { useCatalog } from "@/store/catalog";
 
 /**
  * Full-bleed editorial story for a Collector's Edition bottle (Shabd / Kahani / Ehsaas).
@@ -10,6 +10,7 @@ import { TRADING_SINCE } from "@/config/site";
  * scale to the screen width on mobile and desktop.
  */
 export function CollectorStory({ images, name }: { images: StoryImages; name: string }) {
+  const { tradingSince } = useCatalog();
   return (
     <section className="w-full">
       {/* 1 · Opening hero */}
@@ -23,7 +24,7 @@ export function CollectorStory({ images, name }: { images: StoryImages; name: st
         <div className="container py-4 md:py-5 flex items-center justify-center gap-3 md:gap-4 text-center">
           <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 shrink-0" strokeWidth={1.5} />
           <p className="font-serif text-base sm:text-xl md:text-2xl tracking-wide">
-            Trusted by online customers since {TRADING_SINCE}
+            Trusted by online customers since {tradingSince}
           </p>
         </div>
       </div>

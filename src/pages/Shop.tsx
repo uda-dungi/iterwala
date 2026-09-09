@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Filter, ShieldCheck, X } from "lucide-react";
 import { priceFor, listingVolume, DIVINE_COLLECTION_CATEGORY, DIVINE_COLLECTION_SLUGS, type Product } from "@/data/products";
 import { useCatalog } from "@/store/catalog";
-import { TRADING_SINCE } from "@/config/site";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +23,7 @@ const noteList = ["Oud", "Rose", "Saffron", "Amber", "Sandalwood", "Musk", "Vani
 const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "Festive"];
 
 export default function Shop() {
-  const { products, newLaunchSlugs } = useCatalog();
+  const { products, newLaunchSlugs, tradingSince } = useCatalog();
   const [params, setParams] = useSearchParams();
   const [sort, setSort] = useState(params.get("sort") || "popular");
   const [price, setPrice] = useState<[number]>([4000]);
@@ -241,7 +240,7 @@ export default function Shop() {
           >
             <ShieldCheck className="w-5 h-5 md:w-6 md:h-6 shrink-0" strokeWidth={1.5} />
             <p className="font-serif text-base sm:text-xl md:text-2xl tracking-wide">
-              Trusted by online customers since {TRADING_SINCE}
+              Trusted by online customers since {tradingSince}
             </p>
           </a>
 

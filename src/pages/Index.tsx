@@ -114,16 +114,23 @@ export default function Index() {
 
       {/* SHOP BY COLLECTION */}
       <Section eyebrow="Browse" title="Shop by Collection" subtitle="Find your category — perfumes, attars, or ready-to-gift sets." className="pt-8 pb-10 md:pt-12 md:pb-14">
+        {/* Three columns on desktop, but the count is admin-controlled, so the layout
+            cannot assume three. An odd card is widened to fill the row rather than
+            leaving a hole; the old rule hard-coded index 2 and broke the moment a
+            fourth collection was added. */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
           {collections.map((c, i) => (
             <motion.div key={c.key}
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              className={i === 2 ? "col-span-2 md:col-span-1" : ""}>
+              className={i === collections.length - 1 && collections.length % 2 === 1 ? "col-span-2 md:col-span-1" : ""}>
               <Link to={`/shop?category=${encodeURIComponent(c.key)}`}
                 className="block luxury-card group overflow-hidden">
                 <div className="relative aspect-[4/3] md:aspect-[3/2] overflow-hidden bg-deep-brown">
-                  <img src={collectionImg[i % collectionImg.length]} alt={c.title}
+                  {/* The admin can attach artwork per collection; the bundled trio is
+                      the fallback for rows that have none. This used to ignore c.image
+                      entirely, so picking a photo in the admin did nothing. */}
+                  <img src={c.image ?? collectionImg[i % collectionImg.length]} alt={c.title}
                     className="w-full h-full object-cover opacity-70 transition-transform duration-[1.2s] group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-3 md:p-6">

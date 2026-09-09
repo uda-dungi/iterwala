@@ -34,6 +34,12 @@ const repoModules = import.meta.glob(
     // Guldasta". Listed so they resolve by storageKey and appear in the admin's image
     // picker; without this they are in the repo but unreachable from the database.
     "../assets/Divine Series/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+    // Hero and promo artwork. Without this the admin's image picker could not offer a
+    // single existing banner, so "add a hero banner" meant uploading a fresh file even
+    // when the artwork was already in the repo — which is most of why the Hero Banners
+    // tab went unused. These are wide/tall marketing shots, not product photos, so they
+    // are only ever chosen deliberately for a banner or a collection card.
+    "../assets/brand/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
   ],
   { eager: true, import: "default" }
 ) as Record<string, string>;
