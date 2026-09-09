@@ -5,35 +5,21 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Award, Star, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCatalog } from "@/store/catalog";
-import { DIVINE_COLLECTION_CATEGORY, DIVINE_COLLECTION_SLUGS } from "@/data/products";
 import banner1 from "@/assets/brand/banner-1.jpg";
 import banner2 from "@/assets/brand/banner-2.jpg";
-import promoPack4 from "@/assets/brand/promo-pack-of-4.jpg";
 import mobileBannerCelebrity from "@/assets/brand/mobile-banner-celebrity-full.jpg";
 import mobileBannerAttar from "@/assets/brand/mobile-banner-attar-full.jpg";
-// ⚠ Four of these Janmashtami filenames describe the WRONG artwork — "divine" is the
-// gift-set spray photo, "pack" is the attar-box photo, and the two mobile ones are
-// likewise crossed. Each import below is named for what the file actually SHOWS, so the
-// slides read correctly. Open the images before "correcting" any of these back to match
-// their filenames: the copy and CTAs were swapped on the live site because of this.
-import janmaGiftSetPc from "@/assets/brand/janma-divine-pc.jpg.jpeg";
-import janmaDivinePc from "@/assets/brand/janma-pack-pc.jpg.jpeg";
-import janmaCollectorsPc from "@/assets/brand/janma-collectors-pc.jpg.jpeg";
-import janmaCollectorsMobile from "@/assets/brand/janma-collectors-mobile.jpg.jpeg";
-import janmaDivineMobile from "@/assets/brand/janma-pack48-mobile.jpg.jpeg";
-import janmaPack48Mobile from "@/assets/brand/janma-pack-mobile.jpg.jpeg";
+// Current promo set (Sep 2026), replacing the Janmashtami banners now that the festival
+// has passed. Two campaigns, each shot twice: 16:9 for desktop and 9:16 for mobile, the
+// exact aspects the two carousels below render at. The desktop pair keeps its left third
+// clear because the copy is overlaid there; the mobile pair has its headline, offer and
+// price baked into the artwork, so those slides carry no text of their own.
+import bannerCollectorsPc from "@/assets/brand/banner-collectors-pc.jpg";
+import bannerGiftSetPc from "@/assets/brand/banner-giftset-pc.jpg";
+import bannerCollectorsMobile from "@/assets/brand/banner-collectors-mobile.jpg";
+import bannerGiftSetMobile from "@/assets/brand/banner-giftset-mobile.jpg";
 
 const AUTOPLAY_MS = 5000;
-
-/* Where the two "Shop Divine Series" buttons point.
- *
- * Now that DIVINE_COLLECTION_SLUGS lists the two sets, this resolves to the Divine
- * Series grid. The Attar fallback stays as a guard: empty the slug list (to pull the
- * series) and both buttons quietly revert to a real page instead of dropping festive
- * ad traffic on a "No fragrances found" dead end. */
-const divineCollectionHref = DIVINE_COLLECTION_SLUGS.length
-  ? `/shop?category=${encodeURIComponent(DIVINE_COLLECTION_CATEGORY)}`
-  : "/shop?category=Attar";
 
 // Trust stats shown under the hero copy (inline on desktop) and as a bordered,
 // icon-led strip below the banner image on mobile — see the boxed stats block
@@ -56,39 +42,25 @@ type Slide = {
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
 const fallbackSlides: Slide[] = [
-  // Janmashtami Sale promo banners — placed first so the live offers show on load.
-  // (Sep 2026: swapped in for the Raksha Bandhan set once that sale wrapped.)
+  // Live promo banners first, so the current offers are what loads.
+  // (Sep 2026: replaced the Janmashtami set once that festival passed. The offers
+  // themselves are unchanged — the artwork just no longer names a festival, so it does
+  // not go stale the moment the date does.)
   {
-    image: janmaDivinePc,
-    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
-    title: "The Divine",
-    highlight: "Collection",
-    copy: "Pure, alcohol-free attars hand-distilled in Kannauj — a fragrance offering as timeless as the celebration itself.",
-    cta: { label: "Shop Divine Series", to: divineCollectionHref },
-  },
-  {
-    image: janmaCollectorsPc,
-    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
+    image: bannerCollectorsPc,
+    eyebrow: "Where Every Bottle Tells a Story",
     title: "Collector's Edition",
     highlight: "Buy 2 Get 1 Free",
     copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
     cta: { label: "Shop Trilogy", to: "/product/shabd" },
   },
   {
-    image: janmaGiftSetPc,
-    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
-    title: "Gift Sets",
-    highlight: "For the Whole Family",
-    copy: "Curated multi-fragrance gift sets, boxed and ready to give — the easiest way to share the celebration.",
-    cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" },
-  },
-  {
-    image: promoPack4,
-    eyebrow: "This Janmashtami, Kuch Special Ho Jaye",
-    title: "The Pack of 4",
+    image: bannerGiftSetPc,
+    eyebrow: "A Fragrance For Every Mood",
+    title: "Perfume Gift Sets",
     highlight: "Buy 1 Get 1 Free",
-    copy: "Four signature 20ml eau de parfums in a keepsake gift box — add two and pay just ₹999 for both. The perfect Janmashtami gift.",
-    cta: { label: "Shop the Pack of 4", to: "/product/pack-of-4-gift-set" },
+    copy: "Pack of 4 or Pack of 8, boxed and ready to give — add two and pay just ₹999 for both.",
+    cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" },
   },
   {
     image: banner1,
@@ -114,14 +86,11 @@ const fallbackSlides: Slide[] = [
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
 const fallbackMobileSlides: MobileSlide[] = [
-  // Janmashtami Sale banners — shot at 9:16, exactly the carousel's aspect below, so
-  // object-cover shows it edge to edge with nothing cropped. The offer headline and
-  // price sit near the top of the artwork, which is precisely what a shorter frame used
-  // to cut off.
-  // (Sep 2026: swapped in for the Raksha Bandhan mobile set once that sale wrapped.)
-  { image: janmaCollectorsMobile, alt: "Janmashtami Sale — Collector's Edition trilogy", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
-  { image: janmaDivineMobile, alt: "Janmashtami Sale — Divine Series Collection", fit: "cover", cta: { label: "Shop Divine Series", to: divineCollectionHref } },
-  { image: janmaPack48Mobile, alt: "Janmashtami Sale — Pack of 4 or Pack of 8, Buy 1 Get 1 Free", fit: "cover", cta: { label: "Shop Pack of 4 & 8", to: "/shop?category=Gift Set" } },
+  // Shot at 9:16, exactly this carousel's aspect, so object-cover shows them edge to
+  // edge with nothing cropped — the offer headline and price sit near the top of the
+  // artwork, which is precisely what a shorter frame used to cut off.
+  { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
+  { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },

@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { site } from "@/config/site";
+import { SALE_NAME } from "@/lib/offers";
 
 const GIFT_FEE = 49;
 // Cash on Delivery adds a flat handling fee — PayU's total is unaffected, this only
@@ -384,7 +385,7 @@ export default function Checkout() {
               <span>Total</span><span className="text-gold">{formatINR(total)}</span>
             </div>
             {offerDiscount > 0 && (
-              <p className="text-[11px] text-primary text-right">You save {formatINR(offerDiscount)} with the Raksha Bandhan Sale 🎉</p>
+              <p className="text-[11px] text-primary text-right">You save {formatINR(offerDiscount)} with the {SALE_NAME} 🎉</p>
             )}
             {couponBlocked && (
               <p className="text-[11px] text-destructive">{couponBlocked}</p>

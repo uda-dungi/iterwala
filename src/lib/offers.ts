@@ -9,6 +9,15 @@
 
 export const FRIENDSHIP_SALE_ACTIVE = true;
 
+/** Shopper-facing name of the running sale — the product-page headline, the cart line,
+ *  the checkout line and the cart-drawer badge all read it from here.
+ *
+ *  Deliberately not a festival. It has been wrong twice: the copy still said "Raksha
+ *  Bandhan Sale" through Janmashtami, and the Janmashtami rename only ever touched the
+ *  announcement bar, so shoppers saw one festival in the banner and a different one on
+ *  the product page and again at checkout. A neutral name cannot go stale on a date. */
+export const SALE_NAME = "Special Offer";
+
 /** Pack of 4 (Signature Quad) — every pair of boxes costs PACK_OF_4_PAIR_PRICE. */
 export const PACK_OF_4_ID = "g-pack-of-4";
 export const PACK_OF_4_PAIR_PRICE = 999;
@@ -121,14 +130,14 @@ export function offerForProduct(id: string): { badge: string; headline: string; 
   if (pack) {
     return {
       badge: "Buy 1 Get 1 Free",
-      headline: "Raksha Bandhan Sale · Buy 1 Get 1 Free",
+      headline: `${SALE_NAME} · Buy 1 Get 1 Free`,
       detail: `Add 2 ${pack.name} gift sets for just ${inr(pack.pairPrice)}.`,
     };
   }
   if (COLLECTORS_EDITION_IDS.includes(id)) {
     return {
       badge: "Buy 2 Get 1 Free",
-      headline: "Raksha Bandhan Sale · Buy 2 Get 1 Free",
+      headline: `${SALE_NAME} · Buy 2 Get 1 Free`,
       detail: "Mix and match any three across Shabd, Kahani and Ehsaas.",
     };
   }

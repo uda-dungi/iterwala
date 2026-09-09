@@ -5,6 +5,7 @@ import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { CartReservationNotice } from "@/components/shop/CartReservationBanner";
+import { SALE_NAME } from "@/lib/offers";
 
 export function CartDrawer() {
   const { cart, cartOpen, setCartOpen, removeFromCart, updateQty, subtotal, offerDiscount, offerNudge } = useShop();
@@ -76,7 +77,7 @@ export function CartDrawer() {
                 )}
                 {offerDiscount > 0 && (
                   <div className="flex justify-between text-sm text-primary">
-                    <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Raksha Bandhan Sale</span>
+                    <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> {SALE_NAME}</span>
                     <span>− {formatINR(offerDiscount)}</span>
                   </div>
                 )}

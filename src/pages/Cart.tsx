@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { site } from "@/config/site";
 import { computeCoupon, normalizeCode, WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 import { CartReservationNotice } from "@/components/shop/CartReservationBanner";
+import { SALE_NAME } from "@/lib/offers";
 
 export default function Cart() {
   const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge, coupon, setCoupon, couponDiscount, couponResult } = useShop();
@@ -107,7 +108,7 @@ export default function Cart() {
           <div className="gold-divider" />
           <Row label="Total" v={formatINR(total)} className="font-serif text-xl text-ivory" />
           {offerDiscount > 0 && (
-            <p className="text-[11px] text-primary text-right -mt-2">Raksha Bandhan Sale saves you {formatINR(offerDiscount)} 🎉</p>
+            <p className="text-[11px] text-primary text-right -mt-2">{SALE_NAME} saves you {formatINR(offerDiscount)} 🎉</p>
           )}
 
           <div className="space-y-2">

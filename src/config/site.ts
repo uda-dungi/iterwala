@@ -112,7 +112,7 @@ export const TRADING_SINCE = 2020;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
-  "✦ Janmashtami Special Sale is Live Now ✦",
+  "✦ Buy 1 Get 1 Free on Gift Sets ✦",
   `New Here? Get ${WELCOME_PERCENT}% Off with Code ${WELCOME_CODE}`,
   "Free Shipping",
   "Amazon's Choice Products Available",
