@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { site } from "@/config/site";
 import { SALE_NAME } from "@/lib/offers";
+import { computeCoupon, normalizeCode, WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 
 const GIFT_FEE = 49;
 // Cash on Delivery adds a flat handling fee — PayU's total is unaffected, this only
@@ -35,6 +36,7 @@ export default function Checkout() {
   const [gift, setGift] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [codSubmitting, setCodSubmitting] = useState(false);
+  const [couponEntry, setCouponEntry] = useState(coupon);
   const formRef = useRef<HTMLFormElement>(null);
 
   // Mirror the server's math (api/checkout/initiate): shipping is judged on the
@@ -50,6 +52,18 @@ export default function Checkout() {
   // Only the Cash on Delivery button's own total includes this — the shared Order
   // Summary total above stays what PayU actually charges.
   const codTotal = total + COD_FEE;
+
+  const applyCoupon = () => {
+    const result = computeCoupon(couponEntry, discountedSubtotal, offerDiscount);
+    if (result.valid) {
+      setCoupon(normalizeCode(couponEntry));
+      setCouponBlocked(null);
+      toast.success(`Coupon applied: ${WELCOME_PERCENT}% off`);
+    } else {
+      setCoupon("");
+      setCouponBlocked(result.reason || "That code isn't valid for this order.");
+    }
+  };
 
   // Meta InitiateCheckout — fires once when the shopper reaches checkout with a
   // non-empty bag (Meta's definition: entering the checkout flow, not completing it).
@@ -364,6 +378,22 @@ export default function Checkout() {
             </span>
           </label>
 
+          <div className="gold-divider" />
+          <div className="space-y-2">
+            <p className="text-xs tracking-luxe uppercase text-primary">Promo Code</p>
+            {appliedCoupon > 0 ? (
+              <div className="flex items-center justify-between gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
+                <span className="text-xs text-primary">{coupon} applied — {WELCOME_PERCENT}% off</span>
+                <button type="button" onClick={() => { setCoupon(""); setCouponEntry(""); setCouponBlocked(null); }} className="text-xs text-muted-foreground hover:text-ivory underline">Remove</button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input value={couponEntry} onChange={e => setCouponEntry(e.target.value)} placeholder={`Try ${WELCOME_CODE}`} />
+                <Button type="button" variant="outline-gold" onClick={applyCoupon}>Apply</Button>
+              </div>
+            )}
+            <p className="text-[11px] text-muted-foreground">New here? Use {WELCOME_CODE} for {WELCOME_PERCENT}% off your first order.</p>
+          </div>
           <div className="gold-divider" />
           <div className="space-y-2 text-sm">
             <Row label="Subtotal" v={formatINR(subtotal)} />

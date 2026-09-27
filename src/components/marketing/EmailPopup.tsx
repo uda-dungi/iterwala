@@ -6,11 +6,13 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 import { onDealPopupSettled } from "@/lib/popupGate";
+import { useShop } from "@/store/shop";
 
 const SEEN_KEY = "itr_email_popup_seen";
 
 /** Exit-intent / scroll-triggered email capture. Shows once per browser. */
 export function EmailPopup() {
+  const { setCoupon } = useShop();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
 
@@ -51,12 +53,12 @@ export function EmailPopup() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setCoupon(WELCOME_CODE);
     if (supabase) {
       await supabase.from("subscribers").insert({ email, source: "exit_popup" }).then(() => {});
     }
-    // Says "first order" because that's what the code actually does (api/_lib/coupons.ts) —
-    // promising a bare percentage led to shoppers expecting it on repeat orders too.
-    toast.success(`Welcome to the Inner Circle — use ${WELCOME_CODE} for ${WELCOME_PERCENT}% off your first order.`);
+    // The claimed code is now in the shared cart state; checkout confirms first-order eligibility.
+    toast.success(`${WELCOME_PERCENT}% welcome discount applied. Checkout will confirm eligibility.`);
     setOpen(false);
   };
 
