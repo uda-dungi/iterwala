@@ -4,7 +4,6 @@ import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { CartDrawer } from "@/components/shop/CartDrawer";
 import { EmailPopup } from "@/components/marketing/EmailPopup";
-import { DealPopup } from "@/components/marketing/DealPopup";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 
 /** Storefront shell — shop nav, footer, cart, and marketing overlays. */
@@ -19,9 +18,6 @@ export function PublicLayout() {
       <Footer />
       <CartDrawer />
       <WhatsAppButton />
-      {/* DealPopup goes first and hands over to EmailPopup when dismissed, so the two
-          marketing overlays can never be on screen together — see src/lib/popupGate.ts. */}
-      <DealPopup />
       <EmailPopup />
     </>
   );
