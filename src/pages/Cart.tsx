@@ -10,9 +10,10 @@ import { site } from "@/config/site";
 import { computeCoupon, normalizeCode, WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 import { CartReservationNotice } from "@/components/shop/CartReservationBanner";
 import { SALE_NAME } from "@/lib/offers";
+import { FreeGiftLine } from "@/components/shop/FreeGiftLine";
 
 export default function Cart() {
-  const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge, coupon, setCoupon, couponDiscount, couponResult } = useShop();
+  const { cart, updateQty, removeFromCart, subtotal, offerDiscount, offers, offerNudge, coupon, setCoupon, couponDiscount, couponResult, freeGift } = useShop();
   const [entry, setEntry] = useState(coupon);
   const discountedSubtotal = Math.max(0, subtotal - offerDiscount);
   const shipping = 0; // Free shipping on all orders.
@@ -84,6 +85,7 @@ export default function Cart() {
               </div>
             </div>
           ))}
+          {freeGift && <FreeGiftLine product={freeGift} />}
         </div>
 
         <aside className="luxury-card p-5 sm:p-8 h-fit lg:sticky lg:top-32 space-y-4 sm:space-y-5">

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
-import { Product, priceFor, listingVolume } from "@/data/products";
+import { Product, products, priceFor, listingVolume } from "@/data/products";
+import { qualifiesForFreeGift, pickFreeGiftId } from "@/lib/freeGift";
 import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
 import { clearReservation } from "@/lib/cartReservation";
 import { computeCoupon, CouponResult } from "@/lib/coupons";
@@ -26,6 +27,8 @@ type Ctx = {
   /** Copy nudging the shopper to complete/extend an offer, or null. */
   offerNudge: string | null;
   itemCount: number;
+  /** Karwa Chauth free 10ml attar, present while the discounted subtotal is at/above the minimum. Not a cart line — never priced or editable. */
+  freeGift: Product | null;
   /** Promo code the shopper entered (kept here so it survives cart → checkout). */
   coupon: string;
   setCoupon: (code: string) => void;
@@ -107,8 +110,23 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   // Optimistic: the server still has the last word (first-order-only can't be checked here).
   const couponDiscount = couponResult.valid ? couponResult.discount : 0;
 
+  // Free gift: picked at random the moment the cart qualifies, kept stable (and across
+  // reloads) while it still does, and dropped as soon as it falls back under the minimum.
+  const [giftId, setGiftId] = useState<string | null>(() => {
+    try { return localStorage.getItem("itr_gift"); } catch { return null; }
+  });
+  const giftEligible = cart.length > 0 && qualifiesForFreeGift(discountedSubtotal);
+  useEffect(() => {
+    if (giftEligible && !giftId) setGiftId(pickFreeGiftId());
+    else if (!giftEligible && giftId) setGiftId(null);
+  }, [giftEligible, giftId]);
+  useEffect(() => {
+    try { giftId ? localStorage.setItem("itr_gift", giftId) : localStorage.removeItem("itr_gift"); } catch { /* storage unavailable */ }
+  }, [giftId]);
+  const freeGift = giftEligible && giftId ? products.find(p => p.id === giftId) ?? null : null;
+
   return (
-    <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, offerDiscount: offerState.discount, offers: offerState.offers, offerNudge: offerState.nudge, itemCount, coupon, setCoupon, couponDiscount, couponResult }}>
+    <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, offerDiscount: offerState.discount, offers: offerState.offers, offerNudge: offerState.nudge, itemCount, freeGift, coupon, setCoupon, couponDiscount, couponResult }}>
       {children}
     </ShopCtx.Provider>
   );

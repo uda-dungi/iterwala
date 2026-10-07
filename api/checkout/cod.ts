@@ -2,6 +2,7 @@ import { generateTxnId } from "../_lib/payu.js";
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { priceForServerAsync, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/priceSource.js";
 import { computeOffers } from "../_lib/offers.js";
+import { freeGiftLine } from "../_lib/freeGift.js";
 import { extractRequestSignals, sendCapiEvent } from "../_lib/metaCapi.js";
 import { computeCoupon, hasPreviousPaidOrder } from "../_lib/coupons.js";
 import { sendOrderConfirmationEmail, sendAdminOrderNotification } from "../_lib/email.js";
@@ -101,6 +102,9 @@ export default async function handler(req: any, res: any) {
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const shipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const gift = Boolean(amounts?.gift);
+    // Karwa Chauth free 10ml attar — re-qualified here, recorded on the order at ₹0.
+    const giftLine = freeGiftLine(body?.freeGift?.id, body?.freeGift?.name, discountedSubtotal);
+    const orderItems = giftLine ? [...items, giftLine] : items;
 
     const email = String(customer.email).trim().toLowerCase();
     let couponDiscount = 0;
@@ -131,7 +135,7 @@ export default async function handler(req: any, res: any) {
       phone,
       name: fullName,
       address,
-      items,
+      items: orderItems,
       subtotal,
       shipping,
       gift_wrap: gift,
@@ -166,7 +170,7 @@ export default async function handler(req: any, res: any) {
     // Best-effort — a failed/unconfigured Shiprocket call must never block the order
     // actually being placed (see api/_lib/shiprocket.ts). Stored on the row when it works.
     const shiprocket = await createShiprocketOrder({
-      txnid, createdAt, customerName: fullName, email, phone, address, items, subtotal, total, paymentMethod: "cod",
+      txnid, createdAt, customerName: fullName, email, phone, address, items: orderItems, subtotal, total, paymentMethod: "cod",
     });
     if (shiprocket.orderId || shiprocket.shipmentId) {
       const { error: shiprocketUpdateError } = await admin
@@ -178,7 +182,7 @@ export default async function handler(req: any, res: any) {
 
     // Confirmation email to the customer — same as a paid PayU order gets from
     // api/payu/callback.ts. Best-effort, never throws.
-    await sendOrderConfirmationEmail({ email, name: fullName, txnid, items, total });
+    await sendOrderConfirmationEmail({ email, name: fullName, txnid, items: orderItems, total });
 
     // Internal dispatch alert with the invoice and shipping label attached, matching
     // api/payu/callback.ts's admin notification for a paid PayU order — a COD order needs
@@ -187,7 +191,7 @@ export default async function handler(req: any, res: any) {
     if (notifyTo) {
       try {
         const full = {
-          txnid, email, phone, name: fullName, address, items, subtotal, shipping,
+          txnid, email, phone, name: fullName, address, items: orderItems, subtotal, shipping,
           gift_wrap: gift, total, payment_method: "cod",
           invoice_no: withInvoice?.invoice_no ?? null, invoice_date: withInvoice?.invoice_date ?? null,
           created_at: createdAt,
@@ -206,7 +210,7 @@ export default async function handler(req: any, res: any) {
           email,
           phone,
           address,
-          items,
+          items: orderItems,
           total,
           attachments: [
             { filename: `${(withInvoice?.invoice_no || txnid).replace(/[^A-Za-z0-9._-]/g, "-")}.pdf`, content: invoicePdf },

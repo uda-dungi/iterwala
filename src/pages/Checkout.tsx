@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { site } from "@/config/site";
 import { SALE_NAME } from "@/lib/offers";
+import { FreeGiftLine } from "@/components/shop/FreeGiftLine";
 import { computeCoupon, normalizeCode, WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 
 const GIFT_FEE = 49;
@@ -31,7 +32,7 @@ const emptyForm: FormState = {
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { cart, subtotal, offerDiscount, offers, clearCart, coupon, setCoupon, couponDiscount } = useShop();
+  const { cart, subtotal, offerDiscount, offers, clearCart, coupon, setCoupon, couponDiscount, freeGift } = useShop();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [gift, setGift] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -131,6 +132,7 @@ export default function Checkout() {
         // Sent for the server to re-validate; it recomputes the discount itself and never
         // trusts the figure shown here.
         coupon,
+        freeGift: freeGift ? { id: freeGift.id, name: freeGift.name } : null,
         // Stored with the order so the Purchase event — sent later from PayU's
         // server-to-server callback, which sees none of this browser — still reports the
         // real shopper to Meta.
@@ -228,6 +230,7 @@ export default function Checkout() {
         items: cart.map(({ product, qty, volume }) => ({ id: product.id, volume, name: `${product.name} (${volume})`, price: priceFor(product, volume).price, qty })),
         amounts: { subtotal, shipping, gift, total },
         coupon,
+        freeGift: freeGift ? { id: freeGift.id, name: freeGift.name } : null,
         ...getPixelSignals(),
       };
 
@@ -368,6 +371,7 @@ export default function Checkout() {
                 <span className="text-gold">{formatINR(priceFor(product, volume).price * qty)}</span>
               </div>
             ))}
+            {freeGift && <FreeGiftLine product={freeGift} compact />}
           </div>
           {/* Gift packaging */}
           <label className="flex items-start gap-3 border border-border rounded-sm p-4 cursor-pointer hover:border-primary/50">

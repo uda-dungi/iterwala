@@ -6,9 +6,10 @@ import { priceFor, imageFor } from "@/data/products";
 import { Button } from "@/components/ui/button";
 import { CartReservationNotice } from "@/components/shop/CartReservationBanner";
 import { SALE_NAME } from "@/lib/offers";
+import { FreeGiftLine } from "@/components/shop/FreeGiftLine";
 
 export function CartDrawer() {
-  const { cart, cartOpen, setCartOpen, removeFromCart, updateQty, subtotal, offerDiscount, offerNudge } = useShop();
+  const { cart, cartOpen, setCartOpen, removeFromCart, updateQty, subtotal, offerDiscount, offerNudge, freeGift } = useShop();
   const total = Math.max(0, subtotal - offerDiscount);
   return (
     <AnimatePresence>
@@ -62,6 +63,7 @@ export function CartDrawer() {
                   </div>
                 </motion.div>
               ))}
+              {freeGift && <FreeGiftLine product={freeGift} compact />}
             </div>
 
             {cart.length > 0 && (

@@ -112,11 +112,7 @@ export const TRADING_SINCE = 2020;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
-  "✦ Buy 1 Get 1 Free on Gift Sets ✦",
-  `New Here? Get ${WELCOME_PERCENT}% Off with Code ${WELCOME_CODE}`,
-  "Free Shipping",
-  "Amazon's Choice Products Available",
-  "100% Money-Back Guarantee",
-  "WhatsApp Support — We reply fast",
-  "✦ Cash on Delivery Now Available ✦",
+  "✦ KARWA CHAUTH SALE IS LIVE NOW ✦",
+  "✦ Buy Any 2 Fragrances — Get 1 FREE ✦",
+  `✦ NEW HERE? GET ${WELCOME_PERCENT}% OFF WITH CODE ${WELCOME_CODE} ✦`,
 ];

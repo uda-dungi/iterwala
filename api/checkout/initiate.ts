@@ -2,6 +2,7 @@ import { generatePayuHash, generateTxnId, getPayuMode, isPayuConfigured, PAYU_AC
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { priceForServerAsync, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/priceSource.js";
 import { computeOffers } from "../_lib/offers.js";
+import { freeGiftLine } from "../_lib/freeGift.js";
 import { extractRequestSignals } from "../_lib/metaCapi.js";
 import { computeCoupon, hasPreviousPaidOrder } from "../_lib/coupons.js";
 
@@ -80,6 +81,9 @@ export default async function handler(req: any, res: any) {
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const shipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const gift = Boolean(amounts?.gift);
+    // Karwa Chauth free 10ml attar — re-qualified here, recorded on the order at ₹0.
+    const giftLine = freeGiftLine(body?.freeGift?.id, body?.freeGift?.name, discountedSubtotal);
+    const orderItems = giftLine ? [...items, giftLine] : items;
 
     // Promo code — recomputed and re-authorised here, never taken from the request. This
     // is the only place that can enforce "first order only": it needs a database lookup,
@@ -152,7 +156,7 @@ export default async function handler(req: any, res: any) {
           phone,
           name: fullName,
           address,
-          items,
+          items: orderItems,
           subtotal,
           shipping,
           gift_wrap: gift,
