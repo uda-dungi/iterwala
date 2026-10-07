@@ -115,4 +115,9 @@ export const announcements = [
   "✦ KARWA CHAUTH SALE IS LIVE NOW ✦",
   "✦ Buy Any 2 Fragrances — Get 1 FREE ✦",
   `✦ NEW HERE? GET ${WELCOME_PERCENT}% OFF WITH CODE ${WELCOME_CODE} ✦`,
+  "Free Shipping",
+  "Amazon's Choice Products Available",
+  "100% Money-Back Guarantee",
+  "WhatsApp Support — We reply fast",
+  "✦ Cash on Delivery Now Available ✦",
 ];
