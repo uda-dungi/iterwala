@@ -74,22 +74,23 @@ const fallbackSlides: Slide[] = [
   //   copy: "Pack of 4 or Pack of 8, boxed and ready to give — add two and pay just ₹999 for both.",
   //   cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" },
   // },
-  {
-    image: banner1,
-    eyebrow: "Red-Carpet Ready",
-    title: "Celebrity",
-    highlight: "Eau de Parfum",
-    copy: "Made to be noticed — a luminous, spicy-sweet signature of bergamot, jasmine and amber that leaves a trail of compliments wherever you go.",
-    cta: { label: "Shop Celebrity", to: "/product/celebrity" },
-  },
-  {
-    image: banner2,
-    eyebrow: "The Full Line",
-    title: "The Attar",
-    highlight: "Collection",
-    copy: "Firdaus, Tulsi, Ruh-Kewra, Mogra Gold, Inayat and more — pure, alcohol-free attars hand-distilled in Kannauj for a scent that lasts all day.",
-    cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" },
-  },
+  // HIDDEN (Oct 2026) — Karwa Chauth is the only hero banner for now; uncomment to bring these back.
+  // {
+  //   image: banner1,
+  //   eyebrow: "Red-Carpet Ready",
+  //   title: "Celebrity",
+  //   highlight: "Eau de Parfum",
+  //   copy: "Made to be noticed — a luminous, spicy-sweet signature of bergamot, jasmine and amber that leaves a trail of compliments wherever you go.",
+  //   cta: { label: "Shop Celebrity", to: "/product/celebrity" },
+  // },
+  // {
+  //   image: banner2,
+  //   eyebrow: "The Full Line",
+  //   title: "The Attar",
+  //   highlight: "Collection",
+  //   copy: "Firdaus, Tulsi, Ruh-Kewra, Mogra Gold, Inayat and more — pure, alcohol-free attars hand-distilled in Kannauj for a scent that lasts all day.",
+  //   cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" },
+  // },
 ];
 
 // Mobile gets its own swipeable banner set — each image already has its title/copy
@@ -105,8 +106,8 @@ const fallbackMobileSlides: MobileSlide[] = [
   // HIDDEN (Oct 2026) { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
   // HIDDEN (Oct 2026) { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
-  { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
-  { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
+  // HIDDEN (Oct 2026) { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
+  // HIDDEN (Oct 2026) { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
   
 ];
 
@@ -230,7 +231,7 @@ export function HeroCarousel() {
       </div>
 
       {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+      <div className={`absolute bottom-4 left-1/2 -translate-x-1/2 items-center gap-2 z-10 ${mobileSlides.length > 1 ? "flex" : "hidden"}`}>
         {mobileSlides.map((s, i) => (
           <button
             key={s.image}
@@ -308,19 +309,19 @@ export function HeroCarousel() {
       {/* Arrows */}
       <button
         onClick={scrollPrev} aria-label="Previous banner"
-        className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full border border-border/60 bg-background/40 backdrop-blur text-ivory/80 hover:text-primary hover:border-primary transition-colors"
+        className={`${slides.length > 1 ? "hidden md:flex" : "hidden"} absolute left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full border border-border/60 bg-background/40 backdrop-blur text-ivory/80 hover:text-primary hover:border-primary transition-colors`}
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
       <button
         onClick={scrollNext} aria-label="Next banner"
-        className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full border border-border/60 bg-background/40 backdrop-blur text-ivory/80 hover:text-primary hover:border-primary transition-colors"
+        className={`${slides.length > 1 ? "hidden md:flex" : "hidden"} absolute right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 items-center justify-center rounded-full border border-border/60 bg-background/40 backdrop-blur text-ivory/80 hover:text-primary hover:border-primary transition-colors`}
       >
         <ChevronRight className="w-5 h-5" />
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-20 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+      <div className={`absolute bottom-4 sm:bottom-6 lg:bottom-20 left-1/2 -translate-x-1/2 items-center gap-2 z-10 ${slides.length > 1 ? "flex" : "hidden"}`}>
         {slides.map((s, i) => (
           <button
             key={s.title}
