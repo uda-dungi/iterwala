@@ -56,22 +56,24 @@ const fallbackSlides: Slide[] = [
     copy: "Just a fragrance that says forever. Minimum order ₹999.",
     cta: { label: "Shop Now", to: "/shop" },
   },
-  {
-    image: bannerCollectorsPc,
-    eyebrow: "Where Every Bottle Tells a Story",
-    title: "Collector's Edition",
-    highlight: "Buy 2 Get 1 Free",
-    copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
-    cta: { label: "Shop Trilogy", to: "/product/shabd" },
-  },
-  {
-    image: bannerGiftSetPc,
-    eyebrow: "A Fragrance For Every Mood",
-    title: "Perfume Gift Sets",
-    highlight: "Buy 1 Get 1 Free",
-    copy: "Pack of 4 or Pack of 8, boxed and ready to give — add two and pay just ₹999 for both.",
-    cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" },
-  },
+  // HIDDEN (Oct 2026) — Collector's Edition promo; uncomment to bring it back.
+  // {
+  //   image: bannerCollectorsPc,
+  //   eyebrow: "Where Every Bottle Tells a Story",
+  //   title: "Collector's Edition",
+  //   highlight: "Buy 2 Get 1 Free",
+  //   copy: "Shabd, Kahani and Ehsaas — our 100ml Extrait de Parfum trilogy. Mix and match any three you love.",
+  //   cta: { label: "Shop Trilogy", to: "/product/shabd" },
+  // },
+  // HIDDEN (Oct 2026) — Gift Set promo; uncomment to bring it back.
+  // {
+  //   image: bannerGiftSetPc,
+  //   eyebrow: "A Fragrance For Every Mood",
+  //   title: "Perfume Gift Sets",
+  //   highlight: "Buy 1 Get 1 Free",
+  //   copy: "Pack of 4 or Pack of 8, boxed and ready to give — add two and pay just ₹999 for both.",
+  //   cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" },
+  // },
   {
     image: banner1,
     eyebrow: "Red-Carpet Ready",
@@ -100,8 +102,8 @@ const fallbackMobileSlides: MobileSlide[] = [
   // edge with nothing cropped — the offer headline and price sit near the top of the
   // artwork, which is precisely what a shorter frame used to cut off.
   { image: bannerKarwaChauthMobile, alt: "Karwa Chauth Sale — Buy 2 Get 10 ml Attar Free, min order ₹999", fit: "cover", cta: { label: "Shop Now", to: "/shop" } },
-  { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
-  { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
+  // HIDDEN (Oct 2026) { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
+  // HIDDEN (Oct 2026) { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
   { image: mobileBannerCelebrity, alt: "Celebrity — Made to Be Remembered", fit: "contain", cta: { label: "Shop Celebrity", to: "/product/celebrity" } },
   { image: mobileBannerAttar, alt: "The Attar Atelier — Heritage Edit", fit: "contain", cta: { label: "Shop the Attar Collection", to: "/shop?category=Attar" } },
