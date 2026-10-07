@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { announcements as fallbackAnnouncements } from "@/config/site";
-import { useCatalog } from "@/store/catalog";
 
 /** Auto-sliding trust statements pinned above the header. */
 export function AnnouncementBar() {
   const [i, setI] = useState(0);
-  // Live rows win once any exist; until the admin adds one, the compiled list keeps
-  // the bar populated so an empty table never blanks it.
-  const { announcements: live } = useCatalog();
-  const announcements = live.length ? live : fallbackAnnouncements;
+  // Always the compiled list (src/config/site.ts) — the old database rows were still
+  // overriding the Karwa Chauth messages. Admin → Announcements no longer drives the bar.
+  const announcements = fallbackAnnouncements;
 
   useEffect(() => {
     setI(0);
