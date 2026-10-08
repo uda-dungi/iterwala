@@ -17,9 +17,11 @@ export const PACK_OF_8_ID = "g-discovery";
 export const PACK_OF_8_PAIR_PRICE = 999;
 
 type PairPack = { id: string; pairPrice: number; name: string; code: string };
+// OFF (Oct 2026): the Pack of 4 / Pack of 8 "Buy 1 Get 1 Free" pair pricing is withdrawn.
+// Restore these two rows to bring it back — keep src/lib/offers.ts and api/_lib/offers.ts in sync.
 const PAIR_PRICE_PACKS: PairPack[] = [
-  { id: PACK_OF_4_ID, pairPrice: PACK_OF_4_PAIR_PRICE, name: "Pack of 4", code: "PACK4_BOGO" },
-  { id: PACK_OF_8_ID, pairPrice: PACK_OF_8_PAIR_PRICE, name: "Pack of 8", code: "PACK8_BOGO" },
+  // { id: PACK_OF_4_ID, pairPrice: PACK_OF_4_PAIR_PRICE, name: "Pack of 4", code: "PACK4_BOGO" },
+  // { id: PACK_OF_8_ID, pairPrice: PACK_OF_8_PAIR_PRICE, name: "Pack of 8", code: "PACK8_BOGO" },
 ];
 
 export const COLLECTORS_EDITION_IDS = ["ce-shabd", "ce-kahani", "ce-ehsaas"];

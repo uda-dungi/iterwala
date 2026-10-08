@@ -31,9 +31,11 @@ export const PACK_OF_8_PAIR_PRICE = 999;
  *  Driven off a table rather than repeated per product so adding the next pack is one
  *  line here instead of another copy of the same arithmetic in three functions. */
 type PairPack = { id: string; pairPrice: number; name: string; code: string };
+// OFF (Oct 2026): the Pack of 4 / Pack of 8 "Buy 1 Get 1 Free" pair pricing is withdrawn.
+// Restore these two rows to bring it back — keep src/lib/offers.ts and api/_lib/offers.ts in sync.
 const PAIR_PRICE_PACKS: PairPack[] = [
-  { id: PACK_OF_4_ID, pairPrice: PACK_OF_4_PAIR_PRICE, name: "Pack of 4", code: "PACK4_BOGO" },
-  { id: PACK_OF_8_ID, pairPrice: PACK_OF_8_PAIR_PRICE, name: "Pack of 8", code: "PACK8_BOGO" },
+  // { id: PACK_OF_4_ID, pairPrice: PACK_OF_4_PAIR_PRICE, name: "Pack of 4", code: "PACK4_BOGO" },
+  // { id: PACK_OF_8_ID, pairPrice: PACK_OF_8_PAIR_PRICE, name: "Pack of 8", code: "PACK8_BOGO" },
 ];
 
 /** Collector's Edition — buy any 3 (mix & match), cheapest is free. */
