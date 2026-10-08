@@ -3,6 +3,8 @@
 // and the gift id before recording the gift on the order, so edit BOTH files together.
 
 export const FREE_GIFT_MIN_ORDER = 999;
+/** Dearest attar in the gift pool (Royal Oud) — shown as "worth up to" on product pages. */
+export const FREE_GIFT_MAX_WORTH = 899;
 export const FREE_GIFT_VOLUME = "10ml";
 export const FREE_GIFT_LABEL = "🎁 Free Gift — 10ml Attar (Karwa Chauth Special)";
 
