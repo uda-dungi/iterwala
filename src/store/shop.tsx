@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
 import { Product, products, priceFor, listingVolume } from "@/data/products";
-import { qualifiesForFreeGift, pickFreeGiftId } from "@/lib/freeGift";
+import { qualifiesForFreeGift, pickFreeGiftId, isFreeGiftExcluded } from "@/lib/freeGift";
 import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
 import { clearReservation } from "@/lib/cartReservation";
 import { computeCoupon, CouponResult } from "@/lib/coupons";
@@ -115,7 +115,13 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   const [giftId, setGiftId] = useState<string | null>(() => {
     try { return localStorage.getItem("itr_gift"); } catch { return null; }
   });
-  const giftEligible = cart.length > 0 && qualifiesForFreeGift(discountedSubtotal);
+  // Gift Sets / Divine Series are left out: only the rest of the cart counts toward the minimum.
+  const giftBase = useMemo(() => {
+    const lines = cart.filter(i => !isFreeGiftExcluded(i.product.id))
+      .map(i => ({ id: i.product.id, qty: i.qty, unitPrice: priceFor(i.product, i.volume).price }));
+    return Math.max(0, lines.reduce((s, l) => s + l.unitPrice * l.qty, 0) - computeOffers(lines).discount);
+  }, [cart]);
+  const giftEligible = cart.length > 0 && qualifiesForFreeGift(giftBase);
   useEffect(() => {
     if (giftEligible && !giftId) setGiftId(pickFreeGiftId());
     else if (!giftEligible && giftId) setGiftId(null);

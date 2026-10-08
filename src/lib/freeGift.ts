@@ -11,5 +11,8 @@ export const FREE_GIFT_IDS = ["a-inayat", "a-jannat-firdaus", "a-royal-oud", "a-
 
 export const pickFreeGiftId = () => FREE_GIFT_IDS[Math.floor(Math.random() * FREE_GIFT_IDS.length)];
 
+/** Gift Sets (incl. Divine Series) — ids start "g-" — don't earn the free attar nor count toward its minimum. */
+export const isFreeGiftExcluded = (productId: string) => productId.startsWith("g-");
+
 /** `discountedSubtotal` = cart value after automatic offers, before promo codes. */
 export const qualifiesForFreeGift = (discountedSubtotal: number) => discountedSubtotal >= FREE_GIFT_MIN_ORDER;

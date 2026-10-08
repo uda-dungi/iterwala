@@ -2,7 +2,7 @@ import { generateTxnId } from "../_lib/payu.js";
 import { ensureCustomerAccount, getSupabaseAdmin, isSupabaseAdminConfigured } from "../_lib/supabaseAdmin.js";
 import { priceForServerAsync, FREE_SHIPPING_THRESHOLD, SHIPPING_FEE, GIFT_WRAP_FEE } from "../_lib/priceSource.js";
 import { computeOffers } from "../_lib/offers.js";
-import { freeGiftLine } from "../_lib/freeGift.js";
+import { freeGiftLine, isFreeGiftExcluded } from "../_lib/freeGift.js";
 import { extractRequestSignals, sendCapiEvent } from "../_lib/metaCapi.js";
 import { computeCoupon, hasPreviousPaidOrder } from "../_lib/coupons.js";
 import { sendOrderConfirmationEmail, sendAdminOrderNotification } from "../_lib/email.js";
@@ -103,7 +103,9 @@ export default async function handler(req: any, res: any) {
     const shipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const gift = Boolean(amounts?.gift);
     // Karwa Chauth free 10ml attar — re-qualified here, recorded on the order at ₹0.
-    const giftLine = freeGiftLine(body?.freeGift?.id, body?.freeGift?.name, discountedSubtotal);
+    const giftLines = offerLines.filter((l) => !isFreeGiftExcluded(l.id));
+    const giftBase = Math.max(0, giftLines.reduce((s, l) => s + l.unitPrice * l.qty, 0) - computeOffers(giftLines).discount);
+    const giftLine = freeGiftLine(body?.freeGift?.id, body?.freeGift?.name, giftBase);
     const orderItems = giftLine ? [...items, giftLine] : items;
 
     const email = String(customer.email).trim().toLowerCase();

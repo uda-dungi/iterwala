@@ -5,6 +5,9 @@ export const FREE_GIFT_VOLUME = "10ml";
 
 export const FREE_GIFT_IDS = ["a-inayat", "a-jannat-firdaus", "a-royal-oud", "a-amber", "a-lavender", "a-aseel"];
 
+/** Gift Sets (incl. Divine Series) — ids start "g-" — don't earn the free attar nor count toward its minimum. */
+export const isFreeGiftExcluded = (productId: string) => productId.startsWith("g-");
+
 /** The ₹0 order line for the gift, or null when the order doesn't qualify or the id isn't on the list. */
 export function freeGiftLine(giftId: unknown, giftName: unknown, discountedSubtotal: number) {
   if (discountedSubtotal < FREE_GIFT_MIN_ORDER) return null;
