@@ -151,7 +151,7 @@ export default function ProductDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, activeIsVideo, autoAdvance, gallery.length, api]);
 
-  if (!product) return <Navigate to="/shop" />;
+  if (!product) return <Navigate to="/shop" replace />;
   const wished = wishlist.includes(product.id);
   const vols = volumesFor(product);
   const faqs = faqsFor(product, vols, deliveryEstimate);

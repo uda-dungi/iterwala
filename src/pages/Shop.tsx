@@ -60,14 +60,14 @@ export default function Shop() {
   const toggleParam = (key: string, val: string) => {
     const next = new URLSearchParams(params);
     if (next.get(key) === val) next.delete(key); else next.set(key, val);
-    setParams(next);
+    setParams(next, { replace: true });
   };
 
   const updateNotesParam = (nextNotes: string[]) => {
     const next = new URLSearchParams(params);
     if (nextNotes.length) next.set("notes", nextNotes.map(encodeURIComponent).join(","));
     else next.delete("notes");
-    setParams(next);
+    setParams(next, { replace: true });
   };
 
   const toggleInList = (list: string[], val: string, setList: (v: string[]) => void) => {
@@ -183,7 +183,7 @@ export default function Shop() {
             setSelectedNotes([]); setSelectedOccasions([]); setPrice([4000]);
             const next = new URLSearchParams(params);
             next.delete("gender"); next.delete("category"); next.delete("notes");
-            setParams(next);
+            setParams(next, { replace: true });
           }}
           className="text-xs text-primary hover:text-gold underline underline-offset-2"
         >
