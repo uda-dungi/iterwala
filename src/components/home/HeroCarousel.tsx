@@ -52,7 +52,7 @@ const fallbackSlides: Slide[] = [
     image: bannerKarwaChauthPc,
     eyebrow: "No flowers. No chocolates.",
     title: "Karwa Chauth Sale",
-    highlight: "Buy 2 Get 10 ml Attar Free",
+    highlight: "Buy Any 2 Fragrances, Get 1 Free",
     copy: "Just a fragrance that says forever. Minimum order ₹999.",
     cta: { label: "Shop Now", to: "/shop" },
   },
@@ -101,7 +101,7 @@ const fallbackMobileSlides: MobileSlide[] = [
   // Shot at 9:16, exactly this carousel's aspect, so object-cover shows them edge to
   // edge with nothing cropped — the offer headline and price sit near the top of the
   // artwork, which is precisely what a shorter frame used to cut off.
-  { image: bannerKarwaChauthMobile, alt: "Karwa Chauth Sale — Buy 2 Get 10 ml Attar Free, min order ₹999", fit: "cover", cta: { label: "Shop Now", to: "/shop" } },
+  { image: bannerKarwaChauthMobile, alt: "Karwa Chauth Sale — Buy Any 2 Fragrances, Get 1 Free, min order ₹999", fit: "cover", cta: { label: "Shop Now", to: "/shop" } },
   // HIDDEN (Oct 2026) { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
   // HIDDEN (Oct 2026) { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
