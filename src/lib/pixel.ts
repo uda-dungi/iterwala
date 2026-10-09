@@ -350,11 +350,27 @@ export function initPixel() {
     n.loaded = true;
     n.version = "2.0";
     n.queue = [];
-    const t = b.createElement(e) as HTMLScriptElement;
-    t.async = true;
-    t.src = v;
-    const s = b.getElementsByTagName(e)[0];
-    s.parentNode?.insertBefore(t, s);
+    // The queue above buffers every event, so the heavy remote script can wait until the
+    // page is interactive instead of competing with first paint (it was ~200KB and
+    // ~300ms of main-thread time, straight into the mobile PageSpeed score). Loads on the
+    // first interaction, or 3s after window load, whichever comes first.
+    let injected = false;
+    const inject = () => {
+      if (injected) return;
+      injected = true;
+      const t = b.createElement(e) as HTMLScriptElement;
+      t.async = true;
+      t.src = v;
+      const s = b.getElementsByTagName(e)[0];
+      s.parentNode?.insertBefore(t, s);
+    };
+    const arm = () => {
+      const evs = ["pointerdown", "keydown", "scroll", "touchstart"];
+      const go = () => { evs.forEach((x) => f.removeEventListener(x, go)); inject(); };
+      evs.forEach((x) => f.addEventListener(x, go, { once: true, passive: true }));
+      setTimeout(go, 3000);
+    };
+    if (b.readyState === "complete") arm(); else f.addEventListener("load", arm, { once: true });
   })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
   /* eslint-enable */
 
