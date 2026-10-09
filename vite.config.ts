@@ -12,6 +12,20 @@ export default defineConfig(({ mode }) => ({
   // apiDevServer serves the /api folder during `npm run dev`; on Vercel those same
   // files are deployed as serverless functions, so the plugin is dev-only.
   plugins: [react(), apiDevServer(mode)],
+  build: {
+    rollupOptions: {
+      output: {
+        // Split third-party code out of the 1.1MB entry chunk so it downloads in
+        // parallel and stays cached across deploys.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          motion: ["framer-motion"],
+          supabase: ["@supabase/supabase-js"],
+          query: ["@tanstack/react-query"],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

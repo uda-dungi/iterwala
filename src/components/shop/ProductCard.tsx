@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star } from "lucide-react";
 import { Product, imageFor, listingVolume, priceFor } from "@/data/products";
 import { useShop, formatINR } from "@/store/shop";
@@ -25,13 +24,7 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
   const { price: cardPrice, compareAt: cardCompareAt } = priceFor(product, defaultVolume);
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.6, delay: index * 0.05 }}
-      className="group relative h-full"
-    >
+    <article className="group relative h-full animate-in fade-in duration-500">
       {/* h-full + flex column so tiles in a row share one height and their Add to Cart
           buttons line up — "Perfume · Unisex" wraps to two lines where "Attar · Unisex"
           fits on one, which otherwise left neighbouring cards visibly uneven. */}
@@ -82,6 +75,9 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
             src={cardImage}
             alt={product.name}
             loading="lazy"
+            decoding="async"
+            width={600}
+            height={600}
             className="w-full h-full object-cover transition-transform duration-[1.2s] group-hover:scale-110"
           />
           {/* Desktop-only scrim, and only while hovering — on mobile it permanently
@@ -128,6 +124,6 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
           </button>
         </div>
       </Link>
-    </motion.article>
+    </article>
   );
 }

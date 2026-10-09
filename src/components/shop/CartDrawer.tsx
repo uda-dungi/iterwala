@@ -14,7 +14,7 @@ export function CartDrawer() {
     <AnimatePresence>
       {cartOpen && (
         <motion.div className="fixed inset-0 z-[70]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setCartOpen(false)} />
+          <div className="absolute inset-0 bg-background/85" onClick={() => setCartOpen(false)} />
           <motion.aside
             initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.45, ease: [0.4, 0, 0.2, 1] }}

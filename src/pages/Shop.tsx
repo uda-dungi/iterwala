@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Filter, ShieldCheck, X } from "lucide-react";
@@ -137,6 +137,25 @@ export default function Shop() {
     // keeps serving the snapshot forever, so admin edits never reach the shop grid.
   }, [products, newLaunchSlugs, selectedGender, selectedCategory, selectedMood, price, search, sort, selectedNotes, selectedOccasions]);
 
+  // Mounting all ~80 cards (each with images, stars and buttons) in one go is what froze
+  // phones on this page — especially when returning to it after adding to cart. Render a
+  // first screenful and extend as the shopper nears the bottom.
+  const PAGE_SIZE = 12;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [filtered]);
+  const hasMore = visibleCount < filtered.length;
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const io = new IntersectionObserver(
+      (entries) => { if (entries[0].isIntersecting) setVisibleCount(c => c + PAGE_SIZE); },
+      { rootMargin: "600px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasMore, visibleCount]);
+
   const Filters = () => (
     <aside className="space-y-8">
       <div>
@@ -263,7 +282,12 @@ export default function Shop() {
             </div>
           ) : (
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-              {filtered.map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+              {filtered.slice(0, visibleCount).map((p, i) => <ProductCard key={p.id} product={p} index={i} />)}
+            </div>
+          )}
+          {filtered.length > 0 && hasMore && (
+            <div ref={sentinelRef} className="flex justify-center py-8">
+              <Button variant="outline-gold" size="sm" onClick={() => setVisibleCount(c => c + PAGE_SIZE)}>Show more</Button>
             </div>
           )}
         </div>
