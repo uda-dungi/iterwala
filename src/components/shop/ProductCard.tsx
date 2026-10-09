@@ -74,7 +74,8 @@ export function ProductCard({ product, index = 0, showBadge = true }: { product:
           <img
             src={cardImage}
             alt={product.name}
-            loading="lazy"
+            loading={index < 2 ? "eager" : "lazy"}
+            fetchPriority={index < 2 ? "high" : undefined}
             decoding="async"
             width={600}
             height={600}
