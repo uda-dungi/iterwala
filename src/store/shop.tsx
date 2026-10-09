@@ -5,6 +5,7 @@ import { computeOffers, offerNudge, OfferLine } from "@/lib/offers";
 import { clearReservation } from "@/lib/cartReservation";
 import { computeCoupon, CouponResult } from "@/lib/coupons";
 import { trackAddToCart } from "@/lib/pixel";
+import { useCatalog } from "@/store/catalog";
 
 type CartItem = { product: Product; qty: number; volume: string };
 /** A cart line is identified by product + size, so 50ml and 100ml of the same fragrance
@@ -46,13 +47,23 @@ export function ShopProvider({ children }: { children: ReactNode }) {
       const raw = JSON.parse(localStorage.getItem("itr_cart") || "[]") as CartItem[];
       // Carts saved before size-aware pricing shipped won't have a `volume` — backfill
       // with the listing size (matches the bottle photo) so old sessions don't crash.
-      return raw.map(i => ({ ...i, volume: i.volume || listingVolume(i.product) }));
+      // Product objects are re-resolved by id: the saved copy carries image URLs hashed by
+      // an older build, which 404 as broken images once a deploy changes the filenames.
+      return raw.map(i => ({ ...i, product: products.find(p => p.id === i.product.id) ?? i.product, volume: i.volume || listingVolume(i.product) }));
     } catch { return []; }
   });
   const [wishlist, setWishlist] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem("itr_wish") || "[]"); } catch { return []; }
   });
   const [cartOpen, setCartOpen] = useState(false);
+  // Keep cart lines pointing at the live catalogue's product (fresh images, prices, names).
+  const { productById } = useCatalog();
+  useEffect(() => {
+    setCart(prev => {
+      if (!prev.some(i => { const f = productById(i.product.id); return f && f !== i.product; })) return prev;
+      return prev.map(i => ({ ...i, product: productById(i.product.id) ?? i.product }));
+    });
+  }, [productById]);
   const [coupon, setCoupon] = useState<string>(() => {
     try { return localStorage.getItem("itr_coupon") || ""; } catch { return ""; }
   });
