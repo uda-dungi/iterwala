@@ -37,6 +37,7 @@ import reel5 from "@/assets/reels/reel-5.mp4";
 import reel6 from "@/assets/reels/reel-6.mp4";
 import reel7 from "@/assets/reels/reel-7.mp4";
 import reel8 from "@/assets/reels/reel-8.mp4";
+import { Deferred } from "@/components/home/Deferred";
 
 const collectionImg = [perfumeCollectionImg, collection, giftSetCollectionImg];
 const reelAssets = [reel1, reel2, reel3, reel4, reel5, reel6, reel7, reel8];
@@ -170,6 +171,8 @@ export default function Index() {
         </MobileCarousel>
       </Section>
 
+      {/* Everything below is far off-screen on first load, so it mounts after first paint (see Deferred). */}
+      <Deferred>
       {/* WHY */}
       <Section eyebrow="The Itrawala Promise" title="Why Choose Itrawala">
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -446,6 +449,7 @@ export default function Index() {
           </div>
         </div>
       </section>
+      </Deferred>
     </div>
   );
 }
