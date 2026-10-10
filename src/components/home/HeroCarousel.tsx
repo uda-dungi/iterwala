@@ -218,6 +218,7 @@ export function HeroCarousel() {
                 alt={s.alt}
                 className={`absolute inset-0 w-full h-full -z-10 ${s.fit === "contain" ? "object-contain" : "object-cover"}`}
                 loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : undefined}
               />
               {/* Just enough of a bottom scrim to keep the button legible over the photo. */}
               <div className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-background/85 via-background/35 to-transparent -z-10" />

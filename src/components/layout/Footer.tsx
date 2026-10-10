@@ -37,7 +37,7 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-4 space-y-6">
             <div>
-              <img src={logo} alt={site.brand} className="h-16 w-auto object-contain" />
+              <img src={logo} alt={site.brand} width={64} height={64} loading="lazy" className="h-16 w-auto object-contain" />
             </div>
             <p className="text-base text-muted-foreground leading-relaxed max-w-sm font-serif italic">
               "{site.tagline}."
@@ -48,14 +48,14 @@ export function Footer() {
             </p>
             <div className="flex gap-3">
               {[
-                { Icon: Instagram, href: instagramLink },
-                { Icon: Facebook, href: facebookLink },
-                { Icon: Youtube, href: "https://youtu.be/Iw0hrhKlh4o" },
-                { Icon: MessageCircle, href: whatsappLink() },
-              ].map(({ Icon, href }, i) => (
-                <a key={i} href={href} target="_blank" rel="noopener noreferrer"
+                { Icon: Instagram, href: instagramLink, label: "Instagram" },
+                { Icon: Facebook, href: facebookLink, label: "Facebook" },
+                { Icon: Youtube, href: "https://youtu.be/Iw0hrhKlh4o", label: "YouTube" },
+                { Icon: MessageCircle, href: whatsappLink(), label: "WhatsApp" },
+              ].map(({ Icon, href, label }, i) => (
+                <a key={i} href={href} aria-label={label} target="_blank" rel="noopener noreferrer"
                   className="w-9 h-9 border border-border rounded-sm flex items-center justify-center hover:border-primary hover:text-primary transition-all hover:-translate-y-0.5">
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4" aria-hidden="true" />
                 </a>
               ))}
             </div>

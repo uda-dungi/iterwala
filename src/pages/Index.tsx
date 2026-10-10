@@ -130,7 +130,7 @@ export default function Index() {
                   {/* The admin can attach artwork per collection; the bundled trio is
                       the fallback for rows that have none. This used to ignore c.image
                       entirely, so picking a photo in the admin did nothing. */}
-                  <img src={c.image ?? collectionImg[i % collectionImg.length]} alt={c.title}
+                  <img src={c.image ?? collectionImg[i % collectionImg.length]} alt="" loading="lazy" decoding="async"
                     className="w-full h-full object-cover opacity-70 transition-transform duration-[1.2s] group-hover:scale-110" />
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
                   <div className="absolute bottom-0 left-0 p-3 md:p-6">

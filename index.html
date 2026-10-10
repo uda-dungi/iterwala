@@ -17,8 +17,12 @@
     <!-- Fonts load non-blocking (was a CSS @import, which chained CSS -> font CSS -> files and delayed first paint). -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Italiana&display=swap" media="print" onload="this.media='all'" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Italiana&display=swap" media="print" data-async-css />
+    <script src="/async-css.js"></script>
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Italiana&display=swap" /></noscript>
+
+    <!-- Preload the first mobile hero banner (the LCP element) so it starts downloading with the HTML, not after React boots. -->
+    <link rel="preload" as="image" href="/src/assets/brand/banner-karwachauth-mobile.jpg" media="(max-width: 639px)" fetchpriority="high" />
 
     <link rel="canonical" href="https://itrawala.in/" />
     <link rel="icon" type="image/png" href="/favicon.png" />

@@ -90,7 +90,7 @@ export function Navbar() {
             </button>
 
             <Link to="/" className="flex items-center group">
-              <img src={logo} alt="Itrawala" className="h-11 sm:h-14 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
+              <img src={logo} alt="Itrawala" width={96} height={96} className="h-11 sm:h-14 md:h-24 w-auto object-contain transition-transform group-hover:scale-105" />
             </Link>
           </div>
 
@@ -192,7 +192,7 @@ export function Navbar() {
               transition={{ type: "tween", duration: 0.4 }}
               className="relative w-80 max-w-[85%] h-full bg-card border-r border-border p-6 flex flex-col">
               <button onClick={() => setOpen(false)} className="self-end text-ivory/70"><X className="w-5 h-5" /></button>
-              <img src={logo} alt="Itrawala" className="h-14 w-auto object-contain mt-4" />
+              <img src={logo} alt="Itrawala" width={56} height={56} className="h-14 w-auto object-contain mt-4" />
               <div className="gold-divider my-6" />
               <nav className="flex flex-col gap-5">
                 {links.slice(0, 2).map(l => (
