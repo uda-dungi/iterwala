@@ -14,10 +14,14 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 // The core shopping funnel stays in the main bundle — these are the pages a shopper
 // hits first and most, so a loading flash here would cost more than the bytes save.
 import Index from "./pages/Index";
-import Shop from "./pages/Shop";
-import ProductDetail from "./pages/ProductDetail";
-import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
+
+// Shop/product/cart/checkout are only needed after the homepage, so they load as
+// separate chunks (the homepage is the landing page for most mobile visits and was
+// paying to download and parse all of them first).
+const Shop = lazy(() => import("./pages/Shop"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
 
 // Everything else is code-split: secondary pages and the whole admin area download
 // only when someone actually navigates there, instead of being parsed by every

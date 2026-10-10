@@ -174,6 +174,15 @@ export function HeroCarousel() {
   // same behavior as the desktop carousel above, just its own state/instance).
   const [mEmblaRef, mEmblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
   const [mSelected, setMSelected] = useState(0);
+  // The desktop banners sit in a display:none section on phones, but an eager <img> in
+  // there is still downloaded. Only give them a src when the desktop layout is active.
+  const [isDesktop, setIsDesktop] = useState(() => window.matchMedia("(min-width: 640px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 640px)");
+    const on = () => setIsDesktop(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   const mScrollTo = useCallback((i: number) => mEmblaApi?.scrollTo(i), [mEmblaApi]);
 
   useEffect(() => {
@@ -214,10 +223,11 @@ export function HeroCarousel() {
           {mobileSlides.map((s, i) => (
             <div key={s.image} className="relative flex-[0_0_100%] h-full flex items-end justify-center pb-14 px-6" aria-hidden={mSelected !== i}>
               <img
-                src={s.image}
+                src={i === 0 || Math.abs(mSelected - i) <= 1 ? s.image : undefined}
                 alt={s.alt}
                 className={`absolute inset-0 w-full h-full -z-10 ${s.fit === "contain" ? "object-contain" : "object-cover"}`}
                 loading={i === 0 ? "eager" : "lazy"}
+                decoding={i === 0 ? "sync" : "async"}
                 fetchPriority={i === 0 ? "high" : undefined}
               />
               {/* Just enough of a bottom scrim to keep the button legible over the photo. */}
@@ -256,10 +266,11 @@ export function HeroCarousel() {
           {slides.map((s, i) => (
             <div key={s.title} className="relative flex-[0_0_100%] h-full" aria-hidden={selected !== i}>
               <img
-                src={s.image}
+                src={isDesktop ? s.image : undefined}
                 alt={`${s.title} ${s.highlight}`}
                 className="w-full h-full object-cover object-center lg:object-[70%_center] opacity-80 lg:opacity-90"
                 loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : undefined}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-background via-background/60 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20 lg:from-background lg:via-transparent lg:to-transparent" />
