@@ -24,6 +24,15 @@
     <!-- Preload the first mobile hero banner (the LCP element) so it starts downloading with the HTML, not after React boots. -->
     <link rel="preload" as="image" href="/src/assets/brand/banner-karwachauth-mobile.jpg" media="(max-width: 639px)" fetchpriority="high" />
 
+    <link rel="preload" as="image" href="/src/assets/brand/banner-karwachauth-pc.jpg" media="(min-width: 640px)" fetchpriority="high" />
+    <style>
+      html, body { background: #110f0d; margin: 0; }
+      .boot-hero { position: absolute; top: 0; left: 0; z-index: 0; width: 100%; height: 100vh; height: 100svh; overflow: hidden; }
+      #root { position: relative; z-index: 1; }
+      .boot-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      @media (min-width: 640px) { .boot-hero { min-height: 640px; } }
+    </style>
+
     <link rel="canonical" href="https://itrawala.in/" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -50,6 +59,15 @@
   </head>
 
   <body>
+    <!-- Static first paint: the hero banner as plain HTML so the browser can paint (FCP/LCP)
+         before the React bundle downloads and runs. It lives OUTSIDE #root and is only hidden
+         (not removed) once React has painted, because Chrome drops removed elements from LCP. -->
+    <div class="boot-hero">
+        <picture>
+          <source media="(min-width: 640px)" srcset="/src/assets/brand/banner-karwachauth-pc.jpg" />
+          <img src="/src/assets/brand/banner-karwachauth-mobile.jpg" alt="Karwa Chauth Sale — Buy Any 2 Fragrances, Get 1 Free" width="450" height="800" fetchpriority="high" decoding="async" />
+        </picture>
+      </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

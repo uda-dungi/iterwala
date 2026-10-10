@@ -9,6 +9,21 @@ initPixel();
 
 createRoot(document.getElementById("root")!).render(<App />);
 
+// index.html paints a static copy of the hero banner so the first frame doesn't wait for
+// this bundle. Once React has painted its own, hide (never remove — Chrome would drop it
+// from the LCP measurement) the static copy.
+const bootHero = document.querySelector<HTMLElement>(".boot-hero");
+if (bootHero) {
+  const hide = () => { bootHero.style.visibility = "hidden"; };
+  const poll = setInterval(() => {
+    if (document.querySelector("#root img")) {
+      clearInterval(poll);
+      requestAnimationFrame(() => requestAnimationFrame(hide));
+    }
+  }, 50);
+  setTimeout(() => { clearInterval(poll); hide(); }, 10000);
+}
+
 // Every deploy renames the hashed /assets files. A tab (or cached page) opened before a
 // deploy keeps requesting the old names, which now 404 — product tiles turn into broken
 // images until a manual refresh. When an asset fails, check whether the live index.html
