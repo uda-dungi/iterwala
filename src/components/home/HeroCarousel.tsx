@@ -233,7 +233,8 @@ export function HeroCarousel() {
               {/* Just enough of a bottom scrim to keep the button legible over the photo. */}
               <div className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-background/85 via-background/35 to-transparent -z-10" />
               <Button asChild variant="outline-gold" size="lg">
-                <Link to={s.cta.to}>{s.cta.label} →</Link>
+                {/* Off-screen slides are aria-hidden, so their link must not be tabbable. */}
+                <Link to={s.cta.to} tabIndex={mSelected === i ? 0 : -1}>{s.cta.label} →</Link>
               </Button>
             </div>
           ))}
