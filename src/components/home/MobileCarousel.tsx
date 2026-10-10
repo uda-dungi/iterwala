@@ -65,17 +65,22 @@ export function MobileCarousel({
         ))}
       </div>
       {items.length > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-4">
+        <div className="flex items-center justify-center mt-1">
           {items.map((_, i) => (
             <button
               key={i}
               onClick={() => goTo(i)}
               aria-label={`Go to item ${i + 1}`}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                i === active ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/40",
-              )}
-            />
+              className="h-12 min-w-12 flex items-center justify-center"
+            >
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "block h-1.5 rounded-full transition-all duration-300",
+                  i === active ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/40",
+                )}
+              />
+            </button>
           ))}
         </div>
       )}

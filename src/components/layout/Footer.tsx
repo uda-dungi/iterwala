@@ -63,7 +63,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs tracking-luxe uppercase text-primary mb-4">Quick Links</h4>
+            <h3 className="text-xs tracking-luxe uppercase text-primary mb-4">Quick Links</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li><Link to="/shop" className="hover:text-ivory">All Products</Link></li>
               <li><Link to="/shop?category=Perfume" className="hover:text-ivory">Perfumes</Link></li>
@@ -77,7 +77,7 @@ export function Footer() {
 
           {/* Support + Policies */}
           <div className="lg:col-span-2">
-            <h4 className="text-xs tracking-luxe uppercase text-primary mb-4">Support</h4>
+            <h3 className="text-xs tracking-luxe uppercase text-primary mb-4">Support</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li><Link to="/contact" className="hover:text-ivory">Contact Us</Link></li>
               <li><a href={whatsappLink()} target="_blank" rel="noopener noreferrer" className="hover:text-ivory">WhatsApp Support</a></li>
@@ -90,7 +90,7 @@ export function Footer() {
 
           {/* Newsletter + contact */}
           <div className="lg:col-span-4 space-y-5">
-            <h4 className="text-xs tracking-luxe uppercase text-primary">Stay in our world</h4>
+            <h3 className="text-xs tracking-luxe uppercase text-primary">Stay in our world</h3>
             <p className="text-sm text-muted-foreground">
               Subscribe for early access, private collections, and a welcome discount.
             </p>

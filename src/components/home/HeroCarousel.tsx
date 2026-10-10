@@ -241,15 +241,17 @@ export function HeroCarousel() {
       </div>
 
       {/* Dots */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 items-center gap-2 z-10 flex">
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 items-center z-10 flex">
         {mobileSlides.map((s, i) => (
           <button
             key={s.image}
             onClick={() => mScrollTo(i)}
             aria-label={`Go to mobile banner ${i + 1}`}
             aria-current={mSelected === i}
-            className={`h-1.5 rounded-full transition-all duration-500 ${mSelected === i ? "w-6 bg-primary" : "w-1.5 bg-border"}`}
-          />
+            className="h-12 min-w-12 flex items-center justify-center"
+          >
+            <span aria-hidden="true" className={`block h-1.5 rounded-full transition-all duration-500 ${mSelected === i ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />
+          </button>
         ))}
       </div>
     </section>
@@ -332,15 +334,17 @@ export function HeroCarousel() {
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-20 left-1/2 -translate-x-1/2 items-center gap-2 z-10 flex">
+      <div className="absolute bottom-0 sm:bottom-2 lg:bottom-16 left-1/2 -translate-x-1/2 items-center z-10 flex">
         {slides.map((s, i) => (
           <button
             key={s.title}
             onClick={() => scrollTo(i)}
             aria-label={`Go to banner ${i + 1}`}
             aria-current={selected === i}
-            className={`h-1.5 rounded-full transition-all duration-500 ${selected === i ? "w-8 bg-primary" : "w-1.5 bg-border hover:bg-primary/50"}`}
-          />
+            className="group/dot h-12 min-w-12 flex items-center justify-center"
+          >
+            <span aria-hidden="true" className={`block h-1.5 rounded-full transition-all duration-500 ${selected === i ? "w-8 bg-primary" : "w-1.5 bg-border group-hover/dot:bg-primary/50"}`} />
+          </button>
         ))}
       </div>
 

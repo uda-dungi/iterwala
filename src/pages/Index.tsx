@@ -571,15 +571,17 @@ function ReelsSlider({ items }: { items: string[] }) {
       )}
 
       {/* Dots */}
-      <div className="flex items-center justify-center gap-2 mt-6">
+      <div className="flex items-center justify-center mt-2">
         {Array.from({ length: dotCount }).map((_, i) => (
           <button
             key={i}
             onClick={() => api?.scrollTo(i)}
             aria-label={`Go to reel ${i + 1}`}
             aria-current={selected === i}
-            className={`h-1.5 rounded-full transition-all duration-500 ${selected === i ? "w-8 bg-primary" : "w-1.5 bg-border hover:bg-primary/50"}`}
-          />
+            className="group/dot h-12 min-w-12 flex items-center justify-center"
+          >
+            <span aria-hidden="true" className={`block h-1.5 rounded-full transition-all duration-500 ${selected === i ? "w-8 bg-primary" : "w-1.5 bg-border group-hover/dot:bg-primary/50"}`} />
+          </button>
         ))}
       </div>
     </>

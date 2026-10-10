@@ -230,14 +230,16 @@ export default function ProductDetail() {
               <Heart className={cn("w-4 h-4", wished ? "fill-primary text-primary" : "text-ivory")} />
             </button>
             {gallery.length > 1 && (
-              <div className="flex items-center justify-center gap-1.5 mt-3">
+              <div className="flex items-center justify-center mt-1">
                 {gallery.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => takeOver(i)}
                     aria-label={`Go to image ${i + 1}`}
-                    className={cn("h-1.5 rounded-full transition-all", active === i ? "w-6 bg-primary" : "w-1.5 bg-border")}
-                  />
+                    className="h-12 min-w-12 flex items-center justify-center"
+                  >
+                    <span aria-hidden="true" className={cn("block h-1.5 rounded-full transition-all", active === i ? "w-6 bg-primary" : "w-1.5 bg-border")} />
+                  </button>
                 ))}
               </div>
             )}
