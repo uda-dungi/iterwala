@@ -80,12 +80,21 @@ const AMAZON_PICK_VOLUME = "50ml";
 // the shop's "New Launch" category filter so the two can never drift apart.
 
 export default function Index() {
-  const { products, collections, amazonChoiceProducts, getProduct, newLaunchSlugs } = useCatalog();
-  const bestSellers = BEST_SELLER_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
+  const { products, collections, amazonChoiceProducts, getProduct, newLaunchSlugs, loaded } = useCatalog();
+  // Until the live catalogue arrives only a small bundled snapshot is available, so a
+  // curated slug may be missing. Top such a row up from the snapshot so it is never short
+  // or empty on first paint; once the live data lands the curated picks replace the filler.
+  const pick = (slugs: readonly string[], min: number): Product[] => {
+    const picked = slugs.map(getProduct).filter((p): p is Product => Boolean(p));
+    if (loaded || picked.length >= min) return picked;
+    const filler = products.filter(p => !picked.includes(p) && p.category !== "Gift Set");
+    return [...picked, ...filler.slice(0, min - picked.length)];
+  };
+  const bestSellers = pick(BEST_SELLER_SLUGS, 4);
   const bestSellersMobileExtra = BEST_SELLER_MOBILE_EXTRA_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
-  const bestSellersMobile = [...bestSellers, ...bestSellersMobileExtra];
+  const bestSellersMobile = [...bestSellers, ...bestSellersMobileExtra.filter(p => !bestSellers.includes(p))];
   const attars = products.filter(p => p.category === "Attar");
-  const newArrivals = newLaunchSlugs.map(getProduct).filter((p): p is Product => Boolean(p));
+  const newArrivals = pick(newLaunchSlugs, 4);
   const giftSets = LUXURY_GIFT_SLUGS.map(getProduct).filter((p): p is Product => Boolean(p));
   const amazonPick = getProduct(AMAZON_PICK_SLUG) ?? amazonChoiceProducts[0] ?? products[0];
   const amazonPickPrice = priceFor(amazonPick, AMAZON_PICK_VOLUME).price;

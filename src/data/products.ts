@@ -1999,6 +1999,14 @@ export const products: Product[] = [
 
 ];
 
+/** Bundled clip per product slug. The storefront bundle only snapshots a handful of
+ *  products (see vite-trim-catalog-plugin.ts, which also rewrites this to a literal built
+ *  from the full list), but the clips are repo assets with no database column, so every
+ *  product's clip must stay reachable to re-attach onto live rows. */
+export const snapshotVideoBySlug: Record<string, string | undefined> = Object.fromEntries(
+  products.filter((p) => p.video).map((p) => [p.slug, p.video]),
+);
+
 export const getProduct = (slug: string) => products.find(p => p.slug === slug);
 export const amazonChoiceProducts = products.filter(p => p.amazonChoice);
 export const volumesFor = (p: Product) => p.volume && p.volume.length ? p.volume : defaultVolumes;

@@ -140,7 +140,7 @@ export function ShopProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try { giftId ? localStorage.setItem("itr_gift", giftId) : localStorage.removeItem("itr_gift"); } catch { /* storage unavailable */ }
   }, [giftId]);
-  const freeGift = giftEligible && giftId ? products.find(p => p.id === giftId) ?? null : null;
+  const freeGift = giftEligible && giftId ? productById(giftId) ?? null : null;
 
   return (
     <ShopCtx.Provider value={{ cart, wishlist, cartOpen, setCartOpen, addToCart, removeFromCart, updateQty, clearCart, toggleWishlist, subtotal, offerDiscount: offerState.discount, offers: offerState.offers, offerNudge: offerState.nudge, itemCount, freeGift, coupon, setCoupon, couponDiscount, couponResult }}>

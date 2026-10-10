@@ -56,7 +56,7 @@ const GALLERY_ADVANCE_MS = 4000;
 
 export default function ProductDetail() {
   const { slug = "" } = useParams();
-  const { products, getProduct, deliveryEstimate } = useCatalog();
+  const { products, getProduct, deliveryEstimate, loaded } = useCatalog();
   const product = getProduct(slug);
   const { addToCart, toggleWishlist, wishlist, setCartOpen } = useShop();
   const [qty, setQty] = useState(1);
@@ -151,6 +151,9 @@ export default function ProductDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, activeIsVideo, autoAdvance, gallery.length, api]);
 
+  // The bundle only carries a few products; any other product page opened directly has to
+  // wait for the live catalogue before it can tell "still loading" from "does not exist".
+  if (!product && !loaded) return <div className="min-h-[70vh]" aria-busy="true" />;
   if (!product) return <Navigate to="/shop" replace />;
   const wished = wishlist.includes(product.id);
   const vols = volumesFor(product);

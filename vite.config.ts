@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { apiDevServer } from "./vite-api-dev";
 import { webpProductImages } from "./vite-webp-plugin";
+import { trimCatalogSnapshot } from "./vite-trim-catalog-plugin";
 
 export default defineConfig(({ mode }) => ({
   server: {
@@ -12,7 +13,7 @@ export default defineConfig(({ mode }) => ({
   },
   // apiDevServer serves the /api folder during `npm run dev`; on Vercel those same
   // files are deployed as serverless functions, so the plugin is dev-only.
-  plugins: [react(), apiDevServer(mode), webpProductImages()],
+  plugins: [trimCatalogSnapshot(), react(), apiDevServer(mode), webpProductImages()],
   build: {
     rollupOptions: {
       output: {

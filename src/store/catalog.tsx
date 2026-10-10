@@ -1,7 +1,8 @@
 /**
  * Catalogue access for the storefront.
  *
- * Serves the bundled snapshot (src/data/products.ts) immediately, then revalidates
+ * Serves the bundled snapshot (a trimmed best-seller subset of src/data/products.ts —
+ * see vite-trim-catalog-plugin.ts) immediately, then revalidates
  * against Supabase in the background and swaps in live data when it arrives. So an
  * admin edit shows up on the next page load without a redeploy, while first paint
  * still costs zero network round trips and a database outage degrades to the
@@ -17,6 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   products as snapshotProducts,
   collections as snapshotCollections,
+  snapshotVideoBySlug,
   NEW_LAUNCH_SLUGS,
   type Product,
 } from "@/data/products";
@@ -64,7 +66,7 @@ const asYear = (v: unknown): number | undefined => {
  * ids are free to differ between them.
  */
 const SNAPSHOT_VIDEO_BY_SLUG = new Map<string, string>(
-  snapshotProducts.filter((p) => p.video).map((p) => [p.slug, p.video as string]),
+  Object.entries(snapshotVideoBySlug).filter((e): e is [string, string] => Boolean(e[1])),
 );
 
 /** A live row plus its bundled video. A row that already carries one keeps it, and every
@@ -82,6 +84,10 @@ type CatalogCtx = Catalog & {
   productById: (id: string) => Product | undefined;
   amazonChoiceProducts: Product[];
   isLive: boolean;
+  /** True once the live catalogue request has settled — success or failure. Until then
+   *  the catalogue is only the small bundled snapshot, so a slug that is missing may just
+   *  not have arrived yet rather than not exist. */
+  loaded: boolean;
   /* ── Admin-editable copy ──────────────────────────────────────────────────
    * Resolved here rather than read from src/config/site.ts at the call site.
    * Both of these are editable in Admin → Content → Settings and both were
@@ -95,7 +101,7 @@ type CatalogCtx = Catalog & {
 const Ctx = createContext<CatalogCtx | null>(null);
 
 export function CatalogProvider({ children }: { children: ReactNode }) {
-  const { data } = useQuery({
+  const { data, isFetched } = useQuery({
     queryKey: ["catalog"],
     queryFn: fetchCatalog,
     // Deliberately NO initialData. React Query treats initialData as data that was
@@ -133,10 +139,11 @@ export function CatalogProvider({ children }: { children: ReactNode }) {
       productById: (id) => byId.get(id),
       amazonChoiceProducts: merged.products.filter((p) => p.amazonChoice),
       isLive: merged.origin === "database",
+      loaded: isFetched,
       deliveryEstimate: asText(merged.settings?.delivery_estimate) ?? DELIVERY_ESTIMATE,
       tradingSince: asYear(merged.settings?.trading_since) ?? TRADING_SINCE,
     };
-  }, [data]);
+  }, [data, isFetched]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
@@ -155,6 +162,7 @@ export function useCatalog(): CatalogCtx {
       productById: (id) => byId.get(id),
       amazonChoiceProducts: SNAPSHOT.products.filter((p) => p.amazonChoice),
       isLive: false,
+      loaded: true,
       // No provider means no live settings either — the compiled constants are all
       // there is, which is the same thing the snapshot represents everywhere else.
       deliveryEstimate: DELIVERY_ESTIMATE,

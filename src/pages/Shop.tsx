@@ -23,7 +23,7 @@ const noteList = ["Oud", "Rose", "Saffron", "Amber", "Sandalwood", "Musk", "Vani
 const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "Festive"];
 
 export default function Shop() {
-  const { products, newLaunchSlugs, tradingSince } = useCatalog();
+  const { products, newLaunchSlugs, tradingSince, loaded } = useCatalog();
   const [params, setParams] = useSearchParams();
   const [sort, setSort] = useState(params.get("sort") || "popular");
   const [price, setPrice] = useState<[number]>([4000]);
@@ -263,7 +263,11 @@ export default function Shop() {
             </p>
           </a>
 
-          {filtered.length === 0 ? (
+          {filtered.length === 0 && !loaded ? (
+            // Only a handful of products ship in the bundle; the rest arrive from the live
+            // catalogue, so an empty filter result before that is "not loaded yet", not "none".
+            <p className="text-center py-14 sm:py-24 text-muted-foreground" aria-busy="true">Loading the collection…</p>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-14 sm:py-24">
               {selectedCategory === DIVINE_COLLECTION_CATEGORY && DIVINE_COLLECTION_SLUGS.length === 0 ? (
                 <>
