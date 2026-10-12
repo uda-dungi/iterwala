@@ -1,3 +1,4 @@
+import { productContent } from "./productContent";
 // Product images live in src/assets/products and are loaded by filename via Vite glob.
 const modules = import.meta.glob("../assets/products/*.jpg", { eager: true, import: "default" }) as Record<string, string>;
 // A 1x1 transparent PNG — used only when an image filename can't be resolved.
@@ -442,6 +443,22 @@ export type Product = {
   specs?: Record<string, string>;
   /** "About this item" selling points, shown as a bulleted list above the spec rows. */
   highlights?: string[];
+  /** Search keywords from the product upload sheet. */
+  keywords?: string[];
+};
+
+// Apply the refreshed copy from ITRAWALA_Website_Product_Upload2.xlsx (see productContent.ts).
+export const applyProductContent = (list: Product[]): Product[] => {
+  for (const p of list) {
+    const c = productContent[p.id];
+    if (!c) continue;
+    p.description = c.description;
+    p.longevity = c.longevity;
+    p.ingredients = c.ingredients;
+    if (c.notes) p.notes = c.notes;
+    p.keywords = c.keywords;
+  }
+  return list;
 };
 
 export const defaultVolumes = ["50ml", "100ml"];
@@ -2053,3 +2070,5 @@ export const contentFor = (p: Product, volume?: string) => {
     ingredients: override?.ingredients ?? p.ingredients,
   };
 };
+
+applyProductContent(products);

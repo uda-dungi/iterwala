@@ -95,11 +95,19 @@ code = code
   .replace(/import\.meta\.env/g, "__env")
   .replace(/import_meta\.env/g, "__env");
 
+// products.ts imports ./productContent (the spreadsheet copy overrides); transpile it too.
+const contentBuild = await build({
+  entryPoints: [path.join(ROOT, "src/data/productContent.ts")],
+  bundle: false, write: false, format: "cjs", platform: "node", target: "node18", logLevel: "silent",
+});
+const contentModule = { exports: {} };
+new Function("module", "exports", contentBuild.outputFiles[0].text)(contentModule, contentModule.exports);
+
 const module = { exports: {} };
 new Function("module", "exports", "require", "__globFs", "__env", code)(
   module,
   module.exports,
-  () => ({}),
+  (id) => (id.endsWith("productContent") ? contentModule.exports : {}),
   globFs,
   { DEV: false, PROD: true }
 );
