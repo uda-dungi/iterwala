@@ -173,6 +173,15 @@ export function extractRequestSignals(req: any): {
   };
 }
 
+/** Meta wants IPv6 when the shopper has it. The connection we see is frequently IPv4, so
+ *  swap in the browser-reported IPv6 — only when the request IP isn't already IPv6 and
+ *  the supplied value genuinely looks like one. */
+export function preferIpv6(requestIp?: string, clientIpv6?: string): string | undefined {
+  if (requestIp?.includes(":")) return requestIp;
+  if (clientIpv6 && /^[0-9a-fA-F:]{3,45}$/.test(clientIpv6) && clientIpv6.includes(":")) return clientIpv6;
+  return requestIp;
+}
+
 export type CapiUserData = {
   email?: string;
   phone?: string;
@@ -242,6 +251,14 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
   // em/ph and means no raw identifier ever leaves our server.
   if (event.user.externalId) user_data.external_id = [sha256(event.user.externalId)];
 
+  // Meta rejects a missing/zero/non-numeric value; omit it instead of sending a bad one.
+  const customData = event.customData ? { ...event.customData } : undefined;
+  if (customData && "value" in customData) {
+    const v = Number(customData.value);
+    if (Number.isFinite(v) && v > 0) customData.value = v;
+    else delete customData.value;
+  }
+
   const payload: Record<string, unknown> = {
     data: [
       {
@@ -251,7 +268,7 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
         event_source_url: event.eventSourceUrl,
         action_source: "website",
         user_data,
-        custom_data: event.customData,
+        custom_data: customData,
       },
     ],
   };

@@ -1,4 +1,4 @@
-import { sendCapiEvent, extractRequestSignals, resolveFbc, mirrorCookieHeaders } from "../_lib/metaCapi.js";
+import { preferIpv6, sendCapiEvent, extractRequestSignals, resolveFbc, mirrorCookieHeaders } from "../_lib/metaCapi.js";
 
 /**
  * Vercel Node.js serverless function — POST /api/track/event
@@ -75,7 +75,7 @@ export default async function handler(req: any, res: any) {
         eventSourceUrl,
         user: {
           // IP and user agent can only come from the connection itself.
-          ip: signals.ip,
+          ip: preferIpv6(signals.ip, str(body.clientIpv6)),
           userAgent: signals.userAgent,
           fbp,
           fbc,

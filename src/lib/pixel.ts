@@ -397,6 +397,7 @@ export function initPixel() {
   // Anything that failed to reach the relay earlier (or on the previous page) goes out
   // now — after this PageView, so a recovery burst never delays the live event.
   flushRelayQueue();
+  warmIpv6();
 }
 
 /** Fire a standard Meta event. `eventID` lets the server-side Conversions API
@@ -499,6 +500,27 @@ function flushRelayQueue() {
  *  Meta's Conversions API from the server. Delivery is handled by deliverRelay above —
  *  beacon first so the call survives the page unloading right after (a route change, a
  *  redirect to PayU), with the fallbacks that keep coverage up when it doesn't. */
+/** Meta prefers IPv6 for IPv6-enabled shoppers, but our server often only sees the IPv4
+ *  hop. api64.ipify.org answers over IPv6 when the browser has it; the result is cached
+ *  for the session and only ever kept when it really is an IPv6 address. */
+const IPV6_KEY = "itr_ipv6";
+let clientIpv6: string | undefined;
+function warmIpv6() {
+  if (typeof window === "undefined") return;
+  try {
+    const cached = sessionStorage.getItem(IPV6_KEY);
+    if (cached !== null) { clientIpv6 = cached || undefined; return; }
+  } catch { /* storage blocked — just look it up each load */ }
+  fetch("https://api64.ipify.org?format=json", { cache: "no-store" })
+    .then((r) => r.json())
+    .then((j) => {
+      const ip = typeof j?.ip === "string" && j.ip.includes(":") ? j.ip : "";
+      clientIpv6 = ip || undefined;
+      try { sessionStorage.setItem(IPV6_KEY, ip); } catch { /* ignore */ }
+    })
+    .catch(() => { /* best-effort */ });
+}
+
 function sendServerEvent(eventName: string, eventId: string, customData?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
@@ -520,6 +542,7 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
       fbc: readSignal(FBC_COOKIE, FBC_BACKUP_KEY, "fbc"),
       fbp: readSignal(FBP_COOKIE, FBP_BACKUP_KEY, "fbp"),
       externalId: getExternalId(),
+      clientIpv6,
       email: identity.email,
       phone: identity.phone,
       firstName: identity.firstName,
@@ -535,6 +558,12 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
  *  backend, both tagged with the same eventID so Meta treats them as one conversion. */
 function trackAndRelay(event: string, params: Record<string, unknown> | undefined, eventID: string) {
   if (!isPixelConfigured()) return;
+  // Meta flags a value that is missing, 0 or not numeric; drop it rather than send junk.
+  if (params && "value" in params) {
+    const v = Number(params.value);
+    if (Number.isFinite(v) && v > 0) params = { ...params, value: v };
+    else { const { value: _v, ...rest } = params; params = rest; }
+  }
   track(event, params, eventID);
   sendServerEvent(event, eventID, params);
 }
