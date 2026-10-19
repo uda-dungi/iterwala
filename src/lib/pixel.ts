@@ -267,7 +267,19 @@ export function getPixelSignals(): { fbp?: string; fbc?: string; externalId?: st
   };
 }
 
-type Identity = { email?: string; phone?: string; firstName?: string; lastName?: string };
+type Identity = {
+  email?: string; phone?: string; firstName?: string; lastName?: string;
+  city?: string; state?: string; zip?: string; country?: string;
+};
+
+/** Same normalisation as hashPlace()/hashZip() in api/_lib/metaCapi.ts. */
+const normalisePlace = (v?: string): string | undefined => v?.toLowerCase().replace(/[^\p{L}]/gu, "") || undefined;
+const normaliseZip = (v?: string): string | undefined => v?.toLowerCase().replace(/[\s-]/g, "") || undefined;
+const normaliseCountry = (v?: string): string | undefined => {
+  const c = v?.trim().toLowerCase();
+  if (!c) return undefined;
+  return c === "india" ? "in" : /^[a-z]{2}$/.test(c) ? c : undefined;
+};
 
 /** Same normalisation as hashName() in api/_lib/metaCapi.ts — see the note there on why
  *  the two must stay identical. fbevents.js hashes whatever it is handed, so the value
@@ -312,12 +324,20 @@ function applyAdvancedMatching(identity: Identity) {
   const ph = identity.phone?.replace(/\D/g, "");
   const fn = normaliseName(identity.firstName);
   const ln = normaliseName(identity.lastName);
+  const ct = normalisePlace(identity.city);
+  const st = normalisePlace(identity.state);
+  const zp = normaliseZip(identity.zip);
+  const country = normaliseCountry(identity.country);
   const externalId = getExternalId();
   window.fbq("init", site.metaPixelId, {
     ...(em ? { em } : {}),
     ...(ph ? { ph } : {}),
     ...(fn ? { fn } : {}),
     ...(ln ? { ln } : {}),
+    ...(ct ? { ct } : {}),
+    ...(st ? { st } : {}),
+    ...(zp ? { zp } : {}),
+    ...(country ? { country } : {}),
     ...(externalId ? { external_id: externalId } : {}),
   });
 }
@@ -547,6 +567,10 @@ function sendServerEvent(eventName: string, eventId: string, customData?: Record
       phone: identity.phone,
       firstName: identity.firstName,
       lastName: identity.lastName,
+      city: identity.city,
+      state: identity.state,
+      zip: identity.zip,
+      country: identity.country,
     });
     deliverRelay(body);
   } catch {

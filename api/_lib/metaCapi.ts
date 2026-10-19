@@ -52,6 +52,22 @@ export const hashName = (name?: string): string | undefined => {
   return v ? sha256(v) : undefined;
 };
 
+/** City/state: lowercase letters only. Zip: lowercase, no spaces/dashes. Country: ISO-2
+ *  lowercase. Same rules as the normalise* helpers in src/lib/pixel.ts. */
+export const hashPlace = (v?: string): string | undefined => {
+  const n = v?.toLowerCase().replace(/[^\p{L}]/gu, "");
+  return n ? sha256(n) : undefined;
+};
+export const hashZip = (v?: string): string | undefined => {
+  const n = v?.toLowerCase().replace(/[\s-]/g, "");
+  return n ? sha256(n) : undefined;
+};
+export const hashCountry = (v?: string): string | undefined => {
+  const c = v?.trim().toLowerCase();
+  const code = c === "india" ? "in" : c && /^[a-z]{2}$/.test(c) ? c : undefined;
+  return code ? sha256(code) : undefined;
+};
+
 export const hashPhone = (phone?: string): string | undefined => {
   if (!phone) return undefined;
   // Digits only — matches the udf1 phone format already used for PayU (api/checkout/initiate.ts).
@@ -188,6 +204,10 @@ export type CapiUserData = {
   /** Advanced-matching name parts. Meta counts each as its own match key. */
   firstName?: string;
   lastName?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
   ip?: string;
   userAgent?: string;
   fbp?: string;
@@ -240,6 +260,14 @@ export async function sendCapiEvent(event: CapiEvent): Promise<void> {
   if (ph) user_data.ph = [ph];
   if (fn) user_data.fn = [fn];
   if (ln) user_data.ln = [ln];
+  const ct = hashPlace(event.user.city);
+  const st = hashPlace(event.user.state);
+  const zp = hashZip(event.user.zip);
+  const country = hashCountry(event.user.country);
+  if (ct) user_data.ct = [ct];
+  if (st) user_data.st = [st];
+  if (zp) user_data.zp = [zp];
+  if (country) user_data.country = [country];
   if (event.user.ip) user_data.client_ip_address = event.user.ip;
   if (event.user.userAgent) user_data.client_user_agent = event.user.userAgent;
   if (event.user.fbp) user_data.fbp = event.user.fbp;

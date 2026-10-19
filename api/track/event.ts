@@ -84,6 +84,10 @@ export default async function handler(req: any, res: any) {
           phone: str(body.phone),
           firstName: str(body.firstName),
           lastName: str(body.lastName),
+          city: str(body.city),
+          state: str(body.state),
+          zip: str(body.zip),
+          country: str(body.country),
         },
         customData: body.customData && typeof body.customData === "object" ? body.customData : undefined,
       });

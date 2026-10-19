@@ -119,6 +119,7 @@ export default function Checkout() {
     setPixelIdentity({
       email: form.email, phone: form.phone,
       firstName: form.firstName, lastName: form.lastName,
+      city: form.city, state: form.state, zip: form.pin, country: form.country,
     });
 
     try {
@@ -221,6 +222,7 @@ export default function Checkout() {
     setPixelIdentity({
       email: form.email, phone: form.phone,
       firstName: form.firstName, lastName: form.lastName,
+      city: form.city, state: form.state, zip: form.pin, country: form.country,
     });
 
     try {
