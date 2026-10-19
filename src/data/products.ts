@@ -1036,30 +1036,29 @@ export const products: Product[] = [
   // would put a fabricated discount in front of shoppers. Add the real MRPs to switch
   // the savings badge on.
   {
-    id: "g-premium-divine-series", slug: "premium-divine-series", name: "Premium Divine Series",
-    tagline: "Eight premium attars, one gift box",
+    id: "g-premium-divine-series", slug: "premium-divine-series", name: "Platinum Divine Series 12pc Pack",
+    tagline: "The luxury 12-piece attar collection",
     price: 2899, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
     image: divineSeriesImagesFor("Premium Divine Series")[0] ?? PLACEHOLDER_IMG,
     gallery: divineSeriesImagesFor("Premium Divine Series"),
     notes: { top: ["Rose", "Lavender"], heart: ["Mogra", "Rajnigandha", "Lotus"], base: ["Oud", "Sandalwood"] },
     longevity: "10+ hours", projection: "Moderate",
     occasions: ["Gifting", "Festive", "Pooja"], moods: ["Pure", "Timeless"],
-    ingredients: "Eight alcohol-free premium attars in a luxury gift box.",
-    // The eight bottles are named on the box shot, and each is its own catalogue attar.
-    description: "Eight of our premium attars together in one gift box — Shahi Gulab, Royal Oud, Lavender, Mogra Gold, Rajnigandha, Shyam Shringar, Lotus and Rooh Chandan. Alcohol-free, traditionally crafted, and presented ready to give.",
+    ingredients: "Twelve alcohol-free premium attars in a luxury gift box.",
+    description: "The Platinum Divine Series is our most luxurious devotional collection — a 12-piece pack of premium attars, alcohol-free and traditionally crafted, presented in a signature black gift box. Rich florals, deep woods and sacred, temple-inspired notes make it the finest gift for Janmashtami, pooja and every festive occasion.",
     rating: 4.8, reviews: 0, newArrival: true,
   },
   {
-    id: "g-divine-series-set", slug: "divine-series-set", name: "Divine Series Set",
-    tagline: "Shahi Chandan & Red Rose, boxed",
+    id: "g-divine-series-set", slug: "divine-series-set", name: "Divine Series 12pc Pack",
+    tagline: "A 12-piece collection of sacred attars",
     price: 1599, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
     image: divineSeriesImagesFor("Divine Series Set")[0] ?? PLACEHOLDER_IMG,
     gallery: divineSeriesImagesFor("Divine Series Set"),
     notes: { top: ["Rose"], heart: ["Red Rose", "Sandalwood"], base: ["Chandan", "Musk"] },
     longevity: "10 hours", projection: "Intimate",
     occasions: ["Gifting", "Festive", "Pooja"], moods: ["Joyful", "Pure"],
-    ingredients: "Four alcohol-free premium attars in a luxury gift box.",
-    description: "A four-bottle attar set — Shahi Chandan and Red Rose, two of each — in a signature Itrawala gift box. Alcohol-free and traditionally crafted, made for festive gifting.",
+    ingredients: "Twelve alcohol-free premium attars in a gift box.",
+    description: "The Divine Series is a 12-piece collection of traditional, alcohol-free attars inspired by the spiritual side of fragrance — chandan, rose and other pure, devotional notes for prayer time and festive gifting. Packed in a signature Itrawala gift box, it makes a thoughtful offering for Janmashtami and every celebration.",
     rating: 4.7, reviews: 0, newArrival: true,
   },
   {
