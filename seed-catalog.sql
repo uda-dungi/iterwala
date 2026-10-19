@@ -866,7 +866,7 @@ insert into public.products (
 ) values (
   'g-premium-divine-series', 'premium-divine-series', 'Premium Divine Series', 'Eight premium attars, one gift box', 'Eight of our premium attars together in one gift box — Shahi Gulab, Royal Oud, Lavender, Mogra Gold, Rajnigandha, Shyam Shringar, Lotus and Rooh Chandan. Alcohol-free, traditionally crafted, and presented ready to give.', 'Eight alcohol-free premium attars in a luxury gift box.',
   'Gift Set', 'Unisex',
-  1299, NULL, NULL,
+  2899, NULL, NULL,
   ARRAY['Gift Box']::text[], NULL, NULL,
   NULL, '{"top":["Rose","Lavender"],"heart":["Mogra","Rajnigandha","Lotus"],"base":["Oud","Sandalwood"]}'::jsonb,
   '10+ hours', 'Moderate', ARRAY['Gifting','Festive','Pooja']::text[], ARRAY['Pure','Timeless']::text[],
@@ -900,7 +900,7 @@ insert into public.products (
 ) values (
   'g-divine-series-set', 'divine-series-set', 'Divine Series Set', 'Shahi Chandan & Red Rose, boxed', 'A four-bottle attar set — Shahi Chandan and Red Rose, two of each — in a signature Itrawala gift box. Alcohol-free and traditionally crafted, made for festive gifting.', 'Four alcohol-free premium attars in a luxury gift box.',
   'Gift Set', 'Unisex',
-  999, NULL, NULL,
+  1599, NULL, NULL,
   ARRAY['Gift Box']::text[], NULL, NULL,
   NULL, '{"top":["Rose"],"heart":["Red Rose","Sandalwood"],"base":["Chandan","Musk"]}'::jsonb,
   '10 hours', 'Intimate', ARRAY['Gifting','Festive','Pooja']::text[], ARRAY['Joyful','Pure']::text[],

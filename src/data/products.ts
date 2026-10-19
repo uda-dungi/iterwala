@@ -1038,7 +1038,7 @@ export const products: Product[] = [
   {
     id: "g-premium-divine-series", slug: "premium-divine-series", name: "Premium Divine Series",
     tagline: "Eight premium attars, one gift box",
-    price: 1299, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    price: 2899, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
     image: divineSeriesImagesFor("Premium Divine Series")[0] ?? PLACEHOLDER_IMG,
     gallery: divineSeriesImagesFor("Premium Divine Series"),
     notes: { top: ["Rose", "Lavender"], heart: ["Mogra", "Rajnigandha", "Lotus"], base: ["Oud", "Sandalwood"] },
@@ -1052,7 +1052,7 @@ export const products: Product[] = [
   {
     id: "g-divine-series-set", slug: "divine-series-set", name: "Divine Series Set",
     tagline: "Shahi Chandan & Red Rose, boxed",
-    price: 999, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
+    price: 1599, category: "Gift Set", gender: "Unisex", volume: ["Gift Box"],
     image: divineSeriesImagesFor("Divine Series Set")[0] ?? PLACEHOLDER_IMG,
     gallery: divineSeriesImagesFor("Divine Series Set"),
     notes: { top: ["Rose"], heart: ["Red Rose", "Sandalwood"], base: ["Chandan", "Musk"] },
