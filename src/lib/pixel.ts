@@ -299,16 +299,11 @@ export function setPixelIdentity(identity: Identity) {
   } catch {
     /* storage blocked — CAPI still gets em/ph via the in-memory value below */
   }
-  // Re-arm browser-side Advanced Matching with the identity we now know.
-  //
-  // initPixel() reads the identity once, at load. On a SPA the shopper usually signs in
-  // (or fills the checkout form) LONG after that, so without this re-init every browser
-  // event for the rest of the session goes out with no em/ph — the two heaviest-weighted
-  // match signals — even though the CAPI copy carries them. Re-calling fbq("init", …) is
-  // Meta's documented way to update user data for subsequent events; it does not reload
-  // the script or re-fire PageView. fbevents.js SHA-256 hashes these in the browser, so
-  // nothing identifying leaves it in clear.
-  applyAdvancedMatching(merged);
+  // Deliberately NOT re-calling fbq("init", …) here. A second init of the same pixel ID
+  // is what Meta's Pixel Helper reports as "the pixel is installed twice", and Events
+  // Manager then shows browser events with source "Manual setup" and no event ID next to
+  // the tagged ones. The identity is stored above and rides every later CAPI event
+  // (em/ph/fn/ln/ct/st/zp/country), which Meta merges with the browser copy via eventID.
 }
 
 /** Passes hashed-in-browser em/ph/external_id to the Pixel for all subsequent events.
@@ -318,8 +313,13 @@ export function setPixelIdentity(identity: Identity) {
  *  "  Shopper@Example.COM " here while the server hashes "shopper@example.com" would
  *  produce two different SHA-256 values for one person — Meta would then fail to match
  *  the browser and CAPI copies to the same user, which is the whole point of sending it. */
+let pixelInitialised = false;
+
 function applyAdvancedMatching(identity: Identity) {
   if (typeof window === "undefined" || !isPixelConfigured() || !window.fbq) return;
+  // fbq("init") must run exactly once per page — see setPixelIdentity().
+  if (pixelInitialised) return;
+  pixelInitialised = true;
   const em = identity.email?.trim().toLowerCase();
   const ph = identity.phone?.replace(/\D/g, "");
   const fn = normaliseName(identity.firstName);
