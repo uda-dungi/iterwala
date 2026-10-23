@@ -403,6 +403,12 @@ export function initPixel() {
   // Must be set BEFORE init, or the auto-detected events are already armed.
   window.fbq?.("set", "autoConfig", false, site.metaPixelId);
 
+  // fbevents.js also hooks history.pushState/replaceState and fires its OWN PageView on
+  // every SPA route change. That copy has no eventID, so Meta can't pair it with the CAPI
+  // PageView and flags the "Event ID" dedup problem. PixelPageView already fires a tagged
+  // PageView per route change, so turn Meta's off.
+  (window.fbq as any).disablePushState = true;
+
   // autoConfig:false also turns off Meta's *automatic* advanced matching, so pass the
   // identifiers explicitly instead — fbevents.js SHA-256 hashes these in the browser
   // before they leave it, so nothing identifying goes to Meta in clear. This keeps Event
