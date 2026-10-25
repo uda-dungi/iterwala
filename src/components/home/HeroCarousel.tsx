@@ -23,6 +23,10 @@ import bannerKarwaChauthMobile from "@/assets/brand/banner-karwachauth-mobile.jp
 
 const AUTOPLAY_MS = 5000;
 
+// Database id of the "Collector's Edition" banner row (position 2), whose stored mobile
+// image is the expired Raksha Bandhan sale art.
+const COLLECTORS_BANNER_ID = "cbb5db73-52ce-47e7-9aca-dd8bb37a5b1b";
+
 // Trust stats shown under the hero copy (inline on desktop) and as a bordered,
 // icon-led strip below the banner image on mobile — see the boxed stats block
 // further down for the mobile version.
@@ -128,14 +132,19 @@ export function HeroCarousel() {
   // Phones get their own artwork per banner, falling back to the desktop image when a
   // banner has no mobile art. The copy is baked into mobile artwork, so only the image
   // and the CTA carry over — the eyebrow/headline/subtext fields are desktop-only.
-  const mobileSlides: MobileSlide[] = banners.length
-    ? banners.map((b) => ({
-        image: b.mobileImage ?? b.image,
-        alt: b.headline ?? "Itrawala",
-        fit: b.mobileFit,
-        cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
-      }))
-    : fallbackMobileSlides;
+  // A banner with no mobile artwork is skipped on phones: its wide desktop image crops to
+  // a bare bottle in the 9:16 frame. It still shows on desktop.
+  const liveMobileSlides: MobileSlide[] = banners
+    .filter((b) => b.mobileImage)
+    .map((b) => ({
+      // The Raksha Bandhan art stored on this row is out of season; use the current
+      // Collector's Edition artwork until the row is updated in the admin.
+      image: b.id === COLLECTORS_BANNER_ID ? bannerCollectorsMobile : b.mobileImage!,
+      alt: b.headline ?? "Itrawala",
+      fit: b.mobileFit,
+      cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
+    }));
+  const mobileSlides: MobileSlide[] = liveMobileSlides.length ? liveMobileSlides : fallbackMobileSlides;
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
   const [selected, setSelected] = useState(0);
