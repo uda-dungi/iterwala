@@ -28,7 +28,7 @@ type Ctx = {
   /** Copy nudging the shopper to complete/extend an offer, or null. */
   offerNudge: string | null;
   itemCount: number;
-  /** Karwa Chauth free 10ml attar, present while the discounted subtotal is at/above the minimum. Not a cart line — never priced or editable. */
+  /** Diwali free 10ml attar, present while the discounted subtotal is at/above the minimum. Not a cart line — never priced or editable. */
   freeGift: Product | null;
   /** Promo code the shopper entered (kept here so it survives cart → checkout). */
   coupon: string;

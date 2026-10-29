@@ -3,7 +3,7 @@ import { Product, imageFor, priceFor } from "@/data/products";
 import { FREE_GIFT_LABEL, FREE_GIFT_VOLUME } from "@/lib/freeGift";
 import { formatINR } from "@/store/shop";
 
-/** The Karwa Chauth free gift as a cart row — fixed at ₹0, no quantity or remove controls. */
+/** The Diwali free gift as a cart row — fixed at ₹0, no quantity or remove controls. */
 export function FreeGiftLine({ product, compact = false }: { product: Product; compact?: boolean }) {
   const worth = priceFor(product, FREE_GIFT_VOLUME).price;
   return (

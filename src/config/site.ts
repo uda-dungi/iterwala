@@ -112,7 +112,7 @@ export const TRADING_SINCE = 2020;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
-  "✦ KARWA CHAUTH SALE IS LIVE NOW ✦",
+  "✦ DIWALI SALE IS LIVE NOW ✦",
   "✦ Buy Any 2 Fragrances — Get 1 FREE ✦",
   `✦ NEW HERE? GET ${WELCOME_PERCENT}% OFF WITH CODE ${WELCOME_CODE} ✦`,
   "Free Shipping",

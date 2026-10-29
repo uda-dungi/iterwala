@@ -6,7 +6,7 @@ import { announcements as fallbackAnnouncements } from "@/config/site";
 export function AnnouncementBar() {
   const [i, setI] = useState(0);
   // Always the compiled list (src/config/site.ts) — the old database rows were still
-  // overriding the Karwa Chauth messages. Admin → Announcements no longer drives the bar.
+  // overriding the Diwali messages. Admin → Announcements no longer drives the bar.
   const announcements = fallbackAnnouncements;
 
   useEffect(() => {

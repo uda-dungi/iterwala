@@ -81,7 +81,7 @@ export default async function handler(req: any, res: any) {
     const discountedSubtotal = Math.max(0, subtotal - discount);
     const shipping = discountedSubtotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const gift = Boolean(amounts?.gift);
-    // Karwa Chauth free 10ml attar — re-qualified here, recorded on the order at ₹0.
+    // Diwali free 10ml attar — re-qualified here, recorded on the order at ₹0.
     const giftLines = offerLines.filter((l) => !isFreeGiftExcluded(l.id));
     const giftBase = Math.max(0, giftLines.reduce((s, l) => s + l.unitPrice * l.qty, 0) - computeOffers(giftLines).discount);
     const giftLine = freeGiftLine(body?.freeGift?.id, body?.freeGift?.name, giftBase);

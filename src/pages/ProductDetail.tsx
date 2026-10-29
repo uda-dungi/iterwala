@@ -347,14 +347,14 @@ export default function ProductDetail() {
           </div>
           <p className="text-[11px] sm:text-xs text-muted-foreground -mt-3 sm:-mt-2">Inclusive of all taxes · Free shipping on all orders</p>
 
-          {/* Karwa Chauth free attar — same box as the welcome offer below, shown only on
+          {/* Diwali free attar — same box as the welcome offer below, shown only on
               products that earn the gift (Gift Sets / Divine Series are excluded, see
               isFreeGiftExcluded in src/lib/freeGift.ts). */}
           {!isFreeGiftExcluded(product.id) && (
             <div className="flex items-start gap-2 rounded-sm border border-primary/40 bg-primary/10 px-3 py-2">
               <Gift className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <p className="text-[11px] sm:text-xs text-muted-foreground leading-relaxed">
-                <span className="text-primary font-semibold">Karwa Chauth Sale</span> · Get a{" "}
+                <span className="text-primary font-semibold">Diwali Sale</span> · Get a{" "}
                 <span className="text-primary font-semibold">FREE 10ml attar</span>
                 <span className="block text-[10px] sm:text-[11px] text-muted-foreground/80">
                   Worth up to {formatINR(FREE_GIFT_MAX_WORTH)} · on orders of {formatINR(FREE_GIFT_MIN_ORDER)}+ · added automatically
