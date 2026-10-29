@@ -54,10 +54,10 @@ const fallbackSlides: Slide[] = [
   // not go stale the moment the date does.)
   {
     image: bannerKarwaChauthPc,
-    eyebrow: "No flowers. No chocolates.",
+    eyebrow: "Light up this Diwali.",
     title: "Diwali Sale",
     highlight: "Buy Any 2 Fragrances, Get 1 Free",
-    copy: "Just a fragrance that says forever. Minimum order ₹999.",
+    copy: "Gift a fragrance that glows long after the diyas. Minimum order ₹999.",
     cta: { label: "Shop Now", to: "/shop" },
   },
   // HIDDEN (Oct 2026) — Collector's Edition promo; uncomment to bring it back.
