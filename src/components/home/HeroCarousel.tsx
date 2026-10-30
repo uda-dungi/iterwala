@@ -18,8 +18,8 @@ import bannerCollectorsPc from "@/assets/brand/banner-collectors-pc.jpg";
 import bannerGiftSetPc from "@/assets/brand/banner-giftset-pc.jpg";
 import bannerCollectorsMobile from "@/assets/brand/banner-collectors-mobile.jpg";
 import bannerGiftSetMobile from "@/assets/brand/banner-giftset-mobile.jpg";
-import bannerKarwaChauthPc from "@/assets/brand/banner-karwachauth-pc.jpg";
-import bannerKarwaChauthMobile from "@/assets/brand/banner-karwachauth-mobile.jpg";
+import bannerDiwaliPc from "@/assets/brand/banner-diwali-pc.jpg";
+import bannerDiwaliMobile from "@/assets/brand/banner-diwali-mobile.jpg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -53,7 +53,7 @@ const fallbackSlides: Slide[] = [
   // themselves are unchanged — the artwork just no longer names a festival, so it does
   // not go stale the moment the date does.)
   {
-    image: bannerKarwaChauthPc,
+    image: bannerDiwaliPc,
     eyebrow: "Light up this Diwali.",
     title: "Diwali Sale",
     highlight: "Buy Any 2 Fragrances, Get 1 Free",
@@ -105,7 +105,7 @@ const fallbackMobileSlides: MobileSlide[] = [
   // Shot at 9:16, exactly this carousel's aspect, so object-cover shows them edge to
   // edge with nothing cropped — the offer headline and price sit near the top of the
   // artwork, which is precisely what a shorter frame used to cut off.
-  { image: bannerKarwaChauthMobile, alt: "Diwali Sale — Buy Any 2 Fragrances, Get 1 Free, min order ₹999", fit: "cover", cta: { label: "Shop Now", to: "/shop" } },
+  { image: bannerDiwaliMobile, alt: "The Diwali Gift Edit — The Roshni Edition, free attar on orders ₹999+", fit: "cover", cta: { label: "Shop Now", to: "/shop" } },
   // HIDDEN (Oct 2026) { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
   // HIDDEN (Oct 2026) { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
