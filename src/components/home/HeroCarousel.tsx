@@ -47,19 +47,20 @@ type Slide = {
 
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
+const diwaliSlide: Slide = {
+  image: bannerDiwaliPc,
+  eyebrow: "Light up this Diwali.",
+  title: "Diwali Sale",
+  highlight: "Buy Any 2 Fragrances, Get 1 Free",
+  copy: "Gift a fragrance that glows long after the diyas. Minimum order ₹999.",
+  cta: { label: "Shop Now", to: "/shop" },
+};
+
 const fallbackSlides: Slide[] = [
   // Live promo banners first, so the current offers are what loads.
   // (Sep 2026: replaced the Janmashtami set once that festival passed. The offers
   // themselves are unchanged — the artwork just no longer names a festival, so it does
   // not go stale the moment the date does.)
-  {
-    image: bannerDiwaliPc,
-    eyebrow: "Light up this Diwali.",
-    title: "Diwali Sale",
-    highlight: "Buy Any 2 Fragrances, Get 1 Free",
-    copy: "Gift a fragrance that glows long after the diyas. Minimum order ₹999.",
-    cta: { label: "Shop Now", to: "/shop" },
-  },
   // HIDDEN (Oct 2026) — Collector's Edition promo; uncomment to bring it back.
   // {
   //   image: bannerCollectorsPc,
@@ -101,11 +102,12 @@ const fallbackSlides: Slide[] = [
 // EDIT: add/remove entries here whenever the mobile banner set changes.
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
+const diwaliMobileSlide: MobileSlide = { image: bannerDiwaliMobile, alt: "The Diwali Gift Edit — The Roshni Edition, free attar on orders ₹999+", fit: "cover", cta: { label: "Shop Now", to: "/shop" } };
+
 const fallbackMobileSlides: MobileSlide[] = [
   // Shot at 9:16, exactly this carousel's aspect, so object-cover shows them edge to
   // edge with nothing cropped — the offer headline and price sit near the top of the
   // artwork, which is precisely what a shorter frame used to cut off.
-  { image: bannerDiwaliMobile, alt: "The Diwali Gift Edit — The Roshni Edition, free attar on orders ₹999+", fit: "cover", cta: { label: "Shop Now", to: "/shop" } },
   // HIDDEN (Oct 2026) { image: bannerCollectorsMobile, alt: "Collector's Edition trilogy — Buy 2 Get 1 Free", fit: "cover", cta: { label: "Shop Trilogy", to: "/product/shabd" } },
   // HIDDEN (Oct 2026) { image: bannerGiftSetMobile, alt: "Perfume Gift Set Special — Pack of 4 or Pack of 8, Buy 1 Get 1 Free at ₹999", fit: "cover", cta: { label: "Shop Gift Sets", to: "/shop?category=Gift Set" } },
   // Older brand banners are 4:5. In a 9:16 frame object-cover would slice ~30% off each
@@ -118,16 +120,18 @@ export function HeroCarousel() {
   // Banners created in the admin replace the compiled slides wholesale. Until one
   // exists the list above renders, so an empty table can't blank the homepage hero.
   const { banners } = useCatalog();
+  // The Diwali slide is pinned first in code. Live banners used to replace the whole list
+  // once the catalogue loaded, so Diwali flashed from the static first paint and vanished.
   const slides: Slide[] = banners.length
-    ? banners.map((b) => ({
+    ? [diwaliSlide, ...banners.map((b) => ({
         image: b.image,
         eyebrow: b.eyebrow ?? "",
         title: b.headline ?? "",
         highlight: b.highlight ?? "",
         copy: b.subtext ?? "",
         cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
-      }))
-    : fallbackSlides;
+      }))]
+    : [diwaliSlide, ...fallbackSlides];
 
   // Phones get their own artwork per banner, falling back to the desktop image when a
   // banner has no mobile art. The copy is baked into mobile artwork, so only the image
@@ -144,7 +148,7 @@ export function HeroCarousel() {
       fit: b.mobileFit,
       cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
     }));
-  const mobileSlides: MobileSlide[] = liveMobileSlides.length ? liveMobileSlides : fallbackMobileSlides;
+  const mobileSlides: MobileSlide[] = [diwaliMobileSlide, ...(liveMobileSlides.length ? liveMobileSlides : fallbackMobileSlides)];
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
   const [selected, setSelected] = useState(0);
