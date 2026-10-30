@@ -40,6 +40,9 @@ const repoModules = import.meta.glob(
     // tab went unused. These are wide/tall marketing shots, not product photos, so they
     // are only ever chosen deliberately for a banner or a collection card.
     "../assets/brand/**/*.{png,jpg,jpeg,PNG,JPG,JPEG}",
+    // The "Attars" collection card stores its key as a bare filename at the assets root;
+    // outside every pattern above it resolved to the blank placeholder.
+    "../assets/collection-attars.jpg",
   ],
   { eager: true, import: "default" }
 ) as Record<string, string>;
