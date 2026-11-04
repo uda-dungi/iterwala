@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { site, whatsappLink, instagramLink, facebookLink, isSet } from "@/config/site";
 import { supabase } from "@/lib/supabase";
+import { setPixelIdentity } from "@/lib/pixel";
 import logo from "@/assets/brand/logo.png";
 
 export function Footer() {
@@ -15,6 +16,7 @@ export function Footer() {
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
+    setPixelIdentity({ email: email.trim() });
     setSubmitting(true);
     try {
       const { error } = await supabase.from("subscribers").insert({ email: email.trim(), source: "footer" });

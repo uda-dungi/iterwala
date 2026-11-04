@@ -342,6 +342,10 @@ function applyAdvancedMatching(identity: Identity) {
   });
 }
 
+export function getPixelIdentity(): Identity {
+  return getIdentity();
+}
+
 function getIdentity(): Identity {
   try {
     return JSON.parse(localStorage.getItem(IDENTITY_KEY) || "{}");

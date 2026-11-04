@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Loader2, Lock, ShieldCheck, Truck, CheckCircle2, Gift, Sparkles, Smartphone, CreditCard, Building2, Wallet, Banknote } from "lucide-react";
 import { useShop, formatINR } from "@/store/shop";
 import { priceFor, imageFor, imageAltFor } from "@/data/products";
-import { trackInitiateCheckout, setPixelIdentity, getPixelSignals } from "@/lib/pixel";
+import { trackInitiateCheckout, setPixelIdentity, getPixelSignals, getPixelIdentity } from "@/lib/pixel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,17 @@ const emptyForm: FormState = {
 export default function Checkout() {
   const navigate = useNavigate();
   const { cart, subtotal, offerDiscount, offers, clearCart, coupon, setCoupon, couponDiscount, freeGift } = useShop();
-  const [form, setForm] = useState<FormState>(emptyForm);
+  // Prefill from any identity we already know (signed in, earlier order, newsletter signup) so
+  // InitiateCheckout — which fires on mount — already carries hashed email/phone for Meta.
+  const [form, setForm] = useState<FormState>(() => {
+    const id = getPixelIdentity();
+    return {
+      ...emptyForm,
+      email: id.email || "", phone: id.phone || "",
+      firstName: id.firstName || "", lastName: id.lastName || "",
+      city: id.city || "", state: id.state || "", pin: id.zip || "",
+    };
+  });
   const [gift, setGift] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [codSubmitting, setCodSubmitting] = useState(false);
@@ -78,6 +88,19 @@ export default function Checkout() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cart.length]);
+
+  // Remember email/phone as soon as they look valid, not only on submit, so later events in
+  // the session (and an abandoned-then-resumed checkout) carry them.
+  useEffect(() => {
+    const emailOk = /^\S+@\S+\.\S+$/.test(form.email);
+    const phoneOk = form.phone.replace(/\D/g, "").length >= 10;
+    if (!emailOk && !phoneOk) return;
+    const t = setTimeout(() => setPixelIdentity({
+      ...(emailOk ? { email: form.email } : {}),
+      ...(phoneOk ? { phone: form.phone } : {}),
+    }), 600);
+    return () => clearTimeout(t);
+  }, [form.email, form.phone]);
 
   const setField = (k: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm(f => ({ ...f, [k]: e.target.value }));

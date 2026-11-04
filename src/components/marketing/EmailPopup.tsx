@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { WELCOME_CODE, WELCOME_PERCENT } from "@/lib/coupons";
 import { onDealPopupSettled } from "@/lib/popupGate";
 import { useShop } from "@/store/shop";
+import { setPixelIdentity } from "@/lib/pixel";
 
 const SEEN_KEY = "itr_email_popup_seen";
 
@@ -55,6 +56,7 @@ export function EmailPopup() {
     e.preventDefault();
     setCoupon(WELCOME_CODE);
     if (supabase) {
+      setPixelIdentity({ email });
       await supabase.from("subscribers").insert({ email, source: "exit_popup" }).then(() => {});
     }
     // The claimed code is now in the shared cart state; checkout confirms first-order eligibility.
