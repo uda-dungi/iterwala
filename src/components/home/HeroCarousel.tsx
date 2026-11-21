@@ -18,8 +18,8 @@ import bannerCollectorsPc from "@/assets/brand/banner-collectors-pc.jpg";
 import bannerGiftSetPc from "@/assets/brand/banner-giftset-pc.jpg";
 import bannerCollectorsMobile from "@/assets/brand/banner-collectors-mobile.jpg";
 import bannerGiftSetMobile from "@/assets/brand/banner-giftset-mobile.jpg";
-import bannerDiwaliPc from "@/assets/brand/banner-diwali-pc.jpg";
-import bannerDiwaliMobile from "@/assets/brand/banner-diwali-mobile.jpg";
+import bannerChristmasPc from "@/assets/brand/banner-christmas-pc.jpg";
+import bannerChristmasMobile from "@/assets/brand/banner-christmas-mobile.jpg";
 
 const AUTOPLAY_MS = 5000;
 
@@ -47,12 +47,12 @@ type Slide = {
 
 // EDIT: swap images/copy here whenever the current promo banners change — everything
 // else (autoplay, dots, swipe, arrows) keeps working without touching the markup below.
-const diwaliSlide: Slide = {
-  image: bannerDiwaliPc,
-  eyebrow: "Light up this Diwali.",
-  title: "Diwali Sale",
-  highlight: "Buy Any 2 Fragrances, Get 1 Free",
-  copy: "Gift a fragrance that glows long after the diyas. Minimum order ₹999.",
+const christmasSlide: Slide = {
+  image: bannerChristmasPc,
+  eyebrow: "Christmas Offer — Coming Soon.",
+  title: "Christmas Offer",
+  highlight: "Stay tuned for our Christmas offer",
+  copy: "Gift a fragrance that lasts long after the season. Offer coming soon.",
   cta: { label: "Shop Now", to: "/shop" },
 };
 
@@ -102,7 +102,7 @@ const fallbackSlides: Slide[] = [
 // EDIT: add/remove entries here whenever the mobile banner set changes.
 type MobileSlide = { image: string; alt: string; cta: { label: string; to: string }; fit?: "cover" | "contain" };
 
-const diwaliMobileSlide: MobileSlide = { image: bannerDiwaliMobile, alt: "The Diwali Gift Edit — The Roshni Edition, free attar on orders ₹999+", fit: "cover", cta: { label: "Shop Now", to: "/shop" } };
+const christmasMobileSlide: MobileSlide = { image: bannerChristmasMobile, alt: "Christmas Offer — Coming Soon", fit: "cover", cta: { label: "Shop Now", to: "/shop" } };
 
 const fallbackMobileSlides: MobileSlide[] = [
   // Shot at 9:16, exactly this carousel's aspect, so object-cover shows them edge to
@@ -120,10 +120,10 @@ export function HeroCarousel() {
   // Banners created in the admin replace the compiled slides wholesale. Until one
   // exists the list above renders, so an empty table can't blank the homepage hero.
   const { banners } = useCatalog();
-  // The Diwali slide is pinned first in code. Live banners used to replace the whole list
-  // once the catalogue loaded, so Diwali flashed from the static first paint and vanished.
+  // The Christmas slide is pinned first in code. Live banners used to replace the whole list
+  // once the catalogue loaded, so the slide flashed from the static first paint and vanished.
   const slides: Slide[] = banners.length
-    ? [diwaliSlide, ...banners.map((b) => ({
+    ? [christmasSlide, ...banners.map((b) => ({
         image: b.image,
         eyebrow: b.eyebrow ?? "",
         title: b.headline ?? "",
@@ -131,7 +131,7 @@ export function HeroCarousel() {
         copy: b.subtext ?? "",
         cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
       }))]
-    : [diwaliSlide, ...fallbackSlides];
+    : [christmasSlide, ...fallbackSlides];
 
   // Phones get their own artwork per banner, falling back to the desktop image when a
   // banner has no mobile art. The copy is baked into mobile artwork, so only the image
@@ -148,7 +148,7 @@ export function HeroCarousel() {
       fit: b.mobileFit,
       cta: { label: b.ctaLabel ?? "Shop Now", to: b.ctaHref ?? "/shop" },
     }));
-  const mobileSlides: MobileSlide[] = [diwaliMobileSlide, ...(liveMobileSlides.length ? liveMobileSlides : fallbackMobileSlides)];
+  const mobileSlides: MobileSlide[] = [christmasMobileSlide, ...(liveMobileSlides.length ? liveMobileSlides : fallbackMobileSlides)];
 
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 28 });
   const [selected, setSelected] = useState(0);
