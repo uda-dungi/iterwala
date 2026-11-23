@@ -1,16 +1,20 @@
 import type { Plugin } from "vite";
 import sharp from "sharp";
 
-// Product photos stay as .jpg/.png in the repo (the database references them by their
-// source path, so renaming files would orphan those references). At build time every
-// emitted product image is re-encoded to WebP and its output name/URL rewritten, so
-// shoppers get the smaller file with zero changes to code or data.
-const PRODUCT_DIRS = /(^|\/)src\/assets\/(products|Product Gallery|new Product Gallery|product-gallery-2|product-gallery-3|Pack of 4 and 8|Divine Series)\//;
+// Images stay as .jpg/.png in the repo (the database references them by their source
+// path, so renaming files would orphan those references). At build time every emitted
+// image under src/assets (product photos, hero/brand banners, collection art) is
+// re-encoded to WebP and its output name/URL rewritten, so shoppers get the smaller file
+// with zero changes to code or data. Files in public/ (favicons, og:image) are untouched.
+const PRODUCT_DIRS = /(^|\/)src\/assets\//;
 
 export function webpProductImages(): Plugin {
   return {
     name: "webp-product-images",
     apply: "build",
+    // Run after Vite's HTML plugin has emitted index.html, so its <img>/preload URLs
+    // (the static first-paint hero) are rewritten to the .webp names too.
+    enforce: "post",
     async generateBundle(_, bundle) {
       const renames = new Map<string, string>();
       await Promise.all(

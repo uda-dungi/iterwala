@@ -112,11 +112,11 @@ export const TRADING_SINCE = 2020;
 
 /** Auto-sliding announcement-bar statements. */
 export const announcements = [
-  "✦ CHRISTMAS SALE IS LIVE NOW ✦",
+  "✦ CHRISTMAS SALE COMING SOON ✦",
   "✦ Buy Any 2 Fragrances — Get 1 FREE ✦",
   `✦ NEW HERE? GET ${WELCOME_PERCENT}% OFF WITH CODE ${WELCOME_CODE} ✦`,
   "Free Shipping",
-  "Amazon's Choice Products Available",
+  "Amazon's Choice Products",
   "100% Money-Back Guarantee",
   "WhatsApp Support — We reply fast",
   "✦ Cash on Delivery Now Available ✦",
