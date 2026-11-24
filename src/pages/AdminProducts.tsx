@@ -12,7 +12,7 @@ import { VIDEO_HIDDEN } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const CATEGORIES = ["Perfume", "Attar", "Gift Set", "Collector's Edition"] as const;
+const CATEGORIES = ["Perfume", "Attar", "Gift Set", "Collector's Edition", "Air Freshener", "Camphor", "Resin", "Floral Water"] as const;
 const GENDERS = ["Men", "Women", "Unisex"] as const;
 
 /** A brand-new product starts here. Deliberately minimal — everything else is

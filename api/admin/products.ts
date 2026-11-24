@@ -28,7 +28,7 @@ const WRITABLE = new Set([
   "archived", "position",
 ]);
 
-const CATEGORIES = new Set(["Perfume", "Attar", "Gift Set", "Collector's Edition"]);
+const CATEGORIES = new Set(["Perfume", "Attar", "Gift Set", "Collector's Edition", "Air Freshener", "Camphor", "Resin", "Floral Water"]);
 const GENDERS = new Set(["Men", "Women", "Unisex"]);
 
 const pick = (body: Record<string, any>) =>

@@ -511,30 +511,38 @@ export default function ProductDetail() {
           {/* Everything else — collapsed into an accordion so the mobile page
               isn't an endless scroll of boxes. */}
           <Accordion type="single" collapsible defaultValue="notes" className="pt-1">
+            {/* Ritual/home products (camphor, resin, floral water, air fresheners) have no
+                note pyramid or projection — skip those panels rather than render empty rows. */}
+            {(product.notes.top.length + product.notes.heart.length + product.notes.base.length > 0) && (
             <AccordionItem value="notes">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Fragrance Pyramid</AccordionTrigger>
               <AccordionContent className="space-y-3">
-                <NoteRow label="Top" items={product.notes.top} />
-                <NoteRow label="Heart" items={product.notes.heart} />
-                <NoteRow label="Base" items={product.notes.base} />
+                {product.notes.top.length > 0 && <NoteRow label="Top" items={product.notes.top} />}
+                {product.notes.heart.length > 0 && <NoteRow label="Heart" items={product.notes.heart} />}
+                {product.notes.base.length > 0 && <NoteRow label="Base" items={product.notes.base} />}
               </AccordionContent>
             </AccordionItem>
+            )}
 
+            {product.longevity && (
             <AccordionItem value="performance">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Longevity &amp; Projection</AccordionTrigger>
               <AccordionContent>
-                <div className="grid grid-cols-2 gap-3">
+                <div className={`grid gap-3 ${product.projection ? "grid-cols-2" : "grid-cols-1"}`}>
                   <div className="border border-border p-4 rounded-sm">
                     <p className="text-[10px] tracking-luxe uppercase text-primary">Longevity</p>
                     <p className="font-serif text-lg text-ivory mt-1">{product.longevity}</p>
                   </div>
+                  {product.projection && (
                   <div className="border border-border p-4 rounded-sm">
                     <p className="text-[10px] tracking-luxe uppercase text-primary">Projection</p>
                     <p className="font-serif text-lg text-ivory mt-1">{product.projection}</p>
                   </div>
+                  )}
                 </div>
               </AccordionContent>
             </AccordionItem>
+            )}
 
             <AccordionItem value="description">
               <AccordionTrigger className="text-xs tracking-luxe uppercase text-primary hover:no-underline">Full Description</AccordionTrigger>
@@ -550,7 +558,7 @@ export default function ProductDetail() {
                     ))}
                   </ul>
                 ) : null}
-                <p>Best suited for: {product.occasions.join(", ")}. Mood: {product.moods.join(", ")}.</p>
+                {product.occasions.length > 0 && <p>Best suited for: {product.occasions.join(", ")}.{product.moods.length > 0 ? ` Mood: ${product.moods.join(", ")}.` : ""}</p>}
               </AccordionContent>
             </AccordionItem>
 

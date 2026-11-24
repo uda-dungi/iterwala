@@ -18,6 +18,7 @@ const genders = ["Men", "Women", "Unisex"];
 // instead of the generic "adjust your filters", which would blame the shopper.
 const categories = [
   "Perfume", "Attar", "Gift Set", "New Launch", "Collector's Edition", DIVINE_COLLECTION_CATEGORY,
+  "Air Freshener", "Camphor", "Resin", "Floral Water",
 ];
 const noteList = ["Oud", "Rose", "Saffron", "Amber", "Sandalwood", "Musk", "Vanilla", "Jasmine"];
 const occasions = ["Evening", "Daily Wear", "Date Night", "Office", "Formal", "Festive"];
