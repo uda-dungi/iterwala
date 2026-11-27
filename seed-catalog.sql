@@ -2600,7 +2600,7 @@ insert into public.products (
 ) values (
   'a-touch', 'touch-attar', 'Touch Attar', 'Discover this fragrance', 'Touch Attar is a soft alcohol-free attar (itra / ittar) perfume oil for men and women: an up to 24 hours long-lasting fragrance made for daily wear and gifting. This is a soft, 100% alcohol-free concentrated attar that is easy to wear every day. Longevity: up to 24 hours of long-lasting wear. Dab a little on the wrists, behind the ears or on the neck. It is alcohol-free.', 'Premium fragrance oils, French-grade base',
   'Attar', 'Unisex',
-  949, 1499, NULL,
+  499, 1499, NULL,
   ARRAY['10ml']::text[], NULL, NULL,
   NULL, '{"top":["To be updated"],"heart":["To be updated"],"base":["To be updated"]}'::jsonb,
   'Up to 24 hours', 'Intimate', ARRAY['Daily Wear','Special Occasions']::text[], ARRAY['Confident']::text[],
@@ -2634,7 +2634,7 @@ insert into public.products (
 ) values (
   'a-white-oud', 'white-oud-attar', 'White Oud Attar', 'Discover this fragrance', 'White Oud Attar is a light oud alcohol-free attar (itra / ittar) perfume oil for men and women: an up to 24 hours long-lasting fragrance made for evenings, occasions and gifting. This is a 100% alcohol-free concentrated attar with a lighter, cleaner take on oud. Longevity: up to 24 hours of long-lasting wear. Dab a little on the wrists, behind the ears or on the neck. It is alcohol-free.', 'Premium fragrance oils, French-grade base',
   'Attar', 'Unisex',
-  949, 1499, NULL,
+  499, 1499, NULL,
   ARRAY['10ml']::text[], NULL, NULL,
   NULL, '{"top":["To be updated"],"heart":["To be updated"],"base":["To be updated"]}'::jsonb,
   'Up to 24 hours', 'Intimate', ARRAY['Daily Wear','Special Occasions']::text[], ARRAY['Confident']::text[],
@@ -2668,7 +2668,7 @@ insert into public.products (
 ) values (
   'a-wild', 'wild-attar', 'Wild Attar', 'Discover this fragrance', 'Wild Attar — a premium Itra Wala fragrance, now available on our store.', '100% alcohol-free premium attar oil.',
   'Attar', 'Unisex',
-  949, 1499, NULL,
+  499, 1499, NULL,
   ARRAY['10ml']::text[], NULL, NULL,
   NULL, '{"top":["To be updated"],"heart":["To be updated"],"base":["To be updated"]}'::jsonb,
   '10+ hours', 'Intimate', ARRAY['Daily Wear','Special Occasions']::text[], ARRAY['Confident']::text[],
@@ -2884,7 +2884,7 @@ Its woody-spicy character suits evening wear and special occasions, and the 100 
 
 Shop SRK Eau De Parfum (100 ml) online at Itrawala and add a distinctive Eau De Parfum to your collection.', 'Premium fragrance oils, French-grade base.',
   'Perfume', 'Unisex',
-  175, 349, '{"20ml":{"price":175,"compareAt":349}}'::jsonb,
+  249, 349, '{"20ml":{"price":249,"compareAt":349}}'::jsonb,
   ARRAY['20ml']::text[], '20ml', NULL,
   NULL, '{"top":["Italian Cypress","Myrtle","Rose"],"heart":["Sandalwood","Cedar"],"base":["Brazilian Rosewood","Spices","Amber","White Musk"]}'::jsonb,
   '18 hrs', '', '{}', '{}',
@@ -3244,7 +3244,7 @@ Its smoky, resinous profile suits evenings and special occasions, and makes a ge
 
 Find White Oud Eau De Parfum (100 ml) at Itrawala and enjoy an Eau De Parfum that stands apart from the usual.', 'Premium fragrance oils, French-grade base.',
   'Perfume', 'Unisex',
-  325, 749, '{"20ml":{"price":120,"compareAt":349},"50ml":{"price":220,"compareAt":499},"100ml":{"price":325,"compareAt":749}}'::jsonb,
+  449, 749, '{"20ml":{"price":249,"compareAt":349},"50ml":{"price":349,"compareAt":499},"100ml":{"price":449,"compareAt":749}}'::jsonb,
   ARRAY['20ml','50ml','100ml']::text[], '100ml', NULL,
   NULL, '{"top":["Smoke Woods"],"heart":["Aged Oud","Spices"],"base":["Amber","Musk","Resin"]}'::jsonb,
   '18 hrs', '', '{}', '{}',
@@ -3284,7 +3284,7 @@ Its herbal-woody character suits those who like aromatic, fresh scents, and the 
 
 Add Magnet Eau De Parfum (100 ml) to your cart at Itrawala and experience its character for yourself.', 'Premium fragrance oils, French-grade base.',
   'Perfume', 'Unisex',
-  325, 749, '{"20ml":{"price":120,"compareAt":349},"50ml":{"price":220,"compareAt":499},"100ml":{"price":325,"compareAt":749}}'::jsonb,
+  449, 749, '{"20ml":{"price":249,"compareAt":349},"50ml":{"price":349,"compareAt":499},"100ml":{"price":449,"compareAt":749}}'::jsonb,
   ARRAY['20ml','50ml','100ml']::text[], '100ml', NULL,
   NULL, '{"top":["Lavender","Rosemary","Basil","Verbena"],"heart":["Angelica","Cinnamon","Coriander","Juniper Berry"],"base":["Balsam Fir","Patchouli","Vetiver","Oakmoss"]}'::jsonb,
   '18 hrs', '', '{}', '{}',
@@ -3324,7 +3324,7 @@ Its romantic white-floral character suits gifting and special evenings, in a gen
 
 Shop Secret Crush Eau De Parfum (100 ml) online at Itrawala and bring home a fragrance with real character.', 'Premium fragrance oils, French-grade base.',
   'Perfume', 'Unisex',
-  540, 899, '{"20ml":{"price":180,"compareAt":349},"50ml":{"price":360,"compareAt":599},"100ml":{"price":540,"compareAt":899}}'::jsonb,
+  540, 899, '{"20ml":{"price":249,"compareAt":349},"50ml":{"price":360,"compareAt":599},"100ml":{"price":540,"compareAt":899}}'::jsonb,
   ARRAY['20ml','50ml','100ml']::text[], '100ml', NULL,
   NULL, '{"top":["Sicilian Mandarin"],"heart":["Jasmine Absolute","Ylang-Ylang","Tunisian Orange Blossom"],"base":["Indonesian Patchouli","Tonka Bean","Benzoin"]}'::jsonb,
   '18 hrs', '', '{}', '{}',
@@ -3364,7 +3364,7 @@ Its creamy sandalwood character suits festive wear and gifting, in a generous 10
 
 Explore Gold Chandan Eau De Parfum (100 ml) at Itrawala and add a distinctive Eau De Parfum to your collection.', 'Premium fragrance oils, French-grade base.',
   'Perfume', 'Unisex',
-  325, 749, '{"20ml":{"price":120,"compareAt":349},"50ml":{"price":220,"compareAt":499},"100ml":{"price":325,"compareAt":749}}'::jsonb,
+  449, 749, '{"20ml":{"price":249,"compareAt":349},"50ml":{"price":349,"compareAt":499},"100ml":{"price":449,"compareAt":749}}'::jsonb,
   ARRAY['20ml','50ml','100ml']::text[], '100ml', NULL,
   NULL, '{"top":["Musk","Floral","Bergamot"],"heart":["Jasmine","Ylang-Ylang","Amber"],"base":["Indian Sandalwood","Cedar","Benzoin","Musk","Oud"]}'::jsonb,
   '18 hrs', '', '{}', '{}',
@@ -3404,7 +3404,7 @@ Its warm, sweet-amber character suits evening wear and gifting, in a generous 10
 
 Order Feelings Eau De Parfum (100 ml) from Itrawala and make it part of your fragrance routine.', 'Premium fragrance oils, French-grade base.',
   'Perfume', 'Unisex',
-  449, 749, '{"20ml":{"price":160,"compareAt":349},"50ml":{"price":299,"compareAt":499},"100ml":{"price":449,"compareAt":749}}'::jsonb,
+  449, 749, '{"20ml":{"price":249,"compareAt":349},"50ml":{"price":299,"compareAt":499},"100ml":{"price":449,"compareAt":749}}'::jsonb,
   ARRAY['20ml','50ml','100ml']::text[], '100ml', NULL,
   NULL, '{"top":["Saffron","Jasmine"],"heart":["Amberwood","Ambergris (Ambroxan)"],"base":["Fir Resin","Cedar","Sugar (Ethyl Maltol)"]}'::jsonb,
   '18 hrs', '', '{}', '{}',

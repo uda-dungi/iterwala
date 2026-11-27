@@ -1900,7 +1900,7 @@ export const products: Product[] = [
   },
   {
     id: "a-touch", slug: "touch-attar", name: "Touch Attar", tagline: "Discover this fragrance",
-    price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    price: 499, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
     // New studio photography (Aug 2026) leads. The old pre-photoshoot fallback shot
     // used to be appended as a 6th gallery image — dropped per Jatin, since the 5 new
     // studio photos fully replace it and it read as a redundant, lower-quality repeat.
@@ -1915,7 +1915,7 @@ export const products: Product[] = [
   },
   {
     id: "a-white-oud", slug: "white-oud-attar", name: "White Oud Attar", tagline: "Discover this fragrance",
-    price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    price: 499, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
     image: newGalleryImagesFor("White Oud Attar")[0] ?? img("white-oud"),
     gallery: [...newGalleryImagesFor("White Oud Attar"), img("white-oud")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
@@ -1927,7 +1927,7 @@ export const products: Product[] = [
   },
   {
     id: "a-wild", slug: "wild-attar", name: "Wild Attar", tagline: "Discover this fragrance",
-    price: 949, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
+    price: 499, compareAt: 1499, category: "Attar", gender: "Unisex", volume: ATTAR_VOL,
     image: newGalleryImagesFor("Wild Attar")[0] ?? img("attar-wild"),
     gallery: [...newGalleryImagesFor("Wild Attar"), img("attar-wild")],
     notes: { top: ["To be updated"], heart: ["To be updated"], base: ["To be updated"] },
@@ -2035,8 +2035,8 @@ export const products: Product[] = [
   },
   {
     id: "p-srk-eau-de-parfum-100-ml", slug: "srk-eau-de-parfum-100-ml", name: "SRK Eau De Parfum", tagline: "Long-lasting Eau De Parfum",
-    price: 175, compareAt: 349, category: "Perfume", gender: "Unisex", volume: ["20ml"],
-    priceByVolume: { "20ml": { price: 175, compareAt: 349 } },
+    price: 249, compareAt: 349, category: "Perfume", gender: "Unisex", volume: ["20ml"],
+    priceByVolume: { "20ml": { price: 249, compareAt: 349 } },
     featuredVolume: "20ml",
     image: productGallery3ImagesFor("SRK Eau De Parfum")[0] ?? PLACEHOLDER_IMG,
     gallery: productGallery3ImagesFor("SRK Eau De Parfum"),
@@ -2170,8 +2170,8 @@ export const products: Product[] = [
   },
   {
     id: "p-white-oud-eau-de-parfum-100-ml", slug: "white-oud-eau-de-parfum-100-ml", name: "White Oud Eau De Parfum", tagline: "Long-lasting Eau De Parfum",
-    price: 325, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
-    priceByVolume: { "20ml": { price: 120, compareAt: 349 }, "50ml": { price: 220, compareAt: 499 }, "100ml": { price: 325, compareAt: 749 } },
+    price: 449, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
+    priceByVolume: { "20ml": { price: 249, compareAt: 349 }, "50ml": { price: 349, compareAt: 499 }, "100ml": { price: 449, compareAt: 749 } },
     featuredVolume: "100ml",
     image: productGallery3ImagesFor("White Oud Eau De Parfum")[0] ?? PLACEHOLDER_IMG,
     gallery: productGallery3ImagesFor("White Oud Eau De Parfum"),
@@ -2185,8 +2185,8 @@ export const products: Product[] = [
   },
   {
     id: "p-magnet-eau-de-parfum-100-ml", slug: "magnet-eau-de-parfum-100-ml", name: "Magnet Eau De Parfum", tagline: "Long-lasting Eau De Parfum",
-    price: 325, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
-    priceByVolume: { "20ml": { price: 120, compareAt: 349 }, "50ml": { price: 220, compareAt: 499 }, "100ml": { price: 325, compareAt: 749 } },
+    price: 449, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
+    priceByVolume: { "20ml": { price: 249, compareAt: 349 }, "50ml": { price: 349, compareAt: 499 }, "100ml": { price: 449, compareAt: 749 } },
     featuredVolume: "100ml",
     image: productGallery3ImagesFor("Magnet Eau De Parfum")[0] ?? PLACEHOLDER_IMG,
     gallery: productGallery3ImagesFor("Magnet Eau De Parfum"),
@@ -2201,7 +2201,7 @@ export const products: Product[] = [
   {
     id: "p-secret-crush-eau-de-parfum-100-ml", slug: "secret-crush-eau-de-parfum-100-ml", name: "Secret Crush Eau De Parfum", tagline: "Long-lasting Eau De Parfum",
     price: 540, compareAt: 899, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
-    priceByVolume: { "20ml": { price: 180, compareAt: 349 }, "50ml": { price: 360, compareAt: 599 }, "100ml": { price: 540, compareAt: 899 } },
+    priceByVolume: { "20ml": { price: 249, compareAt: 349 }, "50ml": { price: 360, compareAt: 599 }, "100ml": { price: 540, compareAt: 899 } },
     featuredVolume: "100ml",
     image: productGallery3ImagesFor("Secret Crush Eau De Parfum")[0] ?? PLACEHOLDER_IMG,
     gallery: productGallery3ImagesFor("Secret Crush Eau De Parfum"),
@@ -2215,8 +2215,8 @@ export const products: Product[] = [
   },
   {
     id: "p-gold-chandan-eau-de-parfum-100-ml", slug: "gold-chandan-eau-de-parfum-100-ml", name: "Gold Chandan Eau De Parfum", tagline: "Long-lasting Eau De Parfum",
-    price: 325, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
-    priceByVolume: { "20ml": { price: 120, compareAt: 349 }, "50ml": { price: 220, compareAt: 499 }, "100ml": { price: 325, compareAt: 749 } },
+    price: 449, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
+    priceByVolume: { "20ml": { price: 249, compareAt: 349 }, "50ml": { price: 349, compareAt: 499 }, "100ml": { price: 449, compareAt: 749 } },
     featuredVolume: "100ml",
     image: productGallery3ImagesFor("Gold Chandan Eau De Parfum")[0] ?? PLACEHOLDER_IMG,
     gallery: productGallery3ImagesFor("Gold Chandan Eau De Parfum"),
@@ -2231,7 +2231,7 @@ export const products: Product[] = [
   {
     id: "p-feelings-eau-de-parfum-100-ml", slug: "feelings-eau-de-parfum-100-ml", name: "Feelings Eau De Parfum", tagline: "Long-lasting Eau De Parfum",
     price: 449, compareAt: 749, category: "Perfume", gender: "Unisex", volume: ["20ml", "50ml", "100ml"],
-    priceByVolume: { "20ml": { price: 160, compareAt: 349 }, "50ml": { price: 299, compareAt: 499 }, "100ml": { price: 449, compareAt: 749 } },
+    priceByVolume: { "20ml": { price: 249, compareAt: 349 }, "50ml": { price: 299, compareAt: 499 }, "100ml": { price: 449, compareAt: 749 } },
     featuredVolume: "100ml",
     image: productGallery3ImagesFor("Feelings Eau De Parfum")[0] ?? PLACEHOLDER_IMG,
     gallery: productGallery3ImagesFor("Feelings Eau De Parfum"),
